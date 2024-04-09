@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SignupDto } from './dto/user.input';
-import { UserController } from './user.controller';
-import { UserService } from './user.service';
+import { CreateUserDto } from './application/dto/user.input';
+import { UserController } from './application/user.controller';
+import { UserService } from './application/service/user.service';
 
 describe('User Controller', () => {
   let controller: UserController;
@@ -9,7 +9,7 @@ describe('User Controller', () => {
 
   beforeEach(async () => {
     const mockUserService = {
-      createUser: jest.fn().mockImplementation((dto: SignupDto) =>
+      createUser: jest.fn().mockImplementation((dto: CreateUserDto) =>
         Promise.resolve({
           ...dto,
           password: 'hashedPassword',
@@ -30,7 +30,7 @@ describe('User Controller', () => {
   });
 
   it('회원가입 성공 시 회원 정보 반환', async () => {
-    const dto: SignupDto = {
+    const dto: CreateUserDto = {
       email: 'test@gmail.com',
       password: '12345678',
     };
@@ -39,7 +39,7 @@ describe('User Controller', () => {
   });
 
   it('회원 가입 실패', async () => {
-    const dto: SignupDto = {
+    const dto: CreateUserDto = {
       email: 'test@gmail.com',
       password: '12345678',
     };

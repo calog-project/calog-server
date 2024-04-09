@@ -1,6 +1,6 @@
-import { SignupDto } from './dto/user.input';
+import { CreateUserDto } from './application/dto/user.input';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserService } from './user.service';
+import { UserService } from './application/service/user.service';
 import * as bcrypt from 'bcrypt';
 
 // bcrypt mock
@@ -24,7 +24,7 @@ describe('UserService', () => {
     // it('이미 존재하는 유저인 경우 409 Conflict', async () => {})
 
     it('유저 생성 실패 500 Internal Server Error', async () => {
-      const dto: SignupDto = {
+      const dto: CreateUserDto = {
         email: 'test@gmail.com',
         password: '12345678',
       };
@@ -36,7 +36,7 @@ describe('UserService', () => {
     });
 
     it('유저 생성 및 유저 반환 성공', async () => {
-      const dto: SignupDto = {
+      const dto: CreateUserDto = {
         email: 'test@gmail.com',
         password: '12345678',
       };
