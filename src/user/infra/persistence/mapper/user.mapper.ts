@@ -20,24 +20,27 @@ export class UserMapper {
     return user;
   }
 
-  public static toDomains(raws: UserEntity[]): User[] {
-    return;
-  }
-
-  // public static toEntity(user: User): UserEntity {
-  //   const entity = new UserEntity();
-  //   entity =
-  //   entity.email = user.email
-  //   entity.password = user.password
-  //   entity.provider = user.provider
-  //   entity.nickname = user.nickname
-  //   entity.description = user.description
-  //   entity. =
-  //   entity =
-  //   return entity;
+  // public static toDomains(raws: UserEntity[]): User[] {
+  //   return;
   // }
 
-  public static toEntiteis(users: User[]): UserEntity[] {
-    return;
+  public static toOrmEntity(user: User | Partial<User>): UserEntity {
+    const entity = new UserEntity();
+    const numbericId =
+      typeof user.id === 'number' ? user.id : parseInt(user.id);
+    if (numbericId) {
+      entity.id = numbericId;
+    }
+    entity.email = user.email;
+    entity.password = user.password;
+    entity.provider = user.provider;
+    entity.nickname = user.nickname;
+    entity.description = user.description || null;
+    entity.image = user.image || null;
+    return entity;
   }
+
+  // public static toEntiteis(users: User[]): UserEntity[] {
+  //   return;
+  // }
 }

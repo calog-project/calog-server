@@ -14,7 +14,7 @@ import { CreateUseCaseSymbol } from '../domain/usecase/create-user.usecase';
     {
       provide: CreateUseCaseSymbol,
       useFactory: (userRepositoryAdapter) =>
-        new UserService(userRepositoryAdapter), // service에서 사용하는 usecase의 수만큼 의존성 주입해줘야함 (service에 생성자 인수 갯수)
+        new UserService(userRepositoryAdapter), // service에서 사용하는 usecase의 수만큼 의존성 주입해야함 (service에 생성자 인수 갯수)
       inject: [UserRepositoryAdapter],
     },
   ],

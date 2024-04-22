@@ -1,3 +1,5 @@
+import { User } from '../user';
+
 export interface GetUserUseCase {
-  getUserByEmail(): void;
+  findOne(userId?: number): Promise<User | void>;
 }

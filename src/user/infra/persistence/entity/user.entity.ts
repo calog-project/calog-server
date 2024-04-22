@@ -8,7 +8,6 @@ import {
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { Nullable } from 'src/common/type/CommonType';
-import { User } from 'src/user/domain/user';
 
 @Entity('user')
 export class UserEntity {
