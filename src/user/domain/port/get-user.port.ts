@@ -1,6 +1,6 @@
-import { CreateUserDto } from 'src/user/application/dto/user.input';
 import { UserEntity } from 'src/user/infra/persistence/entity/user.entity';
+import { User } from '../user';
 
 export interface GetUserPort {
-  getUserByEmail(): Promise<UserEntity>;
+  findOne(): Promise<Partial<User> | null>;
 }

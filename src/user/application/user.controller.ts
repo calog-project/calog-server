@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
+import { UserMapper } from './mapper/user.mapper';
 import { CreateUserDto } from './dto/user.input';
 import {
   CreateUseCaseSymbol,
@@ -11,10 +12,11 @@ export class UserController {
     @Inject(CreateUseCaseSymbol)
     private readonly _createUserUseCase: CreateUserUseCase,
   ) {}
-
   @Post('signup')
-  async signup(@Body() createUserDto: CreateUserDto): Promise<object> {
-    const result = await this._createUserUseCase.createUser(createUserDto);
+  async signup(@Body() dto: CreateUserDto): Promise<number | string> {
+    const result = await this._createUserUseCase.createUser(
+      UserMapper.toDomain(dto),
+    );
     return result;
   }
 }

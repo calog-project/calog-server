@@ -8,6 +8,6 @@ export class CreateUserDto {
   provider?: string;
 
   nickname?: Nullable<string>;
-  desc?: Nullable<string>; // 소개글
+  description?: Nullable<string>; // 소개글
   image?: Nullable<string>;
 }
