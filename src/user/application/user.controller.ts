@@ -1,16 +1,31 @@
-import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
-import { UserMapper } from './mapper/user.mapper';
-import { CreateUserDto } from './dto/user.input';
 import {
-  CreateUseCaseSymbol,
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { Nullable } from 'src/common/type/CommonType';
+import { UserMapper } from './mapper/user.mapper';
+import { User } from '../domain/user';
+import { CreateUserDto } from './dto/user.input';
+
+import {
+  CreateUserUseCaseSymbol,
   CreateUserUseCase,
 } from '../domain/usecase/create-user.usecase';
+import { GetUserUseCaseSymbol } from '../domain/port/create-user.port';
+import { GetUserUseCase } from '../domain/usecase/get-user.usecase';
 
 @Controller('user')
 export class UserController {
   constructor(
-    @Inject(CreateUseCaseSymbol)
+    @Inject(CreateUserUseCaseSymbol)
     private readonly _createUserUseCase: CreateUserUseCase,
+    @Inject(GetUserUseCaseSymbol)
+    private readonly _getUserUseCase: GetUserUseCase,
   ) {}
   @Post('signup')
   async signup(@Body() dto: CreateUserDto): Promise<number | string> {
@@ -18,5 +33,11 @@ export class UserController {
       UserMapper.toDomain(dto),
     );
     return result;
+  }
+
+  @Get(':id')
+  async getUserById(@Param('id') id: number): Promise<Nullable<User>> {
+    const user = await this._getUserUseCase.getUser(id);
+    return user;
   }
 }
