@@ -1,6 +1,6 @@
 import { User } from '../user';
 
-export const CreateUseCaseSymbol = Symbol('CreateUseCase');
+export const CreateUserUseCaseSymbol = Symbol('CreateUserUseCase');
 
 /**
  * @TODO
