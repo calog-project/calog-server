@@ -19,7 +19,6 @@ export class UserEntity {
 
   //optional : for SSO
   @Column({ nullable: true })
-  @Exclude({ toPlainOnly: true })
   password?: string;
 
   @Column({ default: 'local' })
