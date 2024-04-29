@@ -16,8 +16,10 @@ import {
   CreateUserUseCaseSymbol,
   CreateUserUseCase,
 } from '../domain/usecase/create-user.usecase';
-import { GetUserUseCaseSymbol } from '../domain/port/create-user.port';
-import { GetUserUseCase } from '../domain/usecase/get-user.usecase';
+import {
+  GetUserUseCaseSymbol,
+  GetUserUseCase,
+} from '../domain/usecase/get-user.usecase';
 
 @Controller('user')
 export class UserController {
@@ -27,6 +29,10 @@ export class UserController {
     @Inject(GetUserUseCaseSymbol)
     private readonly _getUserUseCase: GetUserUseCase,
   ) {}
+  @Get('testError')
+  async test() {
+    return;
+  }
   @Post('signup')
   async signup(@Body() dto: CreateUserDto): Promise<number | string> {
     const result = await this._createUserUseCase.createUser(
@@ -37,6 +43,8 @@ export class UserController {
 
   @Get(':id')
   async getUserById(@Param('id') id: number): Promise<Nullable<User>> {
+    console.log(GetUserUseCaseSymbol);
+    console.log(this._getUserUseCase);
     const user = await this._getUserUseCase.getUser(id);
     return user;
   }

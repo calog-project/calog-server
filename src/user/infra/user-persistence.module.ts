@@ -5,7 +5,7 @@ import { UserEntity } from './persistence/entity/user.entity';
 import { UserService } from '../application/service/user.service';
 
 import { CreateUserUseCaseSymbol } from '../domain/usecase/create-user.usecase';
-import { GetUserUseCaseSymbol } from '../domain/port/create-user.port';
+import { GetUserUseCaseSymbol } from '../domain/usecase/get-user.usecase';
 
 @Global()
 @Module({
