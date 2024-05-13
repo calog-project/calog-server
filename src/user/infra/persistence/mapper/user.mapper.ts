@@ -1,6 +1,8 @@
 import { User } from 'src/user/domain/user';
 import { UserEntity } from '../entity/user.entity';
+import { BaseMapper } from 'src/common/base/base.mapper';
 
+// export class UserMapper implements BaseMapper<User, UserEntity> {
 export class UserMapper {
   public static toDomain(raw: UserEntity): User {
     const user = new User();
