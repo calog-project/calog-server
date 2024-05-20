@@ -4,7 +4,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { ResponseSerializerInterceptor } from './common/interceptor/response.serializer.interceptor';
-import { HttpExceptionFilter } from './common/filter/http-exception.filter';
+import { GlobalExceptionFilter } from './common/filter/global-exception.filter';
 
 import { AppModule } from './app.module';
 import { AllConfigType } from './config/config.type';
@@ -19,9 +19,9 @@ async function bootstrap() {
     exclude: ['/'],
   });
 
-  app.useGlobalFilters(new HttpExceptionFilter());
-  // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalInterceptors(new ResponseSerializerInterceptor());
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   await app.listen(appConfig.port, () => {
     console.log(`🌐 HTTP Server listening on port ${appConfig.port} 🌐`);

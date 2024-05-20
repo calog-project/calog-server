@@ -9,13 +9,15 @@ import { Request, Response } from 'express';
 import { ApiResponse } from '../dto/api-response';
 
 @Catch()
-export class HttpExceptionFilter implements ExceptionFilter {
+export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const req = ctx.getRequest<Request>();
     const res = ctx.getResponse<Response>();
-    // console.log(exception.constructor.name);
-    console.log(exception);
+
+    // if (exception.constructor.name === 'QueryFailedError') {
+
+    // }
     const status =
       exception instanceof HttpException
         ? exception.getStatus()
@@ -23,17 +25,23 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const message =
       exception instanceof HttpException
-        ? exception.getResponse()
+        ? exception.message
         : 'Internal server error';
 
-    const errorPayload = {
+    const log = {
       statusCode: status,
       timestamp: new Date().toISOString(),
       // timestamp: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
       path: req.url,
       payload: message,
     };
-    res.status(status).json(ApiResponse.error(status, message));
+
+    const error = {
+      message: message,
+      statusCode: status,
+    };
+
+    res.status(status).json(ApiResponse.error(error));
     // res.status(status).json(errorPayload);
   }
 }
