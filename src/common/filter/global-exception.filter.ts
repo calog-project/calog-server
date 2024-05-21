@@ -10,6 +10,7 @@ import { ApiResponse } from '../dto/api-response';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
+  constructor(private nodeEnv: string) {}
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const req = ctx.getRequest<Request>();
@@ -37,8 +38,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     };
 
     const error = {
-      message: message,
       statusCode: status,
+      message: message,
     };
 
     res.status(status).json(ApiResponse.error(error));
