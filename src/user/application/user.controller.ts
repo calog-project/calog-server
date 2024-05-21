@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Inject,
   Param,
   Post,
@@ -33,18 +35,18 @@ export class UserController {
   async test() {
     return;
   }
+
   @Post('signup')
-  async signup(@Body() dto: CreateUserDto): Promise<number | string> {
+  @HttpCode(HttpStatus.CREATED)
+  async signup(@Body() dto: CreateUserDto): Promise<void> {
     const result = await this._createUserUseCase.createUser(
       UserMapper.toDomain(dto),
     );
-    return result;
+    return;
   }
 
   @Get(':id')
   async getUserById(@Param('id') id: number): Promise<Nullable<User>> {
-    console.log(GetUserUseCaseSymbol);
-    console.log(this._getUserUseCase);
     const user = await this._getUserUseCase.getUser(id);
     return user;
   }

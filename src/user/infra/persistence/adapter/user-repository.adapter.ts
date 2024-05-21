@@ -24,6 +24,7 @@ export class UserRepositoryAdapter implements CreateUserPort, GetUserPort {
 
   async findOne(id: number): Promise<Nullable<User>> {
     const user = await this._userRepository.findOneBy({ id });
+    if (!user) return null;
     return UserMapper.toDomain(user);
   }
 }

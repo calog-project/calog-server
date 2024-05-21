@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Nullable } from 'src/common/type/CommonType';
 
 import { User } from 'src/user/domain/user';
@@ -36,7 +36,7 @@ export class UserService implements CreateUserUseCase, GetUserUseCase {
 
   async getUser(id: number): Promise<Nullable<User>> {
     const user = await this._getUserPort.findOne(id);
-    console.log(user);
+    if (!user) throw new NotFoundException('존재하지 않은 사용자입니다.');
     return user;
   }
 }
