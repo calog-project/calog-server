@@ -8,6 +8,9 @@ import { User } from '../user';
  */
 export interface GetUserPort {
   findOne(id: number): Promise<User | null>;
+  // findByEmailOrNickname(
+  //   options: Partial<{ email: string; nickname: string }>,
+  // ): Promise<User | null>;
 
   // findByEmail()
 
