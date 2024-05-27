@@ -18,11 +18,7 @@ export class ResponseInterceptor implements NestInterceptor {
     const statusCode =
       context.switchToHttp().getResponse().statusCode | HttpStatus.OK;
     return next.handle().pipe(
-      map((data) =>
-        data
-          ? ApiResponse.success(statusCode, data)
-          : ApiResponse.success(statusCode),
-      ),
+      map((data) => ApiResponse.success(statusCode, data)),
       //응답 로깅
       tap((data) => {}),
     );
