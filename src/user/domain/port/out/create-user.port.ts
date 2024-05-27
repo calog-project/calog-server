@@ -1,7 +1,7 @@
-import { User } from '../user';
+import { User } from '../../user';
 
 export interface CreateUserPort {
-  saveUser(
+  save(
     user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<number | string>;
 }

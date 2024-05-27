@@ -1,9 +1,10 @@
 //config
+import { ConfigModuleOptions } from '@nestjs/config';
 import appConfig from './app.config';
-import databaseConfig from 'src/database/config/database.config';
+import databaseConfig from 'src/common/config/database/database.config';
 
-export class Config {
-  static configOption() {
+export class ConfigOptions {
+  static createConfigOptions(): ConfigModuleOptions {
     return {
       isGlobal: true,
       load: [appConfig, databaseConfig],

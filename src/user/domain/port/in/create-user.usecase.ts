@@ -1,4 +1,4 @@
-import { User } from '../user';
+import { User } from '../../user';
 
 export const CreateUserUseCaseSymbol = Symbol('CreateUserUseCase');
 
@@ -8,5 +8,7 @@ export const CreateUserUseCaseSymbol = Symbol('CreateUserUseCase');
  * mapper에 update용 매퍼 추가 후 Omit으로 파라미터 타입 교체 예정
  */
 export interface CreateUserUseCase {
-  createUser(user: Partial<User>): Promise<number | string>;
+  createUser(
+    user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<number | string>;
 }
