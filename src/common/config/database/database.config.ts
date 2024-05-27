@@ -1,7 +1,15 @@
 import { registerAs } from '@nestjs/config';
-import { DatabaseConfig } from './database-config.type';
 
-// @TODO validation
+export type DatabaseConfig = {
+  url?: string; //mongoDB
+  type: string; //RDB type
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  name: string;
+  synchronize: boolean;
+};
 
 export default registerAs<DatabaseConfig>('db', () => {
   return {

@@ -1,7 +1,7 @@
 import { registerAs } from '@nestjs/config';
-import { FileConfig } from './file-config.type';
 
 // @TODO validation
+export type FileConfig = {};
 
 export default registerAs<FileConfig>('file', () => {
   return {};

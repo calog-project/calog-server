@@ -1,5 +1,10 @@
 import { registerAs } from '@nestjs/config';
-import { AppConfig } from './app-config.type';
+
+export type AppConfig = {
+  nodeEnv: string;
+  port: number;
+  apiPrefix: string;
+};
 
 export default registerAs<AppConfig>('app', () => {
   return {
