@@ -28,8 +28,7 @@ export class UserRepositoryAdapter implements CreateUserPort, LoadUserPort {
   }
 
   async findByEmail(email: string): Promise<Nullable<User>> {
-    const user = await this._userRepository.findOneBy({ email: email });
-    console.log(user);
+    const user = await this._userRepository.findOneBy({ email });
     return user ? UserMapper.toDomain(user) : null;
   }
 }

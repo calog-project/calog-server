@@ -46,8 +46,7 @@ export class UserService implements CreateUserUseCase, GetUserUseCase {
     return user;
   }
 
-  async checkEmail(email: string): Promise<boolean> {
-    console.log(email);
+  async isExistsEmail(email: string): Promise<boolean> {
     const user = await this._getUserPort.findByEmail(email);
     return !!user;
   }
