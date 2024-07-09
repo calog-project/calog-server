@@ -4,7 +4,7 @@ import { CacheModule } from 'src/cache/cache.module';
 
 import { AuthController } from './infra/in/http/adapter/auth.controller';
 import { AuthService } from './application/service/auth.service';
-import { GoogleStrategy } from './application/strategy/google-strategy';
+import { GoogleStrategy } from './infra/in/strategy/google-strategy';
 import { JwtAdapter } from './infra/out/jwt/adapter/jwt.adapter';
 
 import { AuthUseCaseSymbol } from './domain/port/in/auth.usecase';
