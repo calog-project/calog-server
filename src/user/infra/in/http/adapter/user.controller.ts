@@ -10,18 +10,19 @@ import {
   Query,
 } from '@nestjs/common';
 import { Nullable } from 'src/common/type/CommonType';
-import { UserMapper } from './mapper/user.mapper';
-import { User } from '../domain/user';
-import { CreateUserDto } from './dto/user.input';
+import { UserMapper } from '../mapper/user.mapper';
+
+import { User } from 'src/user/domain/user';
+import { CreateUserDto } from '../dto/user.input';
 
 import {
   CreateUserUseCaseSymbol,
   CreateUserUseCase,
-} from '../domain/port/in/create-user.usecase';
+} from 'src/user/domain/port/in/create-user.usecase';
 import {
   GetUserUseCaseSymbol,
   GetUserUseCase,
-} from '../domain/port/in/get-user.usecase';
+} from 'src/user/domain/port/in/get-user.usecase';
 
 @Controller('user')
 export class UserController {
@@ -31,10 +32,6 @@ export class UserController {
     @Inject(GetUserUseCaseSymbol)
     private readonly _getUserUseCase: GetUserUseCase,
   ) {}
-  @Get('testError')
-  async test() {
-    return;
-  }
 
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
