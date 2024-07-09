@@ -1,53 +1,66 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { Nullable } from 'src/common/type/CommonType';
 
 import { User } from 'src/user/domain/user';
-
-//Dto
-import { CreateUserDto } from '../dto/user.input';
 
 //Input port
 import { CreateUserUseCase } from '../../domain/port/in/create-user.usecase';
 import { GetUserUseCase } from '../../domain/port/in/get-user.usecase';
 
 //Output port
-import { CreateUserPort } from 'src/user/domain/port/out/create-user.port';
-import { LoadUserPort } from 'src/user/domain/port/out/load-user.port';
-
-import * as bcrypt from 'bcrypt';
+import {
+  HandleUserPortSymbol,
+  HandleUserPort,
+} from 'src/user/domain/port/out/handle-user.port';
+import {
+  LoadUserPortSymbol,
+  LoadUserPort,
+} from 'src/user/domain/port/out/load-user.port';
+import {
+  EncryptPortSymbol,
+  EncryptPort,
+} from 'src/auth/domain/port/out/encrypt.port';
 
 @Injectable()
 export class UserService implements CreateUserUseCase, GetUserUseCase {
   constructor(
-    private _createUserPort: CreateUserPort,
-    private _getUserPort: LoadUserPort,
+    @Inject(EncryptPortSymbol)
+    private _encryptPort: EncryptPort,
+    @Inject(HandleUserPortSymbol)
+    private _handleUserPort: HandleUserPort,
+    @Inject(LoadUserPortSymbol)
+    private _loadUserPort: LoadUserPort,
   ) {}
 
   async createUser(
     user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<number | string> {
-    //   const isExists = await this.getUserByEmailUseCase.getUserByEmail();
-    //   //if(getUserByEmail) throw new HttpException
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(user.password, salt);
-    const result = await this._createUserPort.save(user);
+    const isExists = await this._loadUserPort.findByEmail(user.email);
+    if (isExists) throw new BadRequestException('이미 사용중인 이메일입니다.');
+    user.setPassword(await this._encryptPort.encryptPassword(user.password));
+    const result = await this._handleUserPort.save(user);
     return result;
   }
 
   async getUserById(id: number): Promise<Nullable<User>> {
-    const user = await this._getUserPort.findById(id);
+    const user = await this._loadUserPort.findById(id);
     if (!user) throw new NotFoundException('존재하지 않은 사용자입니다.');
     return user;
   }
 
   async getUserByEmail(email: string): Promise<Nullable<User>> {
-    const user = await this._getUserPort.findByEmail(email);
+    const user = await this._loadUserPort.findByEmail(email);
     if (!user) throw new NotFoundException('존재하지 않은 사용자입니다.');
     return user;
   }
 
   async isExistsEmail(email: string): Promise<boolean> {
-    const user = await this._getUserPort.findByEmail(email);
+    const user = await this._loadUserPort.findByEmail(email);
     return !!user;
   }
 }
