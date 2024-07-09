@@ -19,6 +19,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     // if (exception.constructor.name === 'QueryFailedError') {
 
     // }
+    if (!(exception instanceof HttpException)) console.log(exception);
     const status =
       exception instanceof HttpException
         ? exception.getStatus()

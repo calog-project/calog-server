@@ -19,4 +19,8 @@ export class User {
   updatedAt: Date;
 
   constructor() {}
+
+  setPassword(hashedPassword: string) {
+    this.password = hashedPassword;
+  }
 }
