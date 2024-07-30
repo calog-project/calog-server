@@ -7,11 +7,10 @@ import { AllConfigType } from 'src/common/config/config.type';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly configService: ConfigService<AllConfigType>) {
+  constructor(private readonly _configService: ConfigService<AllConfigType>) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: configService.get('auth.jwtAccessSecret', { infer: true }),
-      ignoreExpiration: false,
+      secretOrKey: _configService.get('auth.jwtAccessSecret', { infer: true }),
     });
   }
 

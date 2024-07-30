@@ -5,14 +5,14 @@ import { AllConfigType } from '../config.type';
 
 @Injectable()
 export class JwtConfigService implements JwtOptionsFactory {
-  constructor(private configService: ConfigService<AllConfigType>) {}
+  constructor(private _configService: ConfigService<AllConfigType>) {}
 
   createJwtOptions(): JwtModuleOptions {
     return {
       global: true,
-      secret: this.configService.get('auth.jwtAccessSecret', { infer: true }),
+      secret: this._configService.get('auth.jwtAccessSecret', { infer: true }),
       signOptions: {
-        expiresIn: this.configService.get('auth.jwtAccessExpirationTime', {
+        expiresIn: this._configService.get('auth.jwtAccessExpirationTime', {
           infer: true,
         }),
       },
