@@ -9,6 +9,9 @@ export type AuthConfig = {
   googleClientSecret: string;
   googleCallbackUrl: string;
   googleScope: Array<string>;
+  kakaoClientId: string;
+  kakaoClientSecret: string;
+  kakaoCallbackUrl: string;
 };
 
 export default registerAs<AuthConfig>('auth', () => {
@@ -27,5 +30,9 @@ export default registerAs<AuthConfig>('auth', () => {
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
     googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL,
     googleScope: [process.env.GOOGLE_SCOPE_1, process.env.GOOGLE_SCOPE_2],
+    //kakao
+    kakaoClientId: process.env.KAKAO_CLIENT_ID,
+    kakaoClientSecret: process.env.KAKAO_CLIENT_SECRET,
+    kakaoCallbackUrl: process.env.KAKAO_CALLBACK_URL,
   };
 });
