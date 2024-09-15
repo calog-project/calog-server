@@ -13,7 +13,7 @@ import { Nullable } from 'src/common/type/CommonType';
 import { UserMapper } from '../mapper/user.mapper';
 
 import { User } from 'src/user/domain/user';
-import { CreateUserDto } from '../dto/user.input';
+import { CreateUserDto } from '../dto/user.req';
 
 import {
   CreateUserUseCaseSymbol,

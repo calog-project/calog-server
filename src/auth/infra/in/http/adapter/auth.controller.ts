@@ -16,8 +16,8 @@ import { SetTokenInterceptor } from 'src/common/interceptor/set-token.intercepto
 import { Cookies } from 'src/common/decorator/cookies.decorator';
 import { UserId } from 'src/common/decorator/user-id.decorator';
 
-import { LoginDto } from '../dto/auth.input';
-import { LoginResDto, RefreshResDto } from '../dto/auth.response';
+import { LoginDto } from '../dto/auth.req';
+import { LoginResDto, RefreshResDto } from '../dto/auth.res';
 
 import {
   AuthUseCaseSymbol,
@@ -69,17 +69,17 @@ export class AuthController {
   async googleLoginCallback(@Req() req: Request): Promise<void> {
     console.log('Success');
     console.log(req);
-    // await this._googleAuthUseCase
+    await this._googleAuthUseCase.googleSocialLogin('email');
   }
 
   @Get('kakao')
   @UseGuards(AuthGuard('kakao'))
   async kakaoLogin(@Req() req: Request): Promise<void> {
     console.log('Success');
+    console.log(req.user);
     // await this._kakaoAuthUseCase
   }
 
   @Get('test')
-  @UseGuards(AuthGuard('jwt-refresh'))
   async test() {}
 }

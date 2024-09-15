@@ -1,4 +1,4 @@
-import { CreateUserDto, UpdateUserDto } from '../dto/user.input';
+import { CreateUserDto, UpdateUserDto } from '../dto/user.req';
 import { User } from 'src/user/domain/user';
 import { Generate } from 'src/common/util/generate.factory';
 
