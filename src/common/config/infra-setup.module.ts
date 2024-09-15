@@ -31,8 +31,10 @@ import { AllConfigType } from './config.type';
     CacheModule.registerAsync({
       useClass: CacheConfigService,
     }),
-    // RedisModule.forRootAsync({}),
+    RedisModule.forRootAsync({
+      useClass: RedisConfigService,
+    }),
   ],
-  exports: [JwtModule, CacheModule],
+  exports: [JwtModule, CacheModule, RedisModule],
 })
 export class InfraSetupModule {}

@@ -13,7 +13,7 @@ export class RedisConfigService implements RedisModuleOptionsFactory {
     const redisConfig = this.configService.get('redis', { infer: true });
     return {
       type: 'single',
-      url: `redis://default:${redisConfig.token}@${redisConfig.host}:${redisConfig.port}`,
+      url: `rediss://default:${redisConfig.pubToken}@${redisConfig.pubHost}:${redisConfig.pubPort}`,
       options: '',
     } as RedisModuleOptions;
   }
