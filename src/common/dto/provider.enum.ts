@@ -1,6 +1,5 @@
-export enum Provider {
+export enum ProviderType {
   LOCAL = 'local',
   GOOGLE = 'google',
   KAKAO = 'kakao',
-  NAVER = 'naver',
 }

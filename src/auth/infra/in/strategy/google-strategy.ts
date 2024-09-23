@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy, VerifyCallback } from 'passport-google-oauth20';
 
 import { AllConfigType } from 'src/common/config/config.type';
+import { SocialLoginDto } from '../http/dto/auth.req';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -28,14 +29,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   ): Promise<void> {
     const { emails, provider } = profile;
     const socialLoginUser = {
-      email: emails,
+      email: emails[0],
       provider: provider,
       externalId: profile.id,
       accessToken,
       refreshToken,
     };
+    const socialLoginDto: SocialLoginDto = { email: emails[0].value, provider };
+    console.log(socialLoginUser);
     try {
-      done(null, socialLoginUser, { accessToken: accessToken });
+      done(null, socialLoginDto, { accessToken: accessToken });
     } catch (err) {
       done(err, false);
     }

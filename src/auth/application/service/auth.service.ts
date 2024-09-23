@@ -5,15 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Optional } from 'src/common/type/CommonType';
+import { AllConfigType } from '../../../common/config/config.type';
 
-import { User } from 'src/user/domain/user';
-import { AuthUser } from 'src/auth/domain/authUser';
-import { TokenPayload } from 'src/auth/domain/tokenPayload';
+import { User } from 'src/user/domain/model/user';
+import { Token } from 'src/auth/domain/token';
 
 import { AuthUseCase } from 'src/auth/domain/port/in/auth.usecase';
-import { GoogleAuthUseCase } from 'src/auth/domain/port/in/google-auth.usecase';
-import { KakaoAuthUseCase } from 'src/auth/domain/port/in/kakao-auth.usecase';
 
 import { JwtPortSymbol, JwtPort } from 'src/auth/domain/port/out/jwt.port';
 import {
@@ -30,9 +27,7 @@ import {
 } from 'src/user/domain/port/out/load-user.port';
 
 @Injectable()
-export class AuthService
-  implements AuthUseCase, GoogleAuthUseCase, KakaoAuthUseCase
-{
+export class AuthService implements AuthUseCase {
   constructor(
     @Inject(JwtPortSymbol)
     private _jwtPort: JwtPort,
@@ -42,37 +37,43 @@ export class AuthService
     private _cachePort: CachePort,
     @Inject(LoadUserPortSymbol)
     private _loadUserPort: LoadUserPort,
-    private _configService: ConfigService,
+    private _configService: ConfigService<AllConfigType>,
   ) {}
 
-  async login(userInfo: Pick<User, 'email' | 'password'>): Promise<AuthUser> {
-    const user = await this._loadUserPort.findByEmail(userInfo.email);
+  async login(userInfo: Partial<User>): Promise<{ user: User; token: Token }> {
+    const user = await this._loadUserPort.findByEmail(
+      userInfo.props.email.getValue(),
+    );
     if (!user) throw new NotFoundException();
 
     const isValid = await this._encryptPort.comparePassword(
-      userInfo.password,
-      user.password,
+      userInfo.props.password,
+      user.props.password,
     );
     if (!isValid) throw new UnauthorizedException('인증 실패');
 
-    const token: TokenPayload = {
-      accessToken: this._jwtPort.generateAccessToken({ id: user.id }),
-      refreshToken: this._jwtPort.generateRefreshToken({ id: user.id }),
-    };
-    const refreshExp = this._configService.get('auth.jwtRefreshExpirationTime');
+    const token = Token.create(
+      this._jwtPort.generateAccessToken({ id: user.props.id }),
+      this._jwtPort.generateRefreshToken({ id: user.props.id }),
+    );
+    const refreshExp = this._configService.get(
+      'auth.jwtRefreshExpirationTime',
+      { infer: true },
+    );
     // const hashedRefreshToken = await this._encryptPort.encryptPassword(refresh);
 
-    await this._cachePort.set(String(user.id), token.refreshToken, refreshExp);
+    await this._cachePort.set(
+      String(user.props.id),
+      token.provideToken().refreshToken,
+      refreshExp,
+    );
 
-    const authUser = AuthUser.create(user, token);
-    return authUser;
+    return { user, token };
   }
-  //https://github.com/bitloops/ddd-hexagonal-cqrs-es-eda/blob/main/backend/src/lib/bounded-contexts/iam/authentication/domain/user.entity.ts
-  //https://github.com/SunhyeokChoe/nestjs-clean-architecture/blob/master/src/core/domain/user/entity/User.ts
-
+  async logout(): Promise<any> {}
   async validate(): Promise<any> {
     // const user = await this._loadUserPort.findByEmail(email);
-    // if (!user) {
+    // if (!user) {}
     //     throw new UnauthorizedException('가입된 유저가 아닙니다.');
     // }
     // if (user && (await this._encryptPort(password, user.password))) {
@@ -83,13 +84,22 @@ export class AuthService
     // }
   }
 
-  async refresh(curRefresh: string, userId: number): Promise<any> {
-    const accessToken = this._jwtPort.generateAccessToken({ id: userId });
-    const refreshToken = this._jwtPort.generateRefreshToken({ id: userId });
-    const refreshExp = this._configService.get('auth.jwtRefreshExpirationTime');
+  async refresh(userId: number): Promise<Token> {
+    const token = Token.create(
+      this._jwtPort.generateAccessToken({ id: userId }),
+      this._jwtPort.generateRefreshToken({ id: userId }),
+    );
+    const refreshExp = this._configService.get(
+      'auth.jwtRefreshExpirationTime',
+      { infer: true },
+    );
 
-    await this._cachePort.set(String(userId), refreshToken, refreshExp);
-    return { accessToken, refreshToken };
+    await this._cachePort.set(
+      String(userId),
+      token.provideToken().refreshToken,
+      refreshExp,
+    );
+    return token;
   }
 
   async compareRefreshToken(
@@ -97,6 +107,6 @@ export class AuthService
     userId: string,
   ): Promise<boolean> {
     const currentToken = await this._cachePort.get(userId);
-    return currentToken === refreshToken ? true : false;
+    return !!(currentToken === refreshToken);
   }
 }
