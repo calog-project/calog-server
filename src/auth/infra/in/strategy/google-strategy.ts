@@ -7,14 +7,16 @@ import { AllConfigType } from 'src/common/config/config.type';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-  constructor(private readonly configService: ConfigService<AllConfigType>) {
+  constructor(private readonly _configService: ConfigService<AllConfigType>) {
     super({
-      clientID: configService.get('auth.googleClientId', { infer: true }),
-      clientSecret: configService.get('auth.googleClientSecret', {
+      clientID: _configService.get('auth.googleClientId', { infer: true }),
+      clientSecret: _configService.get('auth.googleClientSecret', {
         infer: true,
       }),
-      callbackURL: configService.get('auth.googleCallbackUrl', { infer: true }),
-      scope: configService.get('auth.googleScope', { infer: true }),
+      callbackURL: _configService.get('auth.googleCallbackUrl', {
+        infer: true,
+      }),
+      scope: _configService.get('auth.googleScope', { infer: true }),
     });
   }
 
@@ -25,7 +27,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<void> {
     const { emails, provider } = profile;
-    const socialLoginUser: object = {
+    const socialLoginUser = {
       email: emails,
       provider: provider,
       externalId: profile.id,
@@ -33,7 +35,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       refreshToken,
     };
     try {
-      console.log(socialLoginUser);
       done(null, socialLoginUser, { accessToken: accessToken });
     } catch (err) {
       done(err, false);

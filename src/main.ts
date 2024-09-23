@@ -2,7 +2,12 @@
 
 import { NestFactory, Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import {
+  Logger as NestLogger,
+  ClassSerializerInterceptor,
+  ValidationPipe,
+} from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
 import { loggingInterceptor } from './common/interceptor/logging.interceptor';
 import { ResponseInterceptor } from './common/interceptor/response.interceptor';
 import { GlobalExceptionFilter } from './common/filter/global-exception.filter';
@@ -20,6 +25,7 @@ async function bootstrap() {
     exclude: ['/'],
   });
 
+  app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.useGlobalInterceptors(new loggingInterceptor());
   app.useGlobalInterceptors(new ResponseInterceptor());
@@ -27,7 +33,14 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter(appConfig.nodeEnv));
 
   await app.listen(appConfig.port, () => {
-    console.log(`🌐 HTTP Server listening on port ${appConfig.port} 🌐`);
+    NestLogger.log(
+      `🌐 HTTP Server listening on url ${appConfig.url} 🌐`,
+      'Main',
+    );
+    NestLogger.log(
+      `🌐 HTTP Server listening on port ${appConfig.port} 🌐`,
+      'Main',
+    );
   });
 }
 bootstrap();

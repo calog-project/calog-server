@@ -1,12 +1,14 @@
+import { Exclude } from 'class-transformer';
 import { User } from 'src/user/domain/user';
+import { TokenPayload } from 'src/auth/domain/tokenPayload';
 
-export class LoginResponseDto {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
+export class LoginResDto {
+  @Exclude()
+  userId: User;
+  token: TokenPayload;
 }
 
-export interface TokenResponse {
-  accessToken: string;
-  refreshToken: string;
+export class RefreshResDto {
+  userId: number;
+  token: TokenPayload;
 }

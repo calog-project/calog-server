@@ -13,7 +13,19 @@ export class JwtAdapter implements JwtPort {
   ) {}
 
   generateAccessToken(payload: object, options?: any): string {
-    return this._jwtService.sign(payload, options);
+    const accessSecret = this._configService.get('auth.jwtAccessSecret', {
+      infer: true,
+    });
+    const accessExpiration = this._configService.get(
+      'auth.jwtAccessExpirationTime',
+      { infer: true },
+    );
+    const accessToken = this._jwtService.sign(payload, {
+      secret: accessSecret,
+      expiresIn: accessExpiration,
+      // subject: 'access',
+    });
+    return accessToken;
   }
 
   generateRefreshToken(payload: object, options?: any): string {
@@ -24,10 +36,13 @@ export class JwtAdapter implements JwtPort {
       'auth.jwtRefreshExpirationTime',
       { infer: true },
     );
-    return this._jwtService.sign(payload, {
+
+    const refreshToken = this._jwtService.sign(payload, {
       secret: refreshSecret,
       expiresIn: refreshExpiration,
+      // subject: 'refresh',
     });
+    return refreshToken;
   }
 
   verify(token: string, options?: object) {
