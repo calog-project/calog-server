@@ -1,15 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+
 import { AllConfigType } from '../../../../../common/config/config.type';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { FilePort } from '../../../../domain/port/out/file.port';
 
 @Injectable()
 export class S3FileAdapter implements FilePort {
   s3Client: S3Client;
+  bucketName: string;
+  region: string;
   constructor(private readonly _configService: ConfigService<AllConfigType>) {
+    this.bucketName = this._configService.get('file.awsS3BucketName', {
+      infer: true,
+    });
+    this.region = this._configService.get('file.awsRegion', { infer: true });
     this.s3Client = new S3Client({
-      region: this._configService.get('file.awsRegion', { infer: true }),
+      region: this.region,
       credentials: {
         accessKeyId: this._configService.get('file.awsAccessKey', {
           infer: true,
@@ -35,7 +42,9 @@ export class S3FileAdapter implements FilePort {
     });
 
     const result = await this.s3Client.send(command);
-    console.log(result);
+    // console.log(
+    //   `https://${this.bucketName}.s3.${this.region}.amazonaws.com/${fileName}.${ext}`,
+    // );
     return result;
   }
 }
