@@ -1,24 +1,11 @@
-import { User } from 'src/user/domain/user';
+import { User } from 'src/user/domain/model/user';
 import { UserEntity } from '../entity/user.entity';
-import { BaseMapper } from 'src/common/base/base.mapper';
 
-// export class UserMapper implements BaseMapper<User, UserEntity> {
 export class UserMapper {
   public static toDomain(raw: UserEntity): User {
-    const user = new User();
-    user.id = raw.id.toString();
-    user.email = raw.email;
-    user.password = raw.password;
-    user.provider = raw.provider;
-    user.nickname = raw.nickname;
-    user.description = raw.description;
-    if (raw.image) {
-      user.image = raw.image;
-    } else if (raw.image === null) {
-      user.image = null;
-    }
-    user.createdAt = raw.createdAt;
-    user.updatedAt = raw.updatedAt;
+    const user = User.create({
+      ...raw,
+    });
     return user;
   }
 
@@ -26,23 +13,24 @@ export class UserMapper {
   //   return;
   // }
 
-  public static toOrmEntity(user: User | Partial<User>): UserEntity {
-    const entity = new UserEntity();
+  public static toOrmEntity(user: User): UserEntity {
+    const record = new UserEntity();
+    const userData = user.toPrimitives();
     const numbericId =
-      typeof user.id === 'number' ? user.id : parseInt(user.id);
+      typeof userData.id === 'number' ? userData.id : parseInt(userData.id);
     if (numbericId) {
-      entity.id = numbericId;
+      record.id = numbericId;
     }
-    entity.email = user.email;
-    entity.password = user.password;
-    entity.provider = user.provider;
-    entity.nickname = user.nickname;
-    entity.description = user.description || null;
-    entity.image = user.image || null;
-    return entity;
+    record.email = userData.email;
+    record.password = userData.password;
+    record.provider = userData.provider;
+    record.nickname = userData.nickname;
+    record.description = userData.description;
+    record.image = userData.image;
+    return record;
   }
 
-  // public static toEntiteis(users: User[]): UserEntity[] {
+  // public static toOrmEntiteis(users: User[]): UserEntity[] {
   //   return;
   // }
 }

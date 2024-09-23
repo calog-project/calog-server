@@ -36,6 +36,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
       req.cookies?.refreshToken,
       payload.id,
     );
-    if (isMatched) return parseInt(payload.id, 10);
+    if (!isMatched) throw new UnauthorizedException('인증 실패');
+    else return parseInt(payload.id, 10);
   }
 }

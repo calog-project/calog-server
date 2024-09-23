@@ -1,12 +1,13 @@
-import { User } from 'src/user/domain/user';
-import { AuthUser } from '../../authUser';
+import { User } from 'src/user/domain/model/user';
+import { Token } from '../../token';
 
 export const AuthUseCaseSymbol = Symbol('AuthUseCase');
 
 export interface AuthUseCase {
-  login(userInfo: Pick<User, 'email' | 'password'>): Promise<AuthUser>;
+  login(userInfo: Partial<User>): Promise<{ user: User; token: Token }>;
+  logout(): Promise<void>;
   validate(): Promise<any>;
-  refresh(refreshToken: string, userId: number): Promise<any>;
+  refresh(userId: number): Promise<Token>;
   compareRefreshToken(refreshToken: string, userId: string): Promise<boolean>;
 }
 //

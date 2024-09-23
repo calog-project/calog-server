@@ -7,7 +7,6 @@ import {
   UseGuards,
   UseInterceptors,
   Req,
-  Res,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
@@ -16,37 +15,34 @@ import { SetTokenInterceptor } from 'src/common/interceptor/set-token.intercepto
 import { Cookies } from 'src/common/decorator/cookies.decorator';
 import { UserId } from 'src/common/decorator/user-id.decorator';
 
-import { LoginDto } from '../dto/auth.input';
-import { LoginResDto, RefreshResDto } from '../dto/auth.response';
+import { LoginDto, SocialLoginDto } from '../dto/auth.req';
+import { LoginResDto, RefreshResDto } from '../dto/auth.res';
+import { UserMapper } from 'src/user/infra/in/http/mapper/user.mapper';
 
 import {
   AuthUseCaseSymbol,
   AuthUseCase,
 } from 'src/auth/domain/port/in/auth.usecase';
 import {
-  GoogleAuthUseCaseSymbol,
-  GoogleAuthUseCase,
-} from 'src/auth/domain/port/in/google-auth.usecase';
-import {
-  KakaoAuthUseCase,
-  KakaoAuthUseCaseSymbol,
-} from 'src/auth/domain/port/in/kakao-auth.usecase';
+  OAuthUseCaseSymbol,
+  OAuthUseCase,
+} from 'src/auth/domain/port/in/oauth.usecase';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     @Inject(AuthUseCaseSymbol) private readonly _authUseCase: AuthUseCase,
-    @Inject(GoogleAuthUseCaseSymbol)
-    private readonly _googleAuthUseCase: GoogleAuthUseCase,
-    @Inject(KakaoAuthUseCaseSymbol)
-    private readonly _kakaoAuthUseCase: KakaoAuthUseCase,
+    @Inject(OAuthUseCaseSymbol)
+    private readonly _oauthUseCase: OAuthUseCase,
   ) {}
 
   @Post('login')
   @UseInterceptors(SetTokenInterceptor)
-  async login(@Body() { email, password }: LoginDto): Promise<any> {
-    const token = await this._authUseCase.login({ email, password });
-    return token;
+  async login(@Body() dto: LoginDto): Promise<LoginResDto> {
+    const { user, token } = await this._authUseCase.login(
+      UserMapper.toDomain(dto),
+    );
+    return LoginResDto.of(user, token);
   }
 
   @Get('refresh')
@@ -56,7 +52,7 @@ export class AuthController {
     @Cookies('refreshToken') refreshToken: string,
     @UserId() userId: number,
   ): Promise<RefreshResDto> {
-    const token = await this._authUseCase.refresh(refreshToken, userId);
+    const token = await this._authUseCase.refresh(userId);
     return { userId, token };
   }
 
@@ -66,20 +62,30 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleLoginCallback(@Req() req: Request): Promise<void> {
-    console.log('Success');
-    console.log(req);
-    // await this._googleAuthUseCase
+  @UseInterceptors(SetTokenInterceptor)
+  async googleLoginCallback(@Req() req: Request): Promise<any> {
+    const { email, provider } = req.user as SocialLoginDto;
+    console.log(req.user);
+    const { user, token } = await this._oauthUseCase.socialLoginOrSignup(
+      email,
+      provider,
+    );
+    return LoginResDto.of(user, token);
   }
 
   @Get('kakao')
   @UseGuards(AuthGuard('kakao'))
-  async kakaoLogin(@Req() req: Request): Promise<void> {
-    console.log('Success');
-    // await this._kakaoAuthUseCase
+  @UseInterceptors(SetTokenInterceptor)
+  async kakaoLogin(@Req() req: Request): Promise<any> {
+    const { email, provider } = req.user as SocialLoginDto;
+    console.log(req.user);
+    const { user, token } = await this._oauthUseCase.socialLoginOrSignup(
+      email,
+      provider,
+    );
+    return LoginResDto.of(user, token);
   }
 
   @Get('test')
-  @UseGuards(AuthGuard('jwt-refresh'))
   async test() {}
 }

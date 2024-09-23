@@ -8,16 +8,15 @@ import { JwtRefreshStrategy } from './infra/in/strategy/jwt-refresh.strategy';
 import { GoogleStrategy } from './infra/in/strategy/google-strategy';
 import { KakaoStrategy } from './infra/in/strategy/kakao-strategy';
 import { AuthService } from './application/service/auth.service';
+import { OAuthService } from './application/service/oauth.service';
 import { EncryptAdapter } from './infra/out/encrypt/adapter/encrypt.adapter';
 import { JwtAdapter } from './infra/out/jwt/adapter/jwt.adapter';
 
 import { AuthUseCaseSymbol } from './domain/port/in/auth.usecase';
-import { GoogleAuthUseCaseSymbol } from './domain/port/in/google-auth.usecase';
-import { KakaoAuthUseCaseSymbol } from './domain/port/in/kakao-auth.usecase';
+import { OAuthUseCaseSymbol } from './domain/port/in/oauth.usecase';
 
 import { EncryptPortSymbol } from './domain/port/out/encrypt.port';
 import { JwtPortSymbol } from './domain/port/out/jwt.port';
-
 @Module({
   imports: [forwardRef(() => UserModule), CacheModule],
   controllers: [AuthController],
@@ -39,20 +38,15 @@ import { JwtPortSymbol } from './domain/port/out/jwt.port';
       useClass: AuthService,
     },
     {
-      provide: GoogleAuthUseCaseSymbol,
-      useClass: AuthService,
-    },
-    {
-      provide: KakaoAuthUseCaseSymbol,
-      useClass: AuthService,
+      provide: OAuthUseCaseSymbol,
+      useClass: OAuthService,
     },
   ],
   exports: [
     EncryptPortSymbol,
     JwtPortSymbol,
     AuthUseCaseSymbol,
-    GoogleAuthUseCaseSymbol,
-    KakaoAuthUseCaseSymbol,
+    OAuthUseCaseSymbol,
   ],
 })
 export class AuthModule {}

@@ -1,6 +1,5 @@
-import { CreateUserDto, UpdateUserDto } from '../dto/user.input';
-import { User } from 'src/user/domain/user';
-import { Generate } from 'src/common/util/generate.factory';
+import { CreateUserDto, UpdateUserDto } from '../dto/user.req';
+import { User } from 'src/user/domain/model/user';
 
 export class UserMapper {
   static toDomain(
@@ -12,16 +11,17 @@ export class UserMapper {
   static toDomain(
     dto: CreateUserDto | UpdateUserDto,
   ): Omit<User, 'id' | 'createdAt' | 'updatedAt'> | Partial<User> {
-    const user = new User();
-    user.email = dto.email;
-    user.password = dto.password;
-    user.provider = dto.provider || 'local';
-    user.nickname = dto.nickname || Generate.genNickname(dto.email);
-    user.description = dto.description || null;
-    user.image = dto.image || null;
+    const user = User.create({
+      email: dto.email,
+      password: dto.password,
+      provider: dto.provider,
+      nickname: dto.nickname,
+      image: dto.image,
+      description: dto.description,
+    });
     return user;
   }
-  // static toDomainEntity(dto : UpdateUserDto) {}
+  // static toDomain(dto : UpdateUserDto) {}
 
   private static toDto() {}
 }

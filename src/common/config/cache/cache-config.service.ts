@@ -12,9 +12,9 @@ export class CacheConfigService implements CacheOptionsFactory {
     | Promise<CacheModuleOptions<Record<string, any>>> {
     return {
       store: redisStore,
-      host: this.configService.get('redis.host', { infer: true }),
-      port: this.configService.get('redis.port', { infer: true }),
-      password: this.configService.get('redis.token', { infer: true }),
+      host: this.configService.get('redis.cacheHost', { infer: true }),
+      port: this.configService.get('redis.cachePort', { infer: true }),
+      password: this.configService.get('redis.cacheToken', { infer: true }),
     } as CacheModuleOptions;
   }
 }
