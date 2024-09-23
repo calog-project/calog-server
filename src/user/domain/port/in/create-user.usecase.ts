@@ -1,4 +1,4 @@
-import { User } from '../../user';
+import { User } from 'src/user/domain/model/user';
 
 export const CreateUserUseCaseSymbol = Symbol('CreateUserUseCase');
 

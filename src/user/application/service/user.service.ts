@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Nullable } from 'src/common/type/CommonType';
 
-import { User } from 'src/user/domain/user';
+import { User } from 'src/user/domain/model/user';
 
 //Input port
 import { CreateUserUseCase } from '../../domain/port/in/create-user.usecase';
@@ -25,12 +25,15 @@ import {
   EncryptPortSymbol,
   EncryptPort,
 } from 'src/auth/domain/port/out/encrypt.port';
+import { FilePortSymbol, FilePort } from 'src/user/domain/port/out/file.port';
 
 @Injectable()
 export class UserService implements CreateUserUseCase, GetUserUseCase {
   constructor(
     @Inject(EncryptPortSymbol)
     private _encryptPort: EncryptPort,
+    @Inject(FilePortSymbol)
+    private _filePort: FilePort,
     @Inject(HandleUserPortSymbol)
     private _handleUserPort: HandleUserPort,
     @Inject(LoadUserPortSymbol)
@@ -40,9 +43,15 @@ export class UserService implements CreateUserUseCase, GetUserUseCase {
   async createUser(
     user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<number | string> {
-    const isExists = await this._loadUserPort.findByEmail(user.email);
+    const isExists = await this._loadUserPort.findByEmail(
+      user.props.email.getValue(),
+    );
     if (isExists) throw new BadRequestException('이미 사용중인 이메일입니다.');
-    user.setPassword(await this._encryptPort.encryptPassword(user.password));
+
+    user.changePassword(
+      await this._encryptPort.encryptPassword(user.props.password),
+    );
+    // user.initImage(await this._filePort)
     const result = await this._handleUserPort.save(user);
     return result;
   }

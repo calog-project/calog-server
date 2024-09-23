@@ -1,8 +1,5 @@
-import { User } from '../../user';
-/**
- * @TODO
- * findOne port 일반화 리팩토링
- */
+import { User } from '../../model/user';
+
 export const LoadUserPortSymbol = Symbol('LoadUserPort');
 
 export interface LoadUserPort {
