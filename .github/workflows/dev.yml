@@ -1,0 +1,37 @@
+name: Dev branch CD process
+
+on:
+  pull_request:
+    branches: [dev]
+
+jobs:
+  # TODO
+  # build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Source code
+  #       uses: actions/checkout@v3
+  #     - name: Set up Node.js 20.x
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '20.x'
+  #
+  # test:
+
+  depoly:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Depoly to EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.REMOTE_IP}}
+          username: ${{ secrets.REMOTE_USER}}
+          key: ${{secrets.REMOTE_SSH_PEM_KEY}}
+          port: ${{secrets.REMOTE_SSH_PORT}}
+          script: |
+            nvm use 20.17.0
+            cd /home/ubuntu/calog
+            git pull origin dev
+            npm install -f
+            npm run build
+            pm2 reload dist/main.js --name "calog.server"
