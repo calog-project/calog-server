@@ -1,7 +1,7 @@
 name: Dev branch CD process
 
 on:
-  pull_request:
+  push:
     branches: [dev]
 
 jobs:
