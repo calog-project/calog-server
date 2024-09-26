@@ -7,3 +7,10 @@ export class SocialLoginDto {
   email: string;
   provider: string;
 }
+
+export interface SocialAuthRequest {
+  user: {
+    email: string;
+    provider: string;
+  };
+}

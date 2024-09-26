@@ -7,15 +7,16 @@ import {
   UseGuards,
   UseInterceptors,
   Req,
+  Redirect,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 
 import { SetTokenInterceptor } from 'src/common/interceptor/set-token.interceptor';
 import { Cookies } from 'src/common/decorator/cookies.decorator';
 import { UserId } from 'src/common/decorator/user-id.decorator';
 
-import { LoginDto, SocialLoginDto } from '../dto/auth.req';
+import { LoginDto, SocialAuthRequest } from '../dto/auth.req';
 import { LoginResDto, RefreshResDto } from '../dto/auth.res';
 import { UserMapper } from 'src/user/infra/in/http/mapper/user.mapper';
 
@@ -63,12 +64,13 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   @UseInterceptors(SetTokenInterceptor)
-  async googleLoginCallback(@Req() req: Request): Promise<any> {
-    const { email, provider } = req.user as SocialLoginDto;
-    console.log(req.user);
+  @Redirect(`${process.env.APP_CLIENT_URL}/`)
+  async googleLoginCallback(
+    @Req() req: Request & SocialAuthRequest,
+  ): Promise<any> {
     const { user, token } = await this._oauthUseCase.socialLoginOrSignup(
-      email,
-      provider,
+      req.user.email,
+      req.user.provider,
     );
     return LoginResDto.of(user, token);
   }
@@ -76,12 +78,11 @@ export class AuthController {
   @Get('kakao')
   @UseGuards(AuthGuard('kakao'))
   @UseInterceptors(SetTokenInterceptor)
-  async kakaoLogin(@Req() req: Request): Promise<any> {
-    const { email, provider } = req.user as SocialLoginDto;
-    console.log(req.user);
+  @Redirect(`${process.env.APP_CLIENT_URL}/`)
+  async kakaoLogin(@Req() req: Request & SocialAuthRequest): Promise<any> {
     const { user, token } = await this._oauthUseCase.socialLoginOrSignup(
-      email,
-      provider,
+      req.user.email,
+      req.user.provider,
     );
     return LoginResDto.of(user, token);
   }
