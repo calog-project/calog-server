@@ -29,9 +29,10 @@ jobs:
           key: ${{secrets.REMOTE_SSH_PEM_KEY}}
           port: ${{secrets.REMOTE_SSH_PORT}}
           script: |
+            source ~/.bashrc
             nvm use 20.17.0
             cd /home/ubuntu/calog
-            git pull origin dev
+            git pull upstream dev
             npm install -f
             npm run build
             pm2 reload dist/main.js --name "calog.server"
