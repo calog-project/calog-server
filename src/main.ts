@@ -24,7 +24,18 @@ async function bootstrap() {
   app.setGlobalPrefix(appConfig.apiPrefix, {
     exclude: ['/'],
   });
-
+  if (appConfig.nodeEnv === 'production') {
+    app.enableCors({
+      origin: appConfig.origin.split(','),
+      credentials: true,
+      exposedHeaders: ['Authorization'],
+    });
+  } else {
+    app.enableCors({
+      origin: appConfig.origin.split(','),
+      credentials: true,
+    });
+  }
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.useGlobalInterceptors(new loggingInterceptor());
