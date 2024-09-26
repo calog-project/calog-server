@@ -29,7 +29,8 @@ jobs:
           key: ${{secrets.REMOTE_SSH_PEM_KEY}}
           port: ${{secrets.REMOTE_SSH_PORT}}
           script: |
-            source ~/.bashrc
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
             nvm use 20.17.0
             cd /home/ubuntu/calog
             git pull upstream dev
