@@ -1,5 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule } from '@nestjs/microservices';
+import { CqrsModule } from '@nestjs/cqrs';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,13 +13,25 @@ import { ConfigOptions } from './config-options';
 import { JwtConfigService } from './auth/jwt-config.service';
 import { TypeOrmConfigService } from './database/typeorm-config.service';
 import { CacheConfigService } from './cache/cache-config.service';
-import { RedisConfigService } from './cache/redis-config.service';
+import {
+  MessageConfigService,
+  RedisConfigService,
+} from './cache/redis-config.service';
 import { AllConfigType } from './config.type';
 
 @Global()
 @Module({
   imports: [
     ConfigModule.forRoot(ConfigOptions.createConfigOptions()),
+    ClientsModule.registerAsync({
+      clients: [
+        {
+          name: 'REDIS_MESSAGE',
+          useClass: MessageConfigService,
+        },
+      ],
+    }),
+    CqrsModule.forRoot(),
     PassportModule.register({ defaultStrategy: 'jwt', session: false }),
     JwtModule.registerAsync({
       useClass: JwtConfigService,
@@ -35,6 +49,6 @@ import { AllConfigType } from './config.type';
       useClass: RedisConfigService,
     }),
   ],
-  exports: [JwtModule, CacheModule, RedisModule],
+  exports: [JwtModule, CacheModule, RedisModule, CqrsModule, ClientsModule],
 })
 export class InfraSetupModule {}

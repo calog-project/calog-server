@@ -1,6 +1,7 @@
 // import 'dotenv/config'
 
 import { NestFactory, Reflector } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import {
   Logger as NestLogger,
@@ -14,12 +15,28 @@ import { GlobalExceptionFilter } from './common/filter/global-exception.filter';
 
 import { AppModule } from './app.module';
 import { AllConfigType } from './common/config/config.type';
+function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
+  await sleep(3000);
+  const app = await NestFactory.create(AppModule, { logger: ['debug'] });
   const configService = app.get(ConfigService<AllConfigType>);
   const appConfig = configService.getOrThrow('app', { infer: true });
+  const redisConfig = configService.getOrThrow('redis', { infer: true });
+  const microservice =
+    await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+      transport: Transport.REDIS,
+      options: {
+        host: redisConfig.pubHost,
+        port: redisConfig.pubPort,
+        password: redisConfig.pubToken,
+        tls: {},
+      },
+    });
 
   app.setGlobalPrefix(appConfig.apiPrefix, {
     exclude: ['/'],
@@ -42,7 +59,6 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalFilters(new GlobalExceptionFilter(appConfig.nodeEnv));
-
   await app.listen(appConfig.port, () => {
     NestLogger.log(
       `🌐 HTTP Server listening on url ${appConfig.url} 🌐`,
@@ -53,5 +69,7 @@ async function bootstrap() {
       'Main',
     );
   });
+  await microservice.listen();
+  NestLogger.log(`🌐 microservice listening 🌐`, 'Main');
 }
 bootstrap();
