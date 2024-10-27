@@ -7,7 +7,7 @@ import { UserRepositoryAdapter } from './adapter/user-repository.adapter';
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity])],
   providers: [UserRepositoryAdapter],
-  // exports: [CreateUserUseCaseSymbol, GetUserUseCaseSymbol],
+  // exports: [HandleUserPort, LoadUserPort],
   exports: [UserRepositoryAdapter],
 })
 export class UserPersistenceModule {}

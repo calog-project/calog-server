@@ -8,7 +8,6 @@ export interface GetUserUseCase {
   getUserByEmail(email: string): Promise<User | null>;
 
   isExistsEmail(email: string): Promise<boolean>;
-  // getUserByEmailOrNickname(
-  //   options: Partial<{ email: string; nickname: string }>,
-  // ): Promise<User | null>;
+
+  isExistsNickname(nickname: string): Promise<boolean>;
 }

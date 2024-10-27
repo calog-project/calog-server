@@ -5,10 +5,9 @@ export const LoadUserPortSymbol = Symbol('LoadUserPort');
 export interface LoadUserPort {
   findById(id: number): Promise<User | null>;
 
-  findByEmail(email: string): Promise<User | null>;
-  // findByEmailOrNickname(
-  //   options: Partial<{ email: string; nickname: string }>,
-  // ): Promise<User | null>;
+  findByIds(ids: number[]): Promise<User[] | null>;
 
-  // findByNickname()
+  findByEmail(email: string): Promise<User | null>;
+
+  findByNickname(nickname: string): Promise<User | null>;
 }
