@@ -2,7 +2,7 @@ import { Token } from 'src/auth/domain/token';
 import { User } from 'src/user/domain/model/user';
 
 export class LoginResDto {
-  id: number | string;
+  id: string | number;
   email: string;
 
   provider: string;

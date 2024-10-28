@@ -1,3 +1,5 @@
+import { UniqueID, UUIDv4 } from './unique-id';
+
 const isEntity = (v: any): v is Entity<any> => {
   return v instanceof Entity;
 };
@@ -7,10 +9,12 @@ const isEntity = (v: any): v is Entity<any> => {
  * --> db상의 id와 도메인 이벤트 식별용 id가 다를 가능성
  */
 export abstract class Entity<T> {
-  readonly _id?: string | number;
+  readonly _id?: UUIDv4;
+  readonly _dbId?: number;
   readonly props: T;
-  constructor(props: T, id: string | number) {
-    if (id) this._id = id;
+  constructor(props: T, id: UUIDv4, dbId?: number) {
+    this._id = id ? id : new UniqueID();
+    if (dbId) this._dbId = dbId;
     this.props = props;
   }
   public equals(object?: Entity<T>): boolean {
@@ -26,7 +30,7 @@ export abstract class Entity<T> {
       return false;
     }
 
-    return this._id === object._id ? true : false;
+    return this._id === object._id;
 
     // return this._id.equals(object._id);
   }

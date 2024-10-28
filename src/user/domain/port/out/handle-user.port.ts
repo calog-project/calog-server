@@ -6,6 +6,6 @@ export interface HandleUserPort {
   save(
     user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<number | string>;
-  //   update()
+  update(id: number, options: Partial<User>): Promise<number | string>;
   //   delete()
 }

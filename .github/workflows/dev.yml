@@ -36,4 +36,4 @@ jobs:
             git pull upstream dev
             npm install -f
             npm run build
-            pm2 reload dist/main.js --name "calog.server"
+            pm2 reload "calog.server" --update-env

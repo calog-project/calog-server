@@ -3,34 +3,33 @@ import { UserEntity } from '../entity/user.entity';
 
 export class UserMapper {
   public static toDomain(raw: UserEntity): User {
-    const user = User.create({
+    const domain = User.create({
       ...raw,
     });
-    return user;
+    return domain;
   }
 
-  // public static toDomains(raws: UserEntity[]): User[] {
-  //   return;
-  // }
+  public static toDomains(raws: UserEntity[]): User[] {
+    return raws.map((raw) => User.create({ ...raw }));
+  }
 
-  public static toOrmEntity(user: User): UserEntity {
+  public static toOrmEntity(domain: Partial<User>): UserEntity {
     const record = new UserEntity();
-    const userData = user.toPrimitives();
-    const numbericId =
-      typeof userData.id === 'number' ? userData.id : parseInt(userData.id);
-    if (numbericId) {
-      record.id = numbericId;
+    const data = domain.toPrimitives();
+    const parseId = typeof data.id === 'number' ? data.id : parseInt(data.id);
+    if (parseId) {
+      record.id = parseId;
     }
-    record.email = userData.email;
-    record.password = userData.password;
-    record.provider = userData.provider;
-    record.nickname = userData.nickname;
-    record.description = userData.description;
-    record.image = userData.image;
+    record.email = data.email;
+    record.password = data.password;
+    record.provider = data.provider;
+    record.nickname = data.nickname;
+    record.description = data.description;
+    record.image = data.image;
     return record;
   }
 
-  // public static toOrmEntiteis(users: User[]): UserEntity[] {
+  // public static toOrmEntities(users: User[]): UserEntity[] {
   //   return;
   // }
 }

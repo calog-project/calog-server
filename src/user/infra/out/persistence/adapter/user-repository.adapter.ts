@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Nullable } from 'src/common/type/CommonType';
 import { User } from 'src/user/domain/model/user';
 import { UserEntity } from '../entity/user.entity';
@@ -23,14 +23,35 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     return savedUser.id;
   }
 
+  async update(id: number, options: Partial<User>): Promise<number | string> {
+    const user = await this._userRepository
+      .createQueryBuilder()
+      .update()
+      .set({ ...UserMapper.toOrmEntity(options) })
+      .where('id = :id', { id })
+      .execute();
+    console.log(user);
+    return;
+  }
+
   //LoadUserPort Implementation
   async findById(id: number): Promise<Nullable<User>> {
     const user = await this._userRepository.findOneBy({ id });
     return user ? UserMapper.toDomain(user) : null;
   }
 
+  async findByIds(ids: number[]): Promise<Nullable<User[]>> {
+    const user = await this._userRepository.findBy({ id: In(ids) });
+    return user.length > 0 ? UserMapper.toDomains(user) : null;
+  }
+
   async findByEmail(email: string): Promise<Nullable<User>> {
     const user = await this._userRepository.findOneBy({ email });
+    return user ? UserMapper.toDomain(user) : null;
+  }
+
+  async findByNickname(nickname: string): Promise<Nullable<User>> {
+    const user = await this._userRepository.findOneBy({ nickname });
     return user ? UserMapper.toDomain(user) : null;
   }
 }

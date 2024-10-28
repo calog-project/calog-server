@@ -1,0 +1,34 @@
+import { Inject } from '@nestjs/common';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { GetUserQuery, GetUsersQuery } from './user.query';
+import { User } from '../../domain/model/user';
+import {
+  LoadUserPortSymbol,
+  LoadUserPort,
+} from '../../domain/port/out/load-user.port';
+
+@QueryHandler(GetUserQuery)
+export class GetUserHandler
+  implements IQueryHandler<GetUserQuery, User | null>
+{
+  constructor(
+    @Inject(LoadUserPortSymbol) private readonly _loadUserPort: LoadUserPort,
+  ) {}
+  async execute(query: GetUserQuery): Promise<User | null> {
+    const user = await this._loadUserPort.findById(query.id);
+    return user ? user : null;
+  }
+}
+
+@QueryHandler(GetUsersQuery)
+export class GetUsersHandler
+  implements IQueryHandler<GetUsersQuery, User[] | null>
+{
+  constructor(
+    @Inject(LoadUserPortSymbol) private readonly _loadUserPort: LoadUserPort,
+  ) {}
+  async execute(query: GetUsersQuery): Promise<User[] | null> {
+    const user = await this._loadUserPort.findByIds(query.ids);
+    return user.length > 0 ? user : null;
+  }
+}

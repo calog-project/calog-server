@@ -2,9 +2,10 @@ import { Entity } from 'src/common/domain/entity';
 import { Email } from './email';
 import { Provider } from './provider';
 import { Nickname } from './nickname';
+import { UniqueID } from '../../../common/domain/unique-id';
 
 interface UserProps {
-  id?: string | number;
+  id?: number;
   email: Email;
   password?: string;
   provider?: Provider;
@@ -15,7 +16,7 @@ interface UserProps {
   updatedAt?: Date;
 }
 interface UserPrimitives {
-  id?: string | number;
+  id?: number;
   email: string;
   password?: string;
   provider?: string;
@@ -28,7 +29,7 @@ interface UserPrimitives {
 
 export class User extends Entity<UserProps> {
   private constructor(props: UserProps) {
-    super(props, props.id);
+    super(props, new UniqueID(props.id), props.id);
   }
   public static create(props: UserPrimitives): User {
     if (!props.id && !props.nickname) {
@@ -60,15 +61,12 @@ export class User extends Entity<UserProps> {
 
   changeImage(image?: string): void {
     if (image) this.props.image = image;
-    else this.props.image = '';
   }
-  updateNickName(nickname: string): void {
+  updateNickName(nickname?: string): void {
     if (nickname) this.props.nickname = Nickname.create(nickname);
-    // else this.props.nickname = '';
   }
   updateDescription(des?: string): void {
     if (des) this.props.description = des;
-    else this.props.description = '';
   }
 
   toPrimitives(): UserPrimitives {
