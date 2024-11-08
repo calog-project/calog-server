@@ -20,7 +20,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       logging:
         this.configService.get('app.nodeEnv', { infer: true }) !== 'production',
       entities: [__dirname + '/../../../**/*.entity{.ts,.js}'],
-      timezone: 'Z',
+      timezone: '+00:00',
     } as TypeOrmModuleOptions;
   }
 }

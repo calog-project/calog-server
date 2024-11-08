@@ -24,7 +24,7 @@ export class UserEntity {
   @Column({ default: 'local' })
   provider: string;
 
-  @Column('varchar', { unique: true, nullable: true })
+  @Column('varchar', { unique: true })
   nickname: Nullable<string>;
 
   @Column('varchar', { nullable: true })
@@ -33,10 +33,10 @@ export class UserEntity {
   @Column('varchar', { nullable: true })
   image: Nullable<string>;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
   // constructor(domain: User) {
