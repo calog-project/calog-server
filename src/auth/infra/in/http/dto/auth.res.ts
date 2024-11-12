@@ -33,14 +33,6 @@ export class LoginResDto {
   }
 }
 
-// export class LoginResDto {
-//   user: User;
-//   token: Token;
-
-//   constructor() {}
-//   static of() {}
-// }
-
 export class RefreshResDto {
   userId: number;
   token: Token;

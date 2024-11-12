@@ -15,14 +15,8 @@ import { GlobalExceptionFilter } from './common/filter/global-exception.filter';
 
 import { AppModule } from './app.module';
 import { AllConfigType } from './common/config/config.type';
-function sleep(ms: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
 
 async function bootstrap() {
-  await sleep(3000);
   const app = await NestFactory.create(AppModule, { logger: ['debug'] });
   const configService = app.get(ConfigService<AllConfigType>);
   const appConfig = configService.getOrThrow('app', { infer: true });
@@ -58,7 +52,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new loggingInterceptor());
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  app.useGlobalFilters(new GlobalExceptionFilter(appConfig.nodeEnv));
+  app.useGlobalFilters(new GlobalExceptionFilter(configService));
   await app.listen(appConfig.port, () => {
     NestLogger.log(
       `🌐 HTTP Server listening on url ${appConfig.url} 🌐`,
