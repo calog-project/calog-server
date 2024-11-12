@@ -18,7 +18,7 @@ export class ApiResponse<P, E> {
     code: number,
     data?: P,
   ): ApiResponse<SuccessPayload<P> | null, null> {
-    const message = code === HttpStatus.OK ? 'Success' : 'Created';
+    const message = code === HttpStatus.CREATED ? 'Created' : 'Success';
     if (data === undefined) {
       return new ApiResponse<SuccessPayload<null>, null>(true, {
         statusCode: code,

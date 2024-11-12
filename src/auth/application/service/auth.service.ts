@@ -9,6 +9,7 @@ import { AllConfigType } from '../../../common/config/config.type';
 
 import { User } from 'src/user/domain/model/user';
 import { Token } from 'src/auth/domain/token';
+import { LoginDto } from '../../infra/in/http/dto/auth.req';
 
 import { AuthUseCase } from 'src/auth/domain/port/in/auth.usecase';
 
@@ -40,14 +41,11 @@ export class AuthService implements AuthUseCase {
     private _configService: ConfigService<AllConfigType>,
   ) {}
 
-  async login(userInfo: Partial<User>): Promise<{ user: User; token: Token }> {
-    const user = await this._loadUserPort.findByEmail(
-      userInfo.props.email.getValue(),
-    );
+  async login(dto: LoginDto): Promise<{ user: User; token: Token }> {
+    const user = await this._loadUserPort.findByEmail(dto.email);
     if (!user) throw new NotFoundException();
-
     const isValid = await this._encryptPort.comparePassword(
-      userInfo.props.password,
+      dto.password,
       user.props.password,
     );
     if (!isValid) throw new UnauthorizedException('인증 실패');
