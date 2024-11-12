@@ -15,10 +15,16 @@ export class ResponseInterceptor implements NestInterceptor {
   ):
     | Observable<ApiResponse<unknown, unknown>>
     | Promise<Observable<ApiResponse<unknown, unknown>>> {
-    const statusCode =
-      context.switchToHttp().getResponse().statusCode | HttpStatus.OK;
+    const res = context.switchToHttp().getResponse();
+    const statusCode = res.statusCode | HttpStatus.OK;
     return next.handle().pipe(
-      map((data) => ApiResponse.success(statusCode, data)),
+      map((data) => {
+        if ((statusCode >= 300 || statusCode < 400) && data.url) {
+          res.redirect(data.url);
+        } else {
+          return ApiResponse.success(statusCode, data);
+        }
+      }),
       //응답 로깅
       tap((data) => {}),
     );

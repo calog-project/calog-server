@@ -6,21 +6,20 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
+import { AllConfigType } from '../config/config.type';
 import { ApiResponse } from '../dto/api-response';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  constructor(private nodeEnv: string) {}
+  constructor(private readonly _configService: ConfigService<AllConfigType>) {}
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const req = ctx.getRequest<Request>();
     const res = ctx.getResponse<Response>();
 
-    // if (exception.constructor.name === 'QueryFailedError') {
-
-    // }
     if (!(exception instanceof HttpException)) console.log(exception);
-    const status =
+    const errorStatus =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
@@ -30,20 +29,28 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         ? exception.message
         : 'Internal server error';
 
+    const error = {
+      statusCode: errorStatus,
+      message: message,
+    };
+
     const log = {
-      statusCode: status,
+      statusCode: errorStatus,
       timestamp: new Date().toISOString(),
       // timestamp: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
       path: req.url,
       payload: message,
     };
 
-    const error = {
-      statusCode: status,
-      message: message,
-    };
-
-    res.status(status).json(ApiResponse.error(error));
-    // res.status(status).json(errorPayload);
+    if (req.query.redirect) {
+      const clientUrl = this._configService.get('app.clientUrl', {
+        infer: true,
+      });
+      const redirectUrl = `${clientUrl}/?error=${encodeURIComponent(errorStatus)}`;
+      res.cookie('error', error, { maxAge: 5000 });
+      res.redirect(redirectUrl);
+    } else {
+      res.status(errorStatus).json(ApiResponse.error(error));
+    }
   }
 }

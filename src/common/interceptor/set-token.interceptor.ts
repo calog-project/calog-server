@@ -8,16 +8,13 @@ export class SetTokenInterceptor implements NestInterceptor {
   ): Observable<any> {
     return next.handle().pipe(
       map((data) => {
-        const req = context.switchToHttp().getRequest();
         const res = context.switchToHttp().getResponse();
         if (data && data.token) {
           res.setHeader('Authorization', `Bearer ${data?.token.accessToken}`);
           res.cookie('refreshToken', data?.token.refreshToken);
           delete data.token;
         }
-        if (!/\/auth\/(kakao|google)/.test(req.path)) {
-          return data;
-        }
+        return data;
       }),
     );
   }
