@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-kakao';
+import { SocialLoginDto } from '../http/dto/auth.req';
 
 import { AllConfigType } from 'src/common/config/config.type';
 
@@ -18,18 +19,13 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     accessToken: string,
     refreshToken: string,
     profile: Profile,
-    done: (error: any, user?: any, info?: any) => void,
-  ) {
-    try {
-      const { _json } = profile;
-      const socialLoginUser = {
-        accessToken,
-        refreshToken,
-        info: _json,
-      };
-      done(null, socialLoginUser, { accessToken: accessToken });
-    } catch (error) {
-      done(error);
+  ): Promise<SocialLoginDto> {
+    const { _json, provider } = profile;
+    const oauthUserInfo = _json.kakao_account;
+    const email = oauthUserInfo.email;
+    if (!oauthUserInfo.has_email || !email || !provider) {
+      throw new BadRequestException('잘못된 요청입니다.');
     }
+    return { email, provider };
   }
 }

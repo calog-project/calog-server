@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AllConfigType } from '../../../common/config/config.type';
 
@@ -30,7 +30,7 @@ export class OAuthService implements OAuthUseCase {
     @Inject(HandleUserPortSymbol) private _handleUserPort: HandleUserPort,
     private _configService: ConfigService<AllConfigType>,
   ) {}
-  async socialLoginOrSignup(email: string, provider): Promise<any> {
+  async socialLoginOrSignup(email: string, provider: string): Promise<any> {
     const user = await this._loadUserPort.findByEmail(email);
     let userId: string | number;
     let userModel: User;
@@ -41,7 +41,6 @@ export class OAuthService implements OAuthUseCase {
       userId = user.props.id;
       userModel = user;
     }
-
     //토큰 생성
     const token = Token.create(
       this._jwtPort.generateAccessToken({ id: userId }),
@@ -55,7 +54,7 @@ export class OAuthService implements OAuthUseCase {
 
     //캐시에 토큰 저장
     await this._cachePort.set(
-      String(user.props.id),
+      String(userId),
       token.provideToken().refreshToken,
       refreshExp,
     );
