@@ -39,7 +39,9 @@ import { AllConfigType } from './config.type';
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService,
       dataSourceFactory: async (options: DataSourceOptions) => {
-        return new DataSource(options).initialize();
+        const db = await new DataSource(options).initialize();
+        await db.query(`SET TIME_ZONE = '+00:00'`);
+        return db;
       },
     }),
     CacheModule.registerAsync({
