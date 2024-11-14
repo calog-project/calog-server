@@ -78,7 +78,7 @@ export class UserService
   }
 
   async isExistsNickname(nickname: string): Promise<boolean> {
-    const user = await this._loadUserPort.findByEmail(nickname);
+    const user = await this._loadUserPort.findByNickname(nickname);
     return !!user;
   }
 

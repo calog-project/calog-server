@@ -80,7 +80,7 @@ export class UserController {
     @Param('nickname') nickname: string,
   ): Promise<{ isAvailable: boolean }> {
     const isExists = await this._getUserUseCase.isExistsNickname(nickname);
-    const isAvailable = isExists ? false : true;
+    const isAvailable = !isExists;
     return { isAvailable };
   }
 }
