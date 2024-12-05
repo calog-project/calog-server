@@ -17,7 +17,7 @@ export class ResponseInterceptor implements NestInterceptor {
     | Promise<Observable<ApiResponse<unknown, unknown>>> {
     const req = context.switchToHttp().getRequest();
     const res = context.switchToHttp().getResponse();
-    const statusCode = res.statusCode | HttpStatus.OK;
+    const statusCode = res.statusCode || HttpStatus.OK;
     return next.handle().pipe(
       map((data) => {
         const isRequireRedirect =
