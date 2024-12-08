@@ -6,6 +6,8 @@ export interface LoadSchedulePort {
   findById(id: number): Promise<SchedulePrimitives | null>;
 
   findByIds(ids: number[]): Promise<SchedulePrimitives[] | ScheduleSummary[]>;
+
+  findByMonth(): void;
   // findByJoiner()
   // findByDate()
 }

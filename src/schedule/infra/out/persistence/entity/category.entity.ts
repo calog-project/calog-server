@@ -6,8 +6,13 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('schedule')
-export class ScheduleEntity {
+/**
+ * @TODO
+ *    schedule - category - user 연관 필요
+ * */
+
+@Entity('category')
+export class CategoryEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -15,25 +20,13 @@ export class ScheduleEntity {
   aggregateId: string;
 
   @Column()
-  author: number;
+  userId: number;
 
   @Column('varchar')
-  title: string;
+  name: string;
 
-  @Column('timestamp')
-  start: Date;
-
-  @Column('timestamp')
-  end: Date;
-
-  @Column('varchar', { default: 'default' })
-  category: string;
-
-  @Column('simple-array')
-  joiner: number[];
-
-  @Column('varchar', { nullable: true })
-  description: string;
+  @Column('varchar')
+  color: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
