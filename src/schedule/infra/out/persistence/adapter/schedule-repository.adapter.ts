@@ -8,6 +8,7 @@ import {
 } from '../../../../domain/model/schedule';
 import { ScheduleSummary } from '../../../../domain/model/schedule-summary';
 import { ScheduleEntity } from '../entity/schedule.entity';
+import { UserCategoryScheduleEntity } from '../entity/user-category-schedule.entity';
 
 import { HandleSchedulePort } from 'src/schedule/domain/port/out/handle-schedule.port';
 import { LoadSchedulePort } from '../../../../domain/port/out/load-schedule.port';
@@ -20,6 +21,8 @@ export class ScheduleRepositoryAdapter
   constructor(
     @InjectRepository(ScheduleEntity)
     private readonly _scheduleRepository: Repository<ScheduleEntity>,
+    @InjectRepository(UserCategoryScheduleEntity)
+    private readonly _userCategoryScheduleRepository: Repository<UserCategoryScheduleEntity>,
   ) {}
 
   async save(
@@ -28,10 +31,10 @@ export class ScheduleRepositoryAdapter
     const savedSchedule = await this._scheduleRepository.save(
       ScheduleMapper.toOrmEntity(schedule),
     );
-    console.log(savedSchedule);
     return savedSchedule.id;
   }
 
+  //schedule info
   async findById(id: number): Promise<Nullable<SchedulePrimitives>> {
     const timezone = await this._scheduleRepository.query(
       `SELECT @@session.time_zone;`,
@@ -47,4 +50,7 @@ export class ScheduleRepositoryAdapter
     const schedule = await this._scheduleRepository.findBy({ id: In(ids) });
     return schedule.length > 0 ? ScheduleMapper.toReadModels(schedule) : null;
   }
+
+  async findByMonth() {}
+  async findByCategory() {}
 }
