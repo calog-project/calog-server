@@ -3,6 +3,11 @@ import { ScheduleCreatedEvent } from '../schedule-created.event';
 import { UniqueID } from '../../../common/domain/unique-id';
 import { Period } from './period';
 
+/**
+ * @TODO
+ *    마지막 수정 이력
+ *    카테고리 생성
+ * */
 interface ScheduleProps {
   aggregateId?: UniqueID;
   id?: number;
