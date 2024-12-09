@@ -6,9 +6,4 @@ export class CategoryResDto {
     public readonly name: string,
     public readonly color: string,
   ) {}
-  // constructor(props: CategoryResDto) {
-  //   this.aggregateId = props.aggregateId;
-  //   this.id = props.id
-  //   this.userId = prop.
-  // }
 }

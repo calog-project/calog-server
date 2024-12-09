@@ -10,9 +10,8 @@ export class CategoryMapper {
       return new CreateCategoryCommand(dto.userId, dto.name, dto.color);
     }
   }
-
-  static toQuery() {}
-
+  static toDto(view: CategoryPrimitives): CategoryResDto;
+  static toDto(view: CategoryPrimitives[]): CategoryResDto[];
   static toDto(
     view: CategoryPrimitives | CategoryPrimitives[],
   ): CategoryResDto | CategoryResDto[] {
