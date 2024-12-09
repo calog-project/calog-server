@@ -8,7 +8,9 @@ import {
 } from '../../domain/port/in/get-category.usecase';
 
 @QueryHandler(GetCategoryQuery)
-export class GetCategoryHandler implements IQueryHandler<GetCategoryQuery> {
+export class GetCategoryHandler
+  implements IQueryHandler<GetCategoryQuery, CategoryPrimitives>
+{
   constructor(
     @Inject(GetCategoryUseCaseSymbol)
     private readonly _getCategoryUseCase: GetCategoryUseCase,
@@ -20,7 +22,7 @@ export class GetCategoryHandler implements IQueryHandler<GetCategoryQuery> {
 
 @QueryHandler(GetCategoriesByUserIdQuery)
 export class GetCategoriesByUserIdHandler
-  implements IQueryHandler<GetCategoriesByUserIdQuery>
+  implements IQueryHandler<GetCategoriesByUserIdQuery, CategoryPrimitives[]>
 {
   constructor(
     @Inject(GetCategoryUseCaseSymbol)

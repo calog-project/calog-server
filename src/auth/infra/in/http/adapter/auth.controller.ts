@@ -78,23 +78,9 @@ export class AuthController {
       req.user.provider,
     );
     const clientUrl = this._configService.get('app.clientUrl', { infer: true });
-    const redirectUrl = `${clientUrl}/?oauth=${req.user.provider}`;
+    const redirectUrl = `${clientUrl}/oauth-callback/?oauth=${req.user.provider}`;
     return { url: redirectUrl, ...LoginResDto.of(user, token) };
   }
-
-  // @Get('google/callback')
-  // @UseGuards(AuthGuard('google'))
-  // @UseInterceptors(SetTokenInterceptor)
-  // @Redirect(`${process.env.APP_CLIENT_URL}/`)
-  // async googleLoginCallback(
-  //   @Req() req: Request & SocialAuthRequest,
-  // ): Promise<any> {
-  //   const { user, token } = await this._oauthUseCase.socialLoginOrSignup(
-  //     req.user.email,
-  //     req.user.provider,
-  //   );
-  //   return LoginResDto.of(user, token);
-  // }
 
   @Get('kakao')
   @HttpCode(HttpStatus.FOUND)
@@ -108,7 +94,7 @@ export class AuthController {
       req.user.provider,
     );
     const clientUrl = this._configService.get('app.clientUrl', { infer: true });
-    const redirectUrl = `${clientUrl}/?oauth=${req.user.provider}`;
+    const redirectUrl = `${clientUrl}/oauth-callback/?oauth=${req.user.provider}`;
     return { url: redirectUrl, ...LoginResDto.of(user, token) };
   }
 

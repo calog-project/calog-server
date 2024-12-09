@@ -14,8 +14,7 @@ export class CreateScheduleHandler
     @Inject(CreateScheduleUseCaseSymbol)
     private readonly _createScheduleUseCase: CreateScheduleUseCase,
   ) {}
-  async execute(command: CreateScheduleCommand): Promise<any> {
-    const id = await this._createScheduleUseCase.createSchedule(command);
-    return id;
+  async execute(command: CreateScheduleCommand): Promise<number> {
+    return await this._createScheduleUseCase.createSchedule(command);
   }
 }

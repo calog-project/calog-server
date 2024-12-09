@@ -8,6 +8,14 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import {
+  GetCategoriesByUserIdQuery,
+  GetCategoryQuery,
+} from '../../../../application/query/category.query';
+import { CreateCategoryDto } from '../dto/category.req';
+import { CategoryResDto } from '../dto/category.res';
+import { CategoryMapper } from '../mapper/category.mapper';
+import { CategoryPrimitives } from '../../../../domain/model/category';
 
 @Controller('category')
 export class CategoryController {
@@ -18,12 +26,27 @@ export class CategoryController {
 
   @Post('')
   @HttpCode(HttpStatus.CREATED)
-  async createCategory(@Body() dto: any): Promise<void> {
-    // await this._commandBus.execute();
+  async createCategory(@Body() dto: CreateCategoryDto): Promise<void> {
+    await this._commandBus.execute(CategoryMapper.toCommand(dto));
   }
 
-  // @Get(':id')
-  // async getCategory(@Param('id') id: number): Promise<any> {
-  //   const category;
-  // }
+  @Get('')
+  async getCategoriesByUserId(
+    @Param('userId') id: number,
+  ): Promise<CategoryResDto[]> {
+    const categories = await this._queryBus.execute<
+      GetCategoriesByUserIdQuery,
+      CategoryPrimitives[]
+    >(new GetCategoriesByUserIdQuery(id));
+    return CategoryMapper.toDto(categories);
+  }
+
+  @Get(':id')
+  async getCategory(@Param('id') id: number): Promise<CategoryResDto> {
+    const category = await this._queryBus.execute<
+      GetCategoryQuery,
+      CategoryResDto
+    >(new GetCategoryQuery(id));
+    return CategoryMapper.toDto(category);
+  }
 }
