@@ -26,6 +26,13 @@ export class Category extends AggregateRoot<CategoryProps> {
     return new Category({ ...props, aggregateId });
   }
 
+  changeName(name: string) {
+    if (name) this.props.name = name;
+  }
+  changeColor(color: string) {
+    if (color) this.props.color = color;
+  }
+
   toPrimitives(): CategoryPrimitives {
     return {
       ...this.props,

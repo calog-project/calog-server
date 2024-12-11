@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
@@ -9,7 +10,13 @@ import { EventBus } from '@nestjs/cqrs';
 import { Category, CategoryPrimitives } from '../../domain/model/category';
 
 import { CreateCategoryUseCase } from '../../domain/port/in/create-category.usecase';
-import { CreateCategoryCommand } from '../command/category.command';
+import { UpdateCategoryUseCase } from '../../domain/port/in/update-category.usecase';
+import { DeleteCategoryUseCase } from '../../domain/port/in/delete-category.usecase';
+import {
+  CreateCategoryCommand,
+  DeleteCategoryCommand,
+  UpdateCategoryCommand,
+} from '../command/category.command';
 import { GetCategoryUseCase } from '../../domain/port/in/get-category.usecase';
 import {
   GetCategoriesByUserIdQuery,
@@ -27,7 +34,11 @@ import {
 
 @Injectable()
 export class CategoryService
-  implements CreateCategoryUseCase, GetCategoryUseCase
+  implements
+    CreateCategoryUseCase,
+    GetCategoryUseCase,
+    UpdateCategoryUseCase,
+    DeleteCategoryUseCase
 {
   constructor(
     @Inject(HandleCategoryPortSymbol)
@@ -63,5 +74,24 @@ export class CategoryService
     if (!categories)
       throw new NotFoundException('카테고리가 존재하지 않습니다');
     return categories;
+  }
+
+  async updateCategory(command: UpdateCategoryCommand): Promise<number> {
+    if (!command.name && !command.color)
+      throw new BadRequestException('잘못된 값이 전달 되었습니다');
+    const category = await this._loadCategoryPort.findById(command.id);
+    if (!category)
+      throw new BadRequestException('존재하지 않는 카테고리입니다');
+    const updateCategory = Category.create({ ...category });
+    updateCategory.changeName(command.name);
+    updateCategory.changeColor(command.color);
+    return await this._handleCategoryPort.update(command.id, updateCategory);
+  }
+
+  async deleteCategory(command: DeleteCategoryCommand): Promise<number> {
+    const deletedId = await this._handleCategoryPort.delete(command.id);
+    if (!deletedId)
+      throw new InternalServerErrorException('서버에 문제가 발생했습니다');
+    return deletedId;
   }
 }

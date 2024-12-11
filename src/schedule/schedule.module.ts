@@ -2,12 +2,18 @@ import { Module } from '@nestjs/common';
 import { SchedulePersistenceModule } from './infra/out/persistence/schedule-persistence.module';
 
 import { ScheduleController } from './infra/in/http/adapter/schedule.controller';
+import { CategoryController } from './infra/in/http/adapter/category.controller';
 import { ScheduleService } from './application/service/schedule.service';
+import { CategoryService } from './application/service/category.service';
 import { ScheduleRepositoryAdapter } from './infra/out/persistence/adapter/schedule-repository.adapter';
 import { CategoryRepositoryAdapter } from './infra/out/persistence/adapter/category-repository.adapter';
 
 import { CreateScheduleUseCaseSymbol } from './domain/port/in/create-schedule.usecase';
 import { GetScheduleUseCaseSymbol } from './domain/port/in/get-schedule.usecase';
+import { CreateCategoryUseCaseSymbol } from './domain/port/in/create-category.usecase';
+import { UpdateCategoryUseCaseSymbol } from './domain/port/in/update-category.usecase';
+import { GetCategoryUseCaseSymbol } from './domain/port/in/get-category.usecase';
+import { DeleteCategoryUseCaseSymbol } from './domain/port/in/delete-category.usecase';
 
 import { HandleSchedulePortSymbol } from './domain/port/out/handle-schedule.port';
 import { LoadSchedulePortSymbol } from './domain/port/out/load-schedule.port';
@@ -15,15 +21,29 @@ import { HandleCategoryPortSymbol } from './domain/port/out/handle-category.port
 import { LoadCategoryPortSymbol } from './domain/port/out/load-category.port';
 
 import { CreateScheduleHandler } from './application/command/schedule.command-handler';
+import {
+  CreateCategoryHandler,
+  DeleteCategoryHandler,
+  UpdateCategoryHandler,
+} from './application/command/category.command-handler';
 import { ScheduleCreatedHandler } from './application/event-handler/schedule.event-handler';
-import { GetScheduleDetailHandler } from './application/query/schedule.query-handler';
 
+import { GetScheduleDetailHandler } from './application/query/schedule.query-handler';
+import {
+  GetCategoryHandler,
+  GetCategoriesByUserIdHandler,
+} from './application/query/category.query-handler';
 import { UserModule } from 'src/user/user.module';
 
 const handlerProvider = [
   CreateScheduleHandler,
+  CreateCategoryHandler,
+  UpdateCategoryHandler,
+  DeleteCategoryHandler,
   ScheduleCreatedHandler,
   GetScheduleDetailHandler,
+  GetCategoryHandler,
+  GetCategoriesByUserIdHandler,
 ];
 
 const repositoryProvider = [
@@ -54,11 +74,27 @@ const useCaseProvider = [
     provide: GetScheduleUseCaseSymbol,
     useClass: ScheduleService,
   },
+  {
+    provide: CreateCategoryUseCaseSymbol,
+    useClass: CategoryService,
+  },
+  {
+    provide: GetCategoryUseCaseSymbol,
+    useClass: CategoryService,
+  },
+  {
+    provide: UpdateCategoryUseCaseSymbol,
+    useClass: CategoryService,
+  },
+  {
+    provide: DeleteCategoryUseCaseSymbol,
+    useClass: CategoryService,
+  },
 ];
 
 @Module({
   imports: [SchedulePersistenceModule, UserModule],
-  controllers: [ScheduleController],
+  controllers: [ScheduleController, CategoryController],
   providers: [...repositoryProvider, ...useCaseProvider, ...handlerProvider],
   exports: [
     CreateScheduleUseCaseSymbol,
