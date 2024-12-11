@@ -26,6 +26,9 @@ export class Category extends AggregateRoot<CategoryProps> {
     return new Category({ ...props, aggregateId });
   }
 
+  isSame(name: string, color: string): boolean {
+    return this.props.name === name && this.props.color === color;
+  }
   changeName(name: string) {
     if (name) this.props.name = name;
   }

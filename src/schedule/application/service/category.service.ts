@@ -79,10 +79,14 @@ export class CategoryService
   async updateCategory(command: UpdateCategoryCommand): Promise<number> {
     if (!command.name && !command.color)
       throw new BadRequestException('잘못된 값이 전달 되었습니다');
+
     const category = await this._loadCategoryPort.findById(command.id);
     if (!category)
       throw new BadRequestException('존재하지 않는 카테고리입니다');
+
     const updateCategory = Category.create({ ...category });
+    if (updateCategory.isSame(command.name, command.color)) return command.id;
+
     updateCategory.changeName(command.name);
     updateCategory.changeColor(command.color);
     return await this._handleCategoryPort.update(command.id, updateCategory);

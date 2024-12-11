@@ -58,7 +58,6 @@ export class CategoryController {
     @Body() dto: UpdateCategoryDto,
   ): Promise<void> {
     const command = CategoryMapper.toCommand(id, dto);
-    console.log(command);
     await this._commandBus.execute(command);
   }
 
