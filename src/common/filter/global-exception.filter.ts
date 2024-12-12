@@ -4,6 +4,7 @@ import {
   HttpStatus,
   ExceptionFilter,
   HttpException,
+  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
@@ -18,7 +19,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const req = ctx.getRequest<Request>();
     const res = ctx.getResponse<Response>();
 
-    if (!(exception instanceof HttpException)) console.log(exception);
     const errorStatus =
       exception instanceof HttpException
         ? exception.getStatus()
@@ -29,17 +29,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         ? exception.message
         : 'Internal server error';
 
+    const logMessage = `${exception} ` + `${req.method} ${req.path};`;
+
+    if (!(exception instanceof HttpException) || errorStatus >= 500) {
+      Logger.error(logMessage, exception.stack, GlobalExceptionFilter.name);
+    } else {
+      Logger.warn(logMessage, GlobalExceptionFilter.name);
+    }
+
     const error = {
       statusCode: errorStatus,
       message: message,
-    };
-
-    const log = {
-      statusCode: errorStatus,
-      timestamp: new Date().toISOString(),
-      // timestamp: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
-      path: req.url,
-      payload: message,
     };
 
     if (req.query.redirect) {
