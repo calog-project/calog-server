@@ -29,6 +29,19 @@ export class CategoryRepositoryAdapter
     return savedCategory.id;
   }
 
+  async upsert(
+    category: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<number> {
+    const savedCategory = await this._categoryRepository.upsert(
+      CategoryMapper.toOrmEntity(category),
+      {
+        conflictPaths: ['userId', 'name'],
+      },
+    );
+    console.log(savedCategory);
+    return 1;
+  }
+
   async update(id: number, options: Partial<Category>): Promise<number> {
     const updatedCategory = await this._categoryRepository
       .createQueryBuilder()

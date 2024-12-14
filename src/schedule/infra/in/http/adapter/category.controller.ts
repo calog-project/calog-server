@@ -18,6 +18,7 @@ import { CreateCategoryDto, UpdateCategoryDto } from '../dto/category.req';
 import { CategoryResDto } from '../dto/category.res';
 import { CategoryMapper } from '../mapper/category.mapper';
 import { CategoryPrimitives } from '../../../../domain/model/category';
+import { UserId } from '../../../../../common/decorator/user-id.decorator';
 
 @Controller('category')
 export class CategoryController {
@@ -34,12 +35,12 @@ export class CategoryController {
 
   @Get('')
   async getCategoriesByUserId(
-    @Param('userId') id: number,
+    @UserId() userId: number,
   ): Promise<CategoryResDto[]> {
     const categories = await this._queryBus.execute<
       GetCategoriesByUserIdQuery,
       CategoryPrimitives[]
-    >(new GetCategoriesByUserIdQuery(id));
+    >(new GetCategoriesByUserIdQuery(userId));
     return CategoryMapper.toDto(categories);
   }
 

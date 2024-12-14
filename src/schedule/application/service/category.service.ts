@@ -1,8 +1,7 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
-  InternalServerErrorException,
+  BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
@@ -49,16 +48,22 @@ export class CategoryService
   ) {}
 
   async createCategory(command: CreateCategoryCommand): Promise<number> {
-    const isExistsName =
-      await this._loadCategoryPort.findByUserIdAndCategoryName(
-        command.userId,
-        command.name,
-      );
-    if (isExistsName)
-      throw new BadRequestException('이미 존재하는 카테고리입니다');
-
-    const category = Category.create({ ...command });
-    return await this._handleCategoryPort.save(category);
+    const exists = await this._loadCategoryPort.findByUserIdAndCategoryName(
+      command.userId,
+      command.name,
+    );
+    if (exists) {
+      const category = Category.create({ ...exists });
+      if (!category.hasChanges(command.name, command.color)) return exists.id;
+      else {
+        category.changeName(command.name);
+        category.changeColor(command.color);
+        return await this._handleCategoryPort.update(exists.id, category);
+      }
+    } else {
+      const category = Category.create({ ...command });
+      return await this._handleCategoryPort.save(category);
+    }
   }
 
   async getCategoryById(query: GetCategoryQuery): Promise<CategoryPrimitives> {
@@ -77,15 +82,13 @@ export class CategoryService
   }
 
   async updateCategory(command: UpdateCategoryCommand): Promise<number> {
-    if (!command.name && !command.color)
-      throw new BadRequestException('잘못된 값이 전달 되었습니다');
-
     const category = await this._loadCategoryPort.findById(command.id);
     if (!category)
       throw new BadRequestException('존재하지 않는 카테고리입니다');
 
     const updateCategory = Category.create({ ...category });
-    if (updateCategory.isSame(command.name, command.color)) return command.id;
+    if (!updateCategory.hasChanges(command.name, command.color))
+      return command.id;
 
     updateCategory.changeName(command.name);
     updateCategory.changeColor(command.color);
@@ -94,8 +97,6 @@ export class CategoryService
 
   async deleteCategory(command: DeleteCategoryCommand): Promise<number> {
     const deletedId = await this._handleCategoryPort.delete(command.id);
-    if (!deletedId)
-      throw new InternalServerErrorException('서버에 문제가 발생했습니다');
     return deletedId;
   }
 }
