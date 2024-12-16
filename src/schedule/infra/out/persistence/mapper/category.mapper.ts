@@ -19,10 +19,8 @@ export class CategoryMapper {
   public static toOrmEntity(domain: Partial<Category>): CategoryEntity {
     const data = domain.toPrimitives();
     const parseId = typeof data.id === 'number' ? data.id : parseInt(data.id);
-    const record = {
-      ...new CategoryEntity(),
-      ...data,
-    };
+    const record = new CategoryEntity();
+    Object.assign(record, data);
     if (parseId) data.id = parseId;
     return record;
   }
