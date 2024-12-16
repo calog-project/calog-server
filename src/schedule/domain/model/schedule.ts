@@ -14,7 +14,6 @@ interface ScheduleProps {
   author: number;
   title: string;
   period: Period;
-  category: string;
   joiner: number[];
   description?: string;
   createdAt?: Date;
@@ -28,7 +27,6 @@ export interface SchedulePrimitives {
   title: string;
   start: Date;
   end: Date;
-  category?: string;
   joiner?: number[];
   description?: string;
   createdAt?: Date;
@@ -44,13 +42,11 @@ export class Schedule extends AggregateRoot<ScheduleProps> {
     const { start, end, ...otherProps } = props;
     const aggregateId = new UniqueID(props.aggregateId);
     const period = Period.create(start, end);
-    const category = props.category ?? 'default';
     const joiner = props.joiner?.length ? props.joiner : [];
     const schedule = new Schedule({
       ...otherProps,
       period,
       aggregateId,
-      category,
       joiner,
     });
     if (schedule) {

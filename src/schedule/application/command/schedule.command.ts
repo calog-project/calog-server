@@ -4,7 +4,7 @@ export class CreateScheduleCommand {
     public readonly title: string,
     public readonly start: Date,
     public readonly end: Date,
-    public readonly category?: string,
+    public readonly categoryId: number,
     public readonly joiner?: number[],
     public readonly description?: string,
   ) {}
@@ -15,7 +15,7 @@ export class UpdateScheduleCommand {
     public readonly title: string,
     public readonly start: Date,
     public readonly end: Date,
-    public readonly category?: string,
+    public readonly categoryId?: string,
     public readonly joiner?: number[],
     public readonly description?: string,
   ) {}
