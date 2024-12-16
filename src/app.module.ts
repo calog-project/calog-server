@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { SetTokenInterceptor } from './common/interceptor/set-token.interceptor';
 
 import { InfraSetupModule } from './common/config/infra-setup.module';
 import { AuthModule } from './auth/auth.module';
@@ -19,6 +21,11 @@ import { ScheduleModule } from './schedule/schedule.module';
     ScheduleModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: SetTokenInterceptor,
+    },
+  ],
 })
 export class AppModule {}

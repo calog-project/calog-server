@@ -1,9 +1,15 @@
 import { ConfigService } from '@nestjs/config';
-import { NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import {
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+  Injectable,
+} from '@nestjs/common';
 import { Observable, map, tap } from 'rxjs';
 import { CookieOptions, Response } from 'express';
 import { AllConfigType } from '../config/config.type';
 
+@Injectable()
 export class SetTokenInterceptor implements NestInterceptor {
   constructor(private readonly _configService: ConfigService<AllConfigType>) {}
   intercept(
@@ -24,7 +30,7 @@ export class SetTokenInterceptor implements NestInterceptor {
             maxAge: this._configService.get('auth.jwtRefreshExpirationTime', {
               infer: true,
             }),
-            domain: app.nodeEnv ? app.origin.split('://')[1] : undefined,
+            domain: app.nodeEnv ? app.origin.split(':')[1].slice(2) : undefined,
           };
           res.setHeader('Authorization', `Bearer ${data?.token.accessToken}`);
           res.cookie('refreshToken', data?.token.refreshToken, cookieConfig);
