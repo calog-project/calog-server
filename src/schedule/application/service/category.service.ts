@@ -1,7 +1,7 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
+  BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
@@ -9,7 +9,13 @@ import { EventBus } from '@nestjs/cqrs';
 import { Category, CategoryPrimitives } from '../../domain/model/category';
 
 import { CreateCategoryUseCase } from '../../domain/port/in/create-category.usecase';
-import { CreateCategoryCommand } from '../command/category.command';
+import { UpdateCategoryUseCase } from '../../domain/port/in/update-category.usecase';
+import { DeleteCategoryUseCase } from '../../domain/port/in/delete-category.usecase';
+import {
+  CreateCategoryCommand,
+  DeleteCategoryCommand,
+  UpdateCategoryCommand,
+} from '../command/category.command';
 import { GetCategoryUseCase } from '../../domain/port/in/get-category.usecase';
 import {
   GetCategoriesByUserIdQuery,
@@ -27,7 +33,11 @@ import {
 
 @Injectable()
 export class CategoryService
-  implements CreateCategoryUseCase, GetCategoryUseCase
+  implements
+    CreateCategoryUseCase,
+    GetCategoryUseCase,
+    UpdateCategoryUseCase,
+    DeleteCategoryUseCase
 {
   constructor(
     @Inject(HandleCategoryPortSymbol)
@@ -38,16 +48,22 @@ export class CategoryService
   ) {}
 
   async createCategory(command: CreateCategoryCommand): Promise<number> {
-    const isExistsName =
-      await this._loadCategoryPort.findByUserIdAndCategoryName(
-        command.userId,
-        command.name,
-      );
-    if (isExistsName)
-      throw new BadRequestException('이미 존재하는 카테고리입니다');
-
-    const category = Category.create({ ...command });
-    return await this._handleCategoryPort.save(category);
+    const exists = await this._loadCategoryPort.findByUserIdAndCategoryName(
+      command.userId,
+      command.name,
+    );
+    if (exists) {
+      const category = Category.create({ ...exists });
+      if (!category.hasChanges(command.name, command.color)) return exists.id;
+      else {
+        category.changeName(command.name);
+        category.changeColor(command.color);
+        return await this._handleCategoryPort.update(exists.id, category);
+      }
+    } else {
+      const category = Category.create({ ...command });
+      return await this._handleCategoryPort.save(category);
+    }
   }
 
   async getCategoryById(query: GetCategoryQuery): Promise<CategoryPrimitives> {
@@ -63,5 +79,24 @@ export class CategoryService
     if (!categories)
       throw new NotFoundException('카테고리가 존재하지 않습니다');
     return categories;
+  }
+
+  async updateCategory(command: UpdateCategoryCommand): Promise<number> {
+    const category = await this._loadCategoryPort.findById(command.id);
+    if (!category)
+      throw new BadRequestException('존재하지 않는 카테고리입니다');
+
+    const updateCategory = Category.create({ ...category });
+    if (!updateCategory.hasChanges(command.name, command.color))
+      return command.id;
+
+    updateCategory.changeName(command.name);
+    updateCategory.changeColor(command.color);
+    return await this._handleCategoryPort.update(command.id, updateCategory);
+  }
+
+  async deleteCategory(command: DeleteCategoryCommand): Promise<number> {
+    const deletedId = await this._handleCategoryPort.delete(command.id);
+    return deletedId;
   }
 }

@@ -20,7 +20,7 @@ export class ScheduleMapper {
         dto.title,
         new Date(dto.start),
         new Date(dto.end),
-        dto.category.name,
+        dto.categoryId,
         dto.joiner,
         dto.description,
       );

@@ -1,10 +1,11 @@
-import { Entity, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryColumn, ManyToOne, Index } from 'typeorm';
 import { ScheduleEntity } from './schedule.entity';
 import { CategoryEntity } from './category.entity';
 
 @Entity('user_category_schedule')
 export class UserCategoryScheduleEntity {
   @PrimaryColumn()
+  @Index()
   userId: number;
 
   @PrimaryColumn()
@@ -14,10 +15,8 @@ export class UserCategoryScheduleEntity {
   scheduleId: number;
 
   @ManyToOne(() => ScheduleEntity)
-  @JoinColumn({ name: 'scheduleId' })
   schedule: ScheduleEntity;
 
   @ManyToOne(() => CategoryEntity)
-  @JoinColumn({ name: 'categoryId' })
   category: CategoryEntity;
 }

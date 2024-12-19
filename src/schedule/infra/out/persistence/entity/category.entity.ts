@@ -1,9 +1,11 @@
 import {
   Entity,
+  Index,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 
 /**
@@ -12,6 +14,7 @@ import {
  * */
 
 @Entity('category')
+@Unique(['userId', 'name'])
 export class CategoryEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -19,9 +22,11 @@ export class CategoryEntity {
   @Column('uuid', { unique: true })
   aggregateId: string;
 
+  @Index()
   @Column()
   userId: number;
 
+  @Index()
   @Column('varchar')
   name: string;
 

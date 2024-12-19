@@ -8,6 +8,7 @@ import { Observable, map, tap } from 'rxjs';
 import { ApiResponse } from '../dto/api-response';
 
 export class loggingInterceptor implements NestInterceptor {
+  constructor(private readonly _logger = new Logger()) {}
   intercept(
     context: ExecutionContext,
     next: CallHandler<any>,
@@ -22,9 +23,7 @@ export class loggingInterceptor implements NestInterceptor {
         const reqFinishTime: number = Date.now();
 
         const message: string =
-          `${req.method}; ` +
-          `${req.path}; ` +
-          `${reqFinishTime - reqStartTiem}ms`;
+          `${req.method} ${req.path}; ` + `${reqFinishTime - reqStartTiem}ms`;
 
         Logger.log(message, loggingInterceptor.name);
       }),

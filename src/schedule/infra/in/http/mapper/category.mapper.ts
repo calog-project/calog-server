@@ -1,13 +1,27 @@
 import { CategoryPrimitives } from '../../../../domain/model/category';
 import { CategoryResDto } from '../dto/category.res';
-import { CreateCategoryDto } from '../dto/category.req';
-import { CreateCategoryCommand } from '../../../../application/command/category.command';
+import { CreateCategoryDto, UpdateCategoryDto } from '../dto/category.req';
+import {
+  CreateCategoryCommand,
+  UpdateCategoryCommand,
+  DeleteCategoryCommand,
+} from '../../../../application/command/category.command';
 
 export class CategoryMapper {
-  static toCommand(dto: CreateCategoryDto): CreateCategoryCommand;
-  static toCommand(dto: CreateCategoryDto): CreateCategoryCommand {
-    if (dto && dto instanceof CreateCategoryDto) {
-      return new CreateCategoryCommand(dto.userId, dto.name, dto.color);
+  static toCommand<T extends CreateCategoryDto | number>(
+    idOrDto?: T,
+    dto?: UpdateCategoryDto,
+  ): CreateCategoryCommand | UpdateCategoryCommand | DeleteCategoryCommand {
+    if (idOrDto && idOrDto instanceof CreateCategoryDto) {
+      return new CreateCategoryCommand(
+        idOrDto.userId,
+        idOrDto.name,
+        idOrDto.color,
+      );
+    } else if (dto && typeof idOrDto === 'number') {
+      return new UpdateCategoryCommand(idOrDto, dto.name, dto.color);
+    } else if (typeof idOrDto === 'number') {
+      return new DeleteCategoryCommand(idOrDto);
     }
   }
   static toDto(view: CategoryPrimitives): CategoryResDto;

@@ -7,6 +7,7 @@ import {
   Logger as NestLogger,
   ClassSerializerInterceptor,
   ValidationPipe,
+  Logger,
 } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { loggingInterceptor } from './common/interceptor/logging.interceptor';
@@ -15,9 +16,12 @@ import { GlobalExceptionFilter } from './common/filter/global-exception.filter';
 
 import { AppModule } from './app.module';
 import { AllConfigType } from './common/config/config.type';
+import { DomainExceptionFilter } from './common/filter/domain-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { logger: ['debug'] });
+  const app = await NestFactory.create(AppModule, {
+    logger: process.env.NODE_ENV === 'production' ? ['log'] : ['debug'],
+  });
   const configService = app.get(ConfigService<AllConfigType>);
   const appConfig = configService.getOrThrow('app', { infer: true });
   const redisConfig = configService.getOrThrow('redis', { infer: true });
@@ -31,7 +35,6 @@ async function bootstrap() {
         tls: {},
       },
     });
-
   app.setGlobalPrefix(appConfig.apiPrefix, {
     exclude: ['/'],
   });
@@ -52,7 +55,10 @@ async function bootstrap() {
   app.useGlobalInterceptors(new loggingInterceptor());
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  app.useGlobalFilters(new GlobalExceptionFilter(configService));
+  app.useGlobalFilters(
+    new GlobalExceptionFilter(configService),
+    new DomainExceptionFilter(),
+  );
   await app.listen(appConfig.port, () => {
     NestLogger.log(
       `🌐 HTTP Server listening on url ${appConfig.url} 🌐`,

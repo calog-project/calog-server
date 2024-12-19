@@ -1,6 +1,8 @@
 import {
   Get,
   Post,
+  Patch,
+  Delete,
   Body,
   Param,
   Controller,
@@ -12,10 +14,11 @@ import {
   GetCategoriesByUserIdQuery,
   GetCategoryQuery,
 } from '../../../../application/query/category.query';
-import { CreateCategoryDto } from '../dto/category.req';
+import { CreateCategoryDto, UpdateCategoryDto } from '../dto/category.req';
 import { CategoryResDto } from '../dto/category.res';
 import { CategoryMapper } from '../mapper/category.mapper';
 import { CategoryPrimitives } from '../../../../domain/model/category';
+import { UserId } from '../../../../../common/decorator/user-id.decorator';
 
 @Controller('category')
 export class CategoryController {
@@ -32,12 +35,12 @@ export class CategoryController {
 
   @Get('')
   async getCategoriesByUserId(
-    @Param('userId') id: number,
+    @UserId() userId: number,
   ): Promise<CategoryResDto[]> {
     const categories = await this._queryBus.execute<
       GetCategoriesByUserIdQuery,
       CategoryPrimitives[]
-    >(new GetCategoriesByUserIdQuery(id));
+    >(new GetCategoriesByUserIdQuery(userId));
     return CategoryMapper.toDto(categories);
   }
 
@@ -48,5 +51,19 @@ export class CategoryController {
       CategoryResDto
     >(new GetCategoryQuery(id));
     return CategoryMapper.toDto(category);
+  }
+
+  @Patch(':id')
+  async updateCategory(
+    @Param('id') id: number,
+    @Body() dto: UpdateCategoryDto,
+  ): Promise<void> {
+    const command = CategoryMapper.toCommand(id, dto);
+    await this._commandBus.execute(command);
+  }
+
+  @Delete(':id')
+  async deleteCategory(@Param('id') id: number): Promise<void> {
+    await this._commandBus.execute(CategoryMapper.toCommand(id));
   }
 }

@@ -37,10 +37,8 @@ export class ScheduleMapper {
   public static toOrmEntity(domain: Partial<Schedule>): ScheduleEntity {
     const data = domain.toPrimitives();
     const parseId = typeof data.id === 'number' ? data.id : parseInt(data.id);
-    const record = {
-      ...new ScheduleEntity(),
-      ...data,
-    };
+    const record = new ScheduleEntity();
+    Object.assign(record, data);
     if (parseId) data.id = parseId;
     return record;
   }

@@ -11,8 +11,14 @@ describe('UserDomain', () => {
       const email = 'test@test.com';
       expect(Email.create(email).props.email).toEqual(email);
     });
-    it('비정상 이메일 입력 시 예외 처리', () => {
+    it('이메일 형식이 아닌 값 입력 시 예외 처리', () => {
       const email = 'invalidEmail';
+      expect(() => Email.create(email)).toThrow(
+        '이메일 형식이 잘못되었습니다.',
+      );
+    });
+    it('undefined 입력 시 예외 처리', () => {
+      const email = undefined;
       expect(() => Email.create(email)).toThrow(
         '이메일 형식이 잘못되었습니다.',
       );
