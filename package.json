@@ -19,7 +19,15 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "test:unit": "jest --watch --verbose --config ./test/unit/jest-unit.json"
+    "test:unit": "jest --watch --verbose --config ./test/unit/jest-unit.json",
+    "typeorm:dev": "cross-env NODE_ENV=development ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource ./src/common/config/database/data-source.ts",
+    "typeorm:prod": "cross-env NODE_ENV=production ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource ./src/common/config/database/data-source.ts",
+    "typeorm:migration:gen:dev": "npm run typeorm:dev migration:generate ./src/common/config/database/migration/$npm_config_name",
+    "typeorm:migration:gen:prod": "npm run typeorm:prod migration:generate ./src/common/config/database/migration --name",
+    "typeorm:migration:run:dev": "npm run typeorm:dev migration:run",
+    "typeorm:migration:run:prod": "npm run typeorm:prod migration:run",
+    "typeorm:migration:revert:dev": "npm run typeorm:dev migration:revert",
+    "typeorm:migration:revert:prod": "npm run typeorm:prod migration:revert"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.623.0",
