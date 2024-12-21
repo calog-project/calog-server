@@ -1,6 +1,7 @@
 import {
   Get,
   Post,
+  Patch,
   Body,
   Param,
   Controller,
@@ -8,7 +9,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateScheduleDto } from '../dto/schedule.req';
+import { CreateScheduleDto, UpdateScheduleDto } from '../dto/schedule.req';
 import { ScheduleDetailResDto } from '../dto/schedule.res';
 import { ScheduleMapper } from '../mapper/schedule.mapper';
 
@@ -22,7 +23,9 @@ export class ScheduleController {
   @Post('')
   @HttpCode(HttpStatus.CREATED)
   async createSchedule(@Body() dto: CreateScheduleDto): Promise<void> {
-    await this._commandBus.execute(ScheduleMapper.toCommand(dto));
+    await this._commandBus.execute(
+      ScheduleMapper.toCommand<CreateScheduleDto>(null, dto),
+    );
   }
 
   @Get(':id')
@@ -31,5 +34,13 @@ export class ScheduleController {
   ): Promise<ScheduleDetailResDto> {
     const schedule = await this._queryBus.execute(ScheduleMapper.toQuery(id));
     return ScheduleMapper.toDto(schedule);
+  }
+
+  @Patch(':id')
+  async changeSchedule(
+    @Param(':id') id: number,
+    @Body() dto: UpdateScheduleDto,
+  ): Promise<void> {
+    console.log(ScheduleMapper.toCommand<UpdateScheduleDto>(id, dto));
   }
 }
