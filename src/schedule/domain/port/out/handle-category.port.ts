@@ -8,6 +8,6 @@ export interface HandleCategoryPort {
   upsert(
     category: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<number>;
-  update(id: number, options: Partial<Category>): Promise<number>;
+  update(category: Partial<Category>): Promise<number>;
   delete(id: number): Promise<number>;
 }

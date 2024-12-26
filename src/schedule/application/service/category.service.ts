@@ -58,7 +58,7 @@ export class CategoryService
       else {
         category.changeName(command.name);
         category.changeColor(command.color);
-        return await this._handleCategoryPort.update(exists.id, category);
+        return await this._handleCategoryPort.update(category);
       }
     } else {
       const category = Category.create({ ...command });
@@ -92,7 +92,7 @@ export class CategoryService
 
     updateCategory.changeName(command.name);
     updateCategory.changeColor(command.color);
-    return await this._handleCategoryPort.update(command.id, updateCategory);
+    return await this._handleCategoryPort.update(updateCategory);
   }
 
   async deleteCategory(command: DeleteCategoryCommand): Promise<number> {

@@ -86,7 +86,7 @@ export class UserService
     const user = await this._loadUserPort.findById(id);
     if (!user) throw new NotFoundException('존재하지 않은 사용자입니다.');
     console.log(options);
-    const result = await this._handleUserPort.update(id, options);
+    const result = await this._handleUserPort.update(options);
     return;
   }
 
@@ -102,6 +102,6 @@ export class UserService
     user.updateNickName(command.nickname);
     user.changeImage(command.image);
     user.updateDescription(command.description);
-    return await this._handleUserPort.update(command.id, user);
+    return await this._handleUserPort.update(user);
   }
 }

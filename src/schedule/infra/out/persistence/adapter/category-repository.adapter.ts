@@ -42,14 +42,15 @@ export class CategoryRepositoryAdapter
     return 1;
   }
 
-  async update(id: number, options: Partial<Category>): Promise<number> {
-    const updatedCategory = await this._categoryRepository
+  async update(category: Partial<Category>): Promise<number> {
+    const categoryEntity = CategoryMapper.toOrmEntity(category);
+    const updated = await this._categoryRepository
       .createQueryBuilder()
       .update()
-      .set({ ...CategoryMapper.toOrmEntity(options) })
-      .where('id = :id', { id })
+      .set({ ...categoryEntity })
+      .where('id = :id', { id: categoryEntity.id })
       .execute();
-    return id;
+    return categoryEntity.id;
   }
   async delete(id: number): Promise<number> {
     const deletedCategory = await this._categoryRepository.delete({ id });
