@@ -8,6 +8,7 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -19,6 +20,7 @@ import { CategoryResDto } from '../dto/category.res';
 import { CategoryMapper } from '../mapper/category.mapper';
 import { CategoryPrimitives } from '../../../../domain/model/category';
 import { UserId } from '../../../../../common/decorator/user-id.decorator';
+import { JwtAccessAuthGuard } from '../../../../../common/guard/jwt-access-auth.guard';
 
 @Controller('category')
 export class CategoryController {
@@ -29,6 +31,7 @@ export class CategoryController {
 
   @Post('')
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAccessAuthGuard)
   async createCategory(@Body() dto: CreateCategoryDto): Promise<void> {
     await this._commandBus.execute(CategoryMapper.toCommand(dto));
   }

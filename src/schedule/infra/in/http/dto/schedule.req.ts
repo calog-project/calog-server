@@ -7,3 +7,12 @@ export class CreateScheduleDto {
   joiner: number[];
   description: string;
 }
+
+export class UpdateScheduleDto {
+  userId: number;
+  title: string;
+  start: Date;
+  end: Date;
+  categoryId: number;
+  description: string;
+}

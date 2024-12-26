@@ -30,15 +30,14 @@ export class ScheduleMapper {
         dto.joiner,
         dto.description,
       );
-    } else if (id && dto && dto instanceof UpdateScheduleCommand) {
+    } else if (id && dto && dto instanceof UpdateScheduleDto) {
       return new UpdateScheduleCommand(
         id,
-        dto.author,
+        dto.userId,
         dto.title,
         dto.start,
         dto.end,
         dto.categoryId,
-        dto.joiner,
         dto.description,
       );
     } else if (id && !dto) {

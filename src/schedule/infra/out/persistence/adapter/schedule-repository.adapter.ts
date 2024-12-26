@@ -30,6 +30,7 @@ export class ScheduleRepositoryAdapter
     categoryId: number,
     defaultCategoryId?: number,
   ): Promise<number> {
+    //리팩토링
     return await this._scheduleRepository.manager.transaction(async (txn) => {
       const savedSchedule = await txn.save(
         ScheduleMapper.toOrmEntity(schedule),
@@ -62,11 +63,27 @@ export class ScheduleRepositoryAdapter
     });
   }
 
-  async update(id: number, options: Partial<Schedule>): Promise<number> {
+  async update(
+    schedule: Partial<Schedule>,
+    userId: number,
+    categoryId: number,
+  ): Promise<number> {
     await this._scheduleRepository.manager.transaction(async (txn) => {
-      await txn.save(options);
+      await txn.save(ScheduleMapper.toOrmEntity(schedule));
+      if (categoryId) {
+        const relationRecord = await txn.findOneBy(UserCategoryScheduleEntity, {
+          userId,
+          scheduleId: schedule.dbId,
+        });
+        await txn
+          .createQueryBuilder()
+          .update(UserCategoryScheduleEntity)
+          .set({ categoryId })
+          .where(relationRecord)
+          .execute();
+      }
     });
-    return;
+    return schedule.dbId;
   }
   async delete(id: number): Promise<number> {
     return;

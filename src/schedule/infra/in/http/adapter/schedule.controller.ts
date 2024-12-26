@@ -38,9 +38,11 @@ export class ScheduleController {
 
   @Patch(':id')
   async changeSchedule(
-    @Param(':id') id: number,
+    @Param('id') id: number,
     @Body() dto: UpdateScheduleDto,
   ): Promise<void> {
-    console.log(ScheduleMapper.toCommand<UpdateScheduleDto>(id, dto));
+    await this._commandBus.execute(
+      ScheduleMapper.toCommand<UpdateScheduleDto>(id, dto),
+    );
   }
 }
