@@ -100,12 +100,30 @@ export class ScheduleService
   }
 
   async updateSchedule(command: UpdateScheduleCommand): Promise<number> {
-    //1개의 api로 카테고리 수정, 일정 수정
+    const schedule = await this._loadSchedulePort.findById(command.id);
+    if (!schedule) throw new BadRequestException('존재하지 않은 일정입니다');
+    if (command.categoryId) {
+      const existsCategory = this._loadCategoryPort.findById(
+        command.categoryId,
+      );
+      if (!existsCategory)
+        throw new BadRequestException('존재하지 않은 카테고리입니다');
+    }
+    const updateSchedule = Schedule.create({ ...schedule });
+    updateSchedule.changeTitle(command.title);
+    updateSchedule.changePeriod(command.start, command.end);
+    updateSchedule.changeDescription(command.description);
 
-    return;
+    return await this._handleSchedulePort.update(
+      updateSchedule,
+      command.userId,
+      command.categoryId,
+    );
   }
 
   async deleteSchedule(command: DeleteScheduleCommand): Promise<number> {
     return;
   }
+
+  //invite , reject, approve
 }

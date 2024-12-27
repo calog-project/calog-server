@@ -10,6 +10,8 @@ import { CategoryRepositoryAdapter } from './infra/out/persistence/adapter/categ
 
 import { CreateScheduleUseCaseSymbol } from './domain/port/in/create-schedule.usecase';
 import { GetScheduleUseCaseSymbol } from './domain/port/in/get-schedule.usecase';
+import { UpdateScheduleUseCaseSymbol } from './domain/port/in/update-schedule.usecase';
+import { DeleteScheduleUseCaseSymbol } from './domain/port/in/delete-schedule.usecase';
 import { CreateCategoryUseCaseSymbol } from './domain/port/in/create-category.usecase';
 import { UpdateCategoryUseCaseSymbol } from './domain/port/in/update-category.usecase';
 import { GetCategoryUseCaseSymbol } from './domain/port/in/get-category.usecase';
@@ -20,11 +22,15 @@ import { LoadSchedulePortSymbol } from './domain/port/out/load-schedule.port';
 import { HandleCategoryPortSymbol } from './domain/port/out/handle-category.port';
 import { LoadCategoryPortSymbol } from './domain/port/out/load-category.port';
 
-import { CreateScheduleHandler } from './application/command/schedule.command-handler';
+import {
+  CreateScheduleHandler,
+  UpdateScheduleHandler,
+  DeleteScheduleHandler,
+} from './application/command/schedule.command-handler';
 import {
   CreateCategoryHandler,
-  DeleteCategoryHandler,
   UpdateCategoryHandler,
+  DeleteCategoryHandler,
 } from './application/command/category.command-handler';
 import { ScheduleCreatedHandler } from './application/event-handler/schedule.event-handler';
 
@@ -37,6 +43,8 @@ import { UserModule } from 'src/user/user.module';
 
 const handlerProvider = [
   CreateScheduleHandler,
+  UpdateScheduleHandler,
+  DeleteScheduleHandler,
   CreateCategoryHandler,
   UpdateCategoryHandler,
   DeleteCategoryHandler,
@@ -74,6 +82,11 @@ const useCaseProvider = [
     provide: GetScheduleUseCaseSymbol,
     useClass: ScheduleService,
   },
+  {
+    provide: UpdateScheduleUseCaseSymbol,
+    useClass: ScheduleService,
+  },
+  { provide: DeleteScheduleUseCaseSymbol, useClass: ScheduleService },
   {
     provide: CreateCategoryUseCaseSymbol,
     useClass: CategoryService,

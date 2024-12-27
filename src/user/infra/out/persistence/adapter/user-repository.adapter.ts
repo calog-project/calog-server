@@ -23,15 +23,15 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     return savedUser.id;
   }
 
-  async update(id: number, options: Partial<User>): Promise<number | string> {
-    const user = await this._userRepository
+  async update(user: Partial<User>): Promise<number | string> {
+    const userEntity = UserMapper.toOrmEntity(user);
+    const updated = await this._userRepository
       .createQueryBuilder()
       .update()
-      .set({ ...UserMapper.toOrmEntity(options) })
-      .where('id = :id', { id })
+      .set({ ...userEntity })
+      .where('id = :id', { id: userEntity.id })
       .execute();
-    console.log(user);
-    return;
+    return userEntity.id;
   }
 
   //LoadUserPort Implementation

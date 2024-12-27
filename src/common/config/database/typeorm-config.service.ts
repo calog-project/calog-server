@@ -14,7 +14,6 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
   }
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
-    console.log(this.configService.get('db.type', { infer: true }));
     return {
       type: this.configService.get('db.type', { infer: true }),
       host: this.configService.get('db.host', { infer: true }),

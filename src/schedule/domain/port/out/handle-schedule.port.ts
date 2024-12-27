@@ -7,6 +7,10 @@ export interface HandleSchedulePort {
     categoryId: number,
     defaultCategoryId?: number,
   ): Promise<number>;
-  update(id: number, options: Partial<Schedule>): Promise<number>;
+  update(
+    schedule: Partial<Schedule>,
+    userId: number,
+    categoryId?: number,
+  ): Promise<number>;
   delete(id: number): Promise<number>;
 }

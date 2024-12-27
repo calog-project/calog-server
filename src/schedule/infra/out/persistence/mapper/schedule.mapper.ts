@@ -19,7 +19,6 @@ export class ScheduleMapper {
     const readModel: SchedulePrimitives = {
       ...raw,
     };
-    console.log(readModel);
     return readModel;
   }
 

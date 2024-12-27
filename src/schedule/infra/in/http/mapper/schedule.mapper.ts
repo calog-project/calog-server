@@ -1,29 +1,47 @@
 import { SchedulePrimitives } from '../../../../domain/model/schedule';
 import { ScheduleSummary } from '../../../../domain/model/schedule-summary';
 
-import { CreateScheduleDto } from '../dto/schedule.req';
+import { CreateScheduleDto, UpdateScheduleDto } from '../dto/schedule.req';
 import {
   ScheduleDetailResDto,
   ScheduleSummaryResDto,
 } from '../dto/schedule.res';
 
-import { CreateScheduleCommand } from '../../../../application/command/schedule.command';
+import {
+  CreateScheduleCommand,
+  DeleteScheduleCommand,
+  UpdateScheduleCommand,
+} from '../../../../application/command/schedule.command';
 import { GetScheduleDetailQuery } from '../../../../application/query/schedule.query';
 import { DateTimeUtil } from '../../../../../common/util/date-time.util';
 
 export class ScheduleMapper {
-  static toCommand(dto: CreateScheduleDto): CreateScheduleCommand;
-  static toCommand(dto: CreateScheduleDto): CreateScheduleCommand {
-    if (dto && dto instanceof CreateScheduleDto) {
+  static toCommand<T extends CreateScheduleDto | UpdateScheduleDto>(
+    id?: number,
+    dto?: T,
+  ): CreateScheduleCommand | UpdateScheduleCommand | DeleteScheduleCommand {
+    if (!id && dto && dto instanceof CreateScheduleDto) {
       return new CreateScheduleCommand(
         dto.author,
         dto.title,
-        new Date(dto.start),
-        new Date(dto.end),
+        dto.start,
+        dto.end,
         dto.categoryId,
         dto.joiner,
         dto.description,
       );
+    } else if (id && dto && dto instanceof UpdateScheduleDto) {
+      return new UpdateScheduleCommand(
+        id,
+        dto.userId,
+        dto.title,
+        dto.start,
+        dto.end,
+        dto.categoryId,
+        dto.description,
+      );
+    } else if (id && !dto) {
+      return new DeleteScheduleCommand(id);
     }
   }
 

@@ -23,7 +23,7 @@
     "typeorm:dev": "cross-env NODE_ENV=development ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource ./src/common/config/database/data-source.ts",
     "typeorm:prod": "cross-env NODE_ENV=production ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource ./src/common/config/database/data-source.ts",
     "typeorm:migration:gen:dev": "npm run typeorm:dev migration:generate ./src/common/config/database/migration/$npm_config_name",
-    "typeorm:migration:gen:prod": "npm run typeorm:prod migration:generate ./src/common/config/database/migration --name",
+    "typeorm:migration:gen:prod": "npm run typeorm:prod migration:generate ./src/common/config/database/migration/$npm_config_name",
     "typeorm:migration:run:dev": "npm run typeorm:dev migration:run",
     "typeorm:migration:run:prod": "npm run typeorm:prod migration:run",
     "typeorm:migration:revert:dev": "npm run typeorm:dev migration:revert",
