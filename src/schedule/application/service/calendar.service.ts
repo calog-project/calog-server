@@ -46,7 +46,7 @@ export class CalendarService implements GetCalendarUseCase {
       start,
       end,
     );
-    return;
+    return schedules;
   }
 
   async getCalendarByMonth2(

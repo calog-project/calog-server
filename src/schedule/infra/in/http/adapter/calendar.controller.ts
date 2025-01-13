@@ -15,12 +15,13 @@ import {
 } from '../../../../application/query/calendar.query';
 import { JwtAccessAuthGuard } from '../../../../../common/guard/jwt-access-auth.guard';
 import { UserId } from '../../../../../common/decorator/user-id.decorator';
+import { Calendar } from '../../../../domain/model/calendar';
 import { ScheduleReadModel } from '../../../../domain/model/schedule-read-model';
-import { CalendarSummaryResDto } from '../dto/calendar.res';
 import { GetCalendarQueryReqDto } from '../dto/calendar.req';
+import { CalendarSummaryResDto } from '../dto/calendar.res';
 import { ScheduleMapper } from '../mapper/schedule.mapper';
 import { CategoryMapper } from '../mapper/category.mapper';
-import { Calendar } from '../../../../domain/model/calendar';
+import { ScheduleSummaryResDto } from '../dto/schedule.res';
 
 @Controller('calendar')
 export class CalendarController {
@@ -62,25 +63,27 @@ export class CalendarController {
     @UserId() userId: number,
     @Query('date') date: Date,
     @Query('categoryId') categoryId: number,
-  ): Promise<ScheduleReadModel[]> {
-    const schedules = await this._queryBus.execute(
-      new GetCalendarByPeriodQuery(userId, date, categoryId),
-    );
-    return schedules;
+  ): Promise<ScheduleSummaryResDto[]> {
+    const schedules = await this._queryBus.execute<
+      GetCalendarByPeriodQuery,
+      ScheduleReadModel[]
+    >(new GetCalendarByPeriodQuery(userId, date, categoryId));
+    return ScheduleMapper.toDto(schedules);
   }
 
   @Get(':userId')
   async getSchedulesForMonthTest(
     @Param('userId') userId: number,
     @Query() query: GetCalendarQueryReqDto,
-  ): Promise<ScheduleReadModel[]> {
+  ): Promise<ScheduleSummaryResDto[]> {
     if (!userId)
       throw new BadRequestException(
         '경로 파라미터에 사용자 id 필드가 없습니다',
       );
-    const schedules = await this._queryBus.execute(
-      new GetCalendarByPeriodQuery(userId, query.date, query.categoryId),
-    );
-    return schedules;
+    const schedules = await this._queryBus.execute<
+      GetCalendarByPeriodQuery,
+      ScheduleReadModel[]
+    >(new GetCalendarByPeriodQuery(userId, query.date, query.categoryId));
+    return ScheduleMapper.toDto(schedules);
   }
 }
