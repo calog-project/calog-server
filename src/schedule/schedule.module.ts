@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
 import { SchedulePersistenceModule } from './infra/out/persistence/schedule-persistence.module';
 
+import { CalendarController } from './infra/in/http/adapter/calendar.controller';
 import { ScheduleController } from './infra/in/http/adapter/schedule.controller';
 import { CategoryController } from './infra/in/http/adapter/category.controller';
+import { CalendarService } from './application/service/calendar.service';
 import { ScheduleService } from './application/service/schedule.service';
 import { CategoryService } from './application/service/category.service';
 import { ScheduleRepositoryAdapter } from './infra/out/persistence/adapter/schedule-repository.adapter';
 import { CategoryRepositoryAdapter } from './infra/out/persistence/adapter/category-repository.adapter';
 
+import { GetCalendarUseCaseSymbol } from './domain/port/in/get-calendar.usecase';
 import { CreateScheduleUseCaseSymbol } from './domain/port/in/create-schedule.usecase';
 import { GetScheduleUseCaseSymbol } from './domain/port/in/get-schedule.usecase';
 import { UpdateScheduleUseCaseSymbol } from './domain/port/in/update-schedule.usecase';
@@ -34,6 +37,10 @@ import {
 } from './application/command/category.command-handler';
 import { ScheduleCreatedHandler } from './application/event-handler/schedule.event-handler';
 
+import {
+  InitCalenderHandler,
+  GetCalendarByPeriodHandler,
+} from './application/query/calendar.query-handler';
 import { GetScheduleDetailHandler } from './application/query/schedule.query-handler';
 import {
   GetCategoryHandler,
@@ -49,6 +56,8 @@ const handlerProvider = [
   UpdateCategoryHandler,
   DeleteCategoryHandler,
   ScheduleCreatedHandler,
+  InitCalenderHandler,
+  GetCalendarByPeriodHandler,
   GetScheduleDetailHandler,
   GetCategoryHandler,
   GetCategoriesByUserIdHandler,
@@ -74,6 +83,7 @@ const repositoryProvider = [
 ];
 
 const useCaseProvider = [
+  { provide: GetCalendarUseCaseSymbol, useClass: CalendarService },
   {
     provide: CreateScheduleUseCaseSymbol,
     useClass: ScheduleService,
@@ -107,7 +117,7 @@ const useCaseProvider = [
 
 @Module({
   imports: [SchedulePersistenceModule, UserModule],
-  controllers: [ScheduleController, CategoryController],
+  controllers: [CalendarController, ScheduleController, CategoryController],
   providers: [...repositoryProvider, ...useCaseProvider, ...handlerProvider],
   exports: [
     CreateScheduleUseCaseSymbol,

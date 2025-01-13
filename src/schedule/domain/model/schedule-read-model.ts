@@ -1,13 +1,20 @@
-export class ScheduleSummary {
+export class ScheduleReadModel {
   aggregateId: string;
   id: number;
   author: number;
   title: string;
   start: Date;
   end: Date;
-  category?: string;
+  categoryId?: number;
   joiner?: number[];
   description?: string;
   createdAt: Date;
   updatedAt: Date;
 }
+
+// id: number;
+// author: number;
+// title: string;
+// start: Date;
+// end: Date;
+// categoryId?: number;

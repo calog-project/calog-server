@@ -16,3 +16,9 @@ export class UpdateScheduleDto {
   categoryId: number;
   description: string;
 }
+
+export class getCalendarDto {
+  userId: number;
+  date: Date;
+  categoryId: number;
+}

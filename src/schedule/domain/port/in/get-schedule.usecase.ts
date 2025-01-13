@@ -1,5 +1,5 @@
 import { SchedulePrimitives } from '../../model/schedule';
-import { ScheduleSummary } from '../../model/schedule-summary';
+import { ScheduleReadModel } from '../../model/schedule-read-model';
 import {
   GetScheduleDetailQuery,
   GetManyScheduleQuery,
@@ -9,7 +9,6 @@ export const GetScheduleUseCaseSymbol = Symbol('GetScheduleUseCase');
 
 export interface GetScheduleUseCase {
   getScheduleById(query: GetScheduleDetailQuery): Promise<SchedulePrimitives>;
-  getScheduleByIds(
-    query: GetManyScheduleQuery,
-  ): Promise<SchedulePrimitives[] | ScheduleSummary[]>;
+  getScheduleByIds(query: GetManyScheduleQuery): Promise<ScheduleReadModel[]>;
+  // getScheduleForMonth(): Promise<ScheduleSummary[]>;
 }
