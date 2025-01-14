@@ -1,12 +1,12 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Brackets, In, Repository } from 'typeorm';
 import { Nullable } from '../../../../../common/type/CommonType';
 
 import {
   Schedule,
   SchedulePrimitives,
 } from '../../../../domain/model/schedule';
-import { ScheduleSummary } from '../../../../domain/model/schedule-summary';
+import { ScheduleReadModel } from '../../../../domain/model/schedule-read-model';
 import { ScheduleEntity } from '../entity/schedule.entity';
 import { UserCategoryScheduleEntity } from '../entity/user-category-schedule.entity';
 
@@ -95,13 +95,41 @@ export class ScheduleRepositoryAdapter
     return schedule ? ScheduleMapper.toReadModel(schedule) : null;
   }
 
-  async findByIds(
-    ids: number[],
-  ): Promise<Nullable<SchedulePrimitives>[] | ScheduleSummary[]> {
+  async findByIds(ids: number[]): Promise<Nullable<ScheduleReadModel[]>> {
     const schedule = await this._scheduleRepository.findBy({ id: In(ids) });
     return schedule.length > 0 ? ScheduleMapper.toReadModels(schedule) : null;
   }
 
-  async findByMonth() {}
-  async findByCategory() {}
+  async findByUserIdAndPeriod(
+    userId: number,
+    start: Date,
+    end: Date,
+  ): Promise<ScheduleReadModel[]> {
+    const ucsArr = await this._userCategoryScheduleRepository
+      .createQueryBuilder('ucs')
+      .innerJoinAndSelect('ucs.schedule', 'schedule')
+      .where('ucs.userId = :userId', { userId })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('schedule.start BETWEEN :start AND :end', {
+            start,
+            end,
+          }).orWhere('schedule.end BETWEEN :start AND :end', {
+            start,
+            end,
+          });
+        }),
+      )
+      .getMany();
+    const scheduleEntities = ucsArr.map((ucs) => ucs.schedule);
+    const readModels = ScheduleMapper.toReadModels(scheduleEntities);
+    readModels.map((readModel, idx) => {
+      readModel.categoryId = ucsArr[idx].categoryId;
+    });
+    return readModels;
+  }
+
+  async findUserCategoryMappings(): Promise<any> {
+    return;
+  }
 }

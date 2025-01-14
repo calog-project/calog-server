@@ -2,7 +2,7 @@ import {
   Schedule,
   SchedulePrimitives,
 } from '../../../../domain/model/schedule';
-import { ScheduleSummary } from '../../../../domain/model/schedule-summary';
+import { ScheduleReadModel } from '../../../../domain/model/schedule-read-model';
 import { ScheduleEntity } from '../entity/schedule.entity';
 
 export class ScheduleMapper {
@@ -15,18 +15,16 @@ export class ScheduleMapper {
   //   return;
   // }
 
-  public static toReadModel(raw: ScheduleEntity): SchedulePrimitives {
-    const readModel: SchedulePrimitives = {
+  public static toReadModel(raw: ScheduleEntity): ScheduleReadModel {
+    const readModel: ScheduleReadModel = {
       ...raw,
     };
     return readModel;
   }
 
-  public static toReadModels(
-    raws: ScheduleEntity[],
-  ): SchedulePrimitives[] | ScheduleSummary[] {
+  public static toReadModels(raws: ScheduleEntity[]): ScheduleReadModel[] {
     return raws.map((raw) => {
-      const readModel: SchedulePrimitives = {
+      const readModel: ScheduleReadModel = {
         ...raw,
       };
       return readModel;

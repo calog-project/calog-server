@@ -7,7 +7,7 @@ import {
 import { EventBus } from '@nestjs/cqrs';
 
 import { Schedule, SchedulePrimitives } from '../../domain/model/schedule';
-import { ScheduleSummary } from '../../domain/model/schedule-summary';
+import { ScheduleReadModel } from '../../domain/model/schedule-read-model';
 
 import { CreateScheduleUseCase } from 'src/schedule/domain/port/in/create-schedule.usecase';
 import { UpdateScheduleUseCase } from '../../domain/port/in/update-schedule.usecase';
@@ -93,7 +93,7 @@ export class ScheduleService
   }
   async getScheduleByIds(
     query: GetManyScheduleQuery,
-  ): Promise<SchedulePrimitives[] | ScheduleSummary[]> {
+  ): Promise<ScheduleReadModel[]> {
     const schedule = this._loadSchedulePort.findByIds(query.ids);
     if (!schedule) throw new NotFoundException('일정이 존재하지 않습니다.');
     return schedule;

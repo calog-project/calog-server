@@ -30,6 +30,7 @@ export class ScheduleSummaryResDto {
   public readonly id: number;
   public readonly author: number;
   public readonly title: string;
+  public readonly categoryId: number;
   public readonly start: string;
   public readonly end: string;
   public readonly createdAt: string;
@@ -39,6 +40,7 @@ export class ScheduleSummaryResDto {
     this.id = props.id;
     this.author = props.author;
     this.title = props.title;
+    this.categoryId = props.categoryId;
     this.start = props.start;
     this.end = props.end;
     this.createdAt = props.createdAt;

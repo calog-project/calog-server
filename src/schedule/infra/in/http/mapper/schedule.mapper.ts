@@ -1,5 +1,5 @@
 import { SchedulePrimitives } from '../../../../domain/model/schedule';
-import { ScheduleSummary } from '../../../../domain/model/schedule-summary';
+import { ScheduleReadModel } from '../../../../domain/model/schedule-read-model';
 
 import { CreateScheduleDto, UpdateScheduleDto } from '../dto/schedule.req';
 import {
@@ -50,9 +50,9 @@ export class ScheduleMapper {
   }
 
   static toDto(view: SchedulePrimitives): ScheduleDetailResDto;
-  static toDto(view: ScheduleSummary[]): ScheduleSummaryResDto[];
+  static toDto(view: ScheduleReadModel[]): ScheduleSummaryResDto[];
   static toDto(
-    view: SchedulePrimitives | ScheduleSummary[],
+    view: SchedulePrimitives | ScheduleReadModel[],
   ): ScheduleDetailResDto | ScheduleSummaryResDto[] {
     if (Array.isArray(view)) {
       return view.map((schedule) => {
@@ -60,6 +60,7 @@ export class ScheduleMapper {
           ...schedule,
           aggregateId: schedule.aggregateId,
           id: schedule.id,
+          categoryId: schedule.categoryId,
           start: DateTimeUtil.toKst(schedule.start),
           end: DateTimeUtil.toKst(schedule.end),
           createdAt: DateTimeUtil.toKst(schedule.createdAt),
@@ -71,6 +72,7 @@ export class ScheduleMapper {
         ...view,
         aggregateId: view.aggregateId,
         id: view.id,
+        // categoryId: view.categoryId,
         start: DateTimeUtil.toKst(view.start),
         end: DateTimeUtil.toKst(view.end),
         createdAt: DateTimeUtil.toKst(view.createdAt),
