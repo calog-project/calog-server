@@ -38,7 +38,7 @@ import {
 import { ScheduleCreatedHandler } from './application/event-handler/schedule.event-handler';
 
 import {
-  InitCalenderHandler,
+  InitCalendarHandler,
   GetCalendarByPeriodHandler,
 } from './application/query/calendar.query-handler';
 import { GetScheduleDetailHandler } from './application/query/schedule.query-handler';
@@ -56,7 +56,7 @@ const handlerProvider = [
   UpdateCategoryHandler,
   DeleteCategoryHandler,
   ScheduleCreatedHandler,
-  InitCalenderHandler,
+  InitCalendarHandler,
   GetCalendarByPeriodHandler,
   GetScheduleDetailHandler,
   GetCategoryHandler,

@@ -12,7 +12,7 @@ import {
 import { ScheduleReadModel } from '../../domain/model/schedule-read-model';
 
 @QueryHandler(GetInitialCalendarQuery)
-export class InitCalenderHandler
+export class InitCalendarHandler
   implements IQueryHandler<GetInitialCalendarQuery>
 {
   constructor(
