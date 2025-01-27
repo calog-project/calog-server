@@ -15,6 +15,7 @@ import { ResponseInterceptor } from './common/interceptor/response.interceptor';
 import { GlobalExceptionFilter } from './common/filter/global-exception.filter';
 
 import { AppModule } from './app.module';
+import { MicroserviceAppModule } from './microservice-app.module';
 import { AllConfigType } from './common/config/config.type';
 import { DomainExceptionFilter } from './common/filter/domain-exception.filter';
 
@@ -26,15 +27,18 @@ async function bootstrap() {
   const appConfig = configService.getOrThrow('app', { infer: true });
   const redisConfig = configService.getOrThrow('redis', { infer: true });
   const microservice =
-    await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
-      transport: Transport.REDIS,
-      options: {
-        host: redisConfig.pubHost,
-        port: redisConfig.pubPort,
-        password: redisConfig.pubToken,
-        tls: {},
+    await NestFactory.createMicroservice<MicroserviceOptions>(
+      MicroserviceAppModule,
+      {
+        transport: Transport.REDIS,
+        options: {
+          host: redisConfig.pubHost,
+          port: redisConfig.pubPort,
+          password: redisConfig.pubToken,
+          tls: {},
+        },
       },
-    });
+    );
   app.setGlobalPrefix(appConfig.apiPrefix, {
     exclude: ['/'],
   });
