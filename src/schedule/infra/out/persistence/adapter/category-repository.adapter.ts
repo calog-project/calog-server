@@ -59,12 +59,16 @@ export class CategoryRepositoryAdapter
 
   async findById(id: number): Promise<CategoryPrimitives> {
     const category = await this._categoryRepository.findOneBy({ id });
-    return category ? CategoryMapper.toReadModel(category) : null;
+    return CategoryMapper.toReadModel(category);
+    // return category ? CategoryMapper.toReadModel(category) : null;
   }
 
   async findByUserId(userId: number): Promise<CategoryPrimitives[]> {
-    const category = await this._categoryRepository.findBy({ userId });
-    return category.length > 0 ? CategoryMapper.toReadModels(category) : null;
+    const category = await this._categoryRepository.find({
+      where: [{ userId }, { userId: -1 }],
+    });
+    return CategoryMapper.toReadModels(category);
+    // return category.length > 0 ? CategoryMapper.toReadModels(category) : null;
   }
 
   async findByUserIdAndCategoryName(

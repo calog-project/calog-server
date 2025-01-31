@@ -26,7 +26,7 @@ export class CalendarService implements GetCalendarUseCase {
   ) {}
 
   async initCalendar(query: GetInitialCalendarQuery): Promise<Calendar> {
-    const { start, end } = DateTimeUtil.getMonthStartAndEnd(query.date);
+    const { start, end } = DateTimeUtil.getMonthStartAndEndForKST(query.date);
     const schedules: ScheduleReadModel[] =
       await this._loadSchedulePort.findByUserIdAndPeriod(
         query.userId,
@@ -40,7 +40,7 @@ export class CalendarService implements GetCalendarUseCase {
   async getCalendarByMonth(
     query: GetCalendarByPeriodQuery,
   ): Promise<ScheduleReadModel[]> {
-    const { start, end } = DateTimeUtil.getMonthStartAndEnd(query.date);
+    const { start, end } = DateTimeUtil.getMonthStartAndEndForKST(query.date);
     const schedules = await this._loadSchedulePort.findByUserIdAndPeriod(
       query.userId,
       start,
@@ -52,7 +52,7 @@ export class CalendarService implements GetCalendarUseCase {
   async getCalendarByMonth2(
     query: GetCalendarByPeriodQuery,
   ): Promise<ScheduleReadModel[]> {
-    const { start, end } = DateTimeUtil.getMonthStartAndEnd(query.date);
+    const { start, end } = DateTimeUtil.getMonthStartAndEndForKST(query.date);
 
     const schedules = await this._loadSchedulePort.findByUserIdAndPeriod(
       query.userId,
