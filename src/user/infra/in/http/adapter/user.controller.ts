@@ -9,6 +9,7 @@ import {
   Inject,
   HttpCode,
   HttpStatus,
+  Delete,
 } from '@nestjs/common';
 import { Nullable } from 'src/common/type/CommonType';
 import { UserMapper } from '../mapper/user.mapper';
@@ -83,4 +84,16 @@ export class UserController {
     const isAvailable = !isExists;
     return { isAvailable };
   }
+
+  @Post('follow/:id')
+  async followingUser() {}
+
+  @Get('follower')
+  async getFollowers() {}
+
+  @Patch('follow/:id/approve')
+  async approveFollow() {}
+
+  @Delete('follow/:id')
+  async deleteFollow() {}
 }

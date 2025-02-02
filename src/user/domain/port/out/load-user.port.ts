@@ -10,4 +10,6 @@ export interface LoadUserPort {
   findByEmail(email: string): Promise<User | null>;
 
   findByNickname(nickname: string): Promise<User | null>;
+
+  findFollower(): Promise<void>;
 }

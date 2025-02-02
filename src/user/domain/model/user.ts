@@ -15,7 +15,7 @@ interface UserProps {
   createdAt?: Date;
   updatedAt?: Date;
 }
-interface UserPrimitives {
+export interface UserPrimitives {
   id?: number;
   email: string;
   password?: string;

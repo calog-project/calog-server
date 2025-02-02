@@ -7,11 +7,14 @@ import { UserMapper } from '../mapper/user.mapper';
 
 import { HandleUserPort } from 'src/user/domain/port/out/handle-user.port';
 import { LoadUserPort } from 'src/user/domain/port/out/load-user.port';
+import { FollowEntity } from '../entity/follow.entity';
 
 export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
   constructor(
     @InjectRepository(UserEntity)
     private readonly _userRepository: Repository<UserEntity>,
+    @InjectRepository(FollowEntity)
+    private readonly _followRepository: Repository<FollowEntity>,
   ) {}
   //HandleUserPort Implementation
   async save(
@@ -34,6 +37,21 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     return userEntity.id;
   }
 
+  async saveFollow(followerId: number, followingId: number): Promise<number> {
+    const a = await this._followRepository.save({
+      followerId,
+      followingId,
+    });
+    console.log(a);
+
+    return;
+  }
+
+  async deleteFollow(followerId: number, followingId: number): Promise<number> {
+    await this._followRepository.delete({ followerId, followingId });
+    return;
+  }
+
   //LoadUserPort Implementation
   async findById(id: number): Promise<Nullable<User>> {
     const user = await this._userRepository.findOneBy({ id });
@@ -54,4 +72,6 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     const user = await this._userRepository.findOneBy({ nickname });
     return user ? UserMapper.toDomain(user) : null;
   }
+
+  async findFollower(): Promise<void> {}
 }
