@@ -37,13 +37,16 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     return userEntity.id;
   }
 
-  async saveFollow(followerId: number, followingId: number): Promise<number> {
+  async saveFollow(
+    followerId: number,
+    followingId: number,
+    isApproved?: boolean,
+  ): Promise<number> {
     const a = await this._followRepository.save({
       followerId,
       followingId,
+      isApproved: isApproved ? isApproved : null,
     });
-    console.log(a);
-
     return;
   }
 
