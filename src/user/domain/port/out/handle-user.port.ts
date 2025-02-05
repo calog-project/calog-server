@@ -7,5 +7,10 @@ export interface HandleUserPort {
     user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<number | string>;
   update(user: Partial<User>): Promise<number | string>;
-  //   delete()
+
+  // delete()
+
+  saveFollow(followerId: number, followingId: number): Promise<number>;
+
+  deleteFollow(followerId: number, followingId: number): Promise<number>;
 }
