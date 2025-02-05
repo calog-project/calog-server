@@ -10,7 +10,11 @@ export interface HandleUserPort {
 
   // delete()
 
-  saveFollow(followerId: number, followingId: number): Promise<number>;
+  saveFollow(
+    followerId: number,
+    followingId: number,
+    isApproved?: boolean,
+  ): Promise<number>;
 
   deleteFollow(followerId: number, followingId: number): Promise<number>;
 }
