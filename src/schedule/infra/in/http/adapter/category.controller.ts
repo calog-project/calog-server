@@ -37,6 +37,7 @@ export class CategoryController {
   }
 
   @Get('')
+  @UseGuards(JwtAccessAuthGuard)
   async getCategoriesByUserId(
     @UserId() userId: number,
   ): Promise<CategoryResDto[]> {
