@@ -1,7 +1,19 @@
-import { User } from 'src/user/domain/model/user';
+import { User, UserPrimitives } from 'src/user/domain/model/user';
 import { UserEntity } from '../entity/user.entity';
 
 export class UserMapper {
+  public static toReadModel(raw: UserEntity): UserPrimitives {
+    return {
+      ...raw,
+    };
+  }
+
+  public static toReadModels(raws: UserEntity[]): UserPrimitives[] {
+    return raws.map((raw) => {
+      return { ...raw };
+    });
+  }
+
   public static toDomain(raw: UserEntity): User {
     const domain = User.create({
       ...raw,
