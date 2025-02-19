@@ -6,13 +6,20 @@ import { UserService } from './application/service/user.service';
 import { UserRepositoryAdapter } from './infra/out/persistence/adapter/user-repository.adapter';
 import { S3FileAdapter } from './infra/out/file/adapter/s3-file.adapter';
 
-import { CreateUserHandler } from './application/command/user.command-handler';
+import {
+  ApproveFollowHandler,
+  CreateUserHandler,
+  PostFollowHandler,
+  RejectFollowHandler,
+  UnfollowHandler,
+} from './application/command/user.command-handler';
 import { GetUserQuery } from './application/query/user.query';
 import { GetUsersHandler } from './application/query/user.query-handler';
 
 import { CreateUserUseCaseSymbol } from './domain/port/in/create-user.usecase';
 import { GetUserUseCaseSymbol } from './domain/port/in/get-user.usecase';
 import { UpdateUserUseCaseSymbol } from './domain/port/in/update-user.usecase';
+import { FollowUseCaseSymbol } from './domain/port/in/follow.usecase';
 
 import { HandleUserPortSymbol } from './domain/port/out/handle-user.port';
 import { LoadUserPortSymbol } from './domain/port/out/load-user.port';
@@ -47,12 +54,20 @@ const useCaseProviders = [
     provide: UpdateUserUseCaseSymbol,
     useClass: UserService,
   },
+  {
+    provide: FollowUseCaseSymbol,
+    useClass: UserService,
+  },
 ];
 
 const CommandQueryHandlerProviders = [
   CreateUserHandler,
   GetUserQuery,
   GetUsersHandler,
+  PostFollowHandler,
+  UnfollowHandler,
+  ApproveFollowHandler,
+  RejectFollowHandler,
 ];
 
 @Module({

@@ -10,6 +10,7 @@ import {
   GetUserUseCase,
   GetUserUseCaseSymbol,
 } from '../../domain/port/in/get-user.usecase';
+import { Follower } from '../../domain/model/user-read-model';
 
 @QueryHandler(GetUserQuery)
 export class GetUserHandler
@@ -43,7 +44,7 @@ export class GetFollowerHandler implements IQueryHandler<GetFollowerQuery> {
     @Inject(GetUserUseCaseSymbol)
     private readonly _getUserUseCase: GetUserUseCase,
   ) {}
-  async execute(query: GetFollowerQuery): Promise<UserPrimitives[]> {
+  async execute(query: GetFollowerQuery): Promise<Follower[]> {
     return await this._getUserUseCase.getFollowers(query);
   }
 }

@@ -134,10 +134,14 @@ export class UserService
     );
   }
   async unfollow(command: UnfollowCommand) {
-    return await this._handleUserPort.deleteFollow(
-      command.followingId,
+    const deletedCount = await this._handleUserPort.deleteFollow(
       command.followerId,
+      command.followingId,
     );
+    if (deletedCount > 1) {
+      throw new BadRequestException('팔로우하지 않은 사용자');
+    }
+    return deletedCount;
   }
   async approveFollow(command: ApproveFollowCommand) {
     return await this._handleUserPort.saveFollow(
@@ -147,9 +151,13 @@ export class UserService
     );
   }
   async rejectFollow(command: RejectFollowCommand) {
-    return await this._handleUserPort.deleteFollow(
+    const deletedCount = await this._handleUserPort.deleteFollow(
       command.followerId,
       command.followingId,
     );
+    if (deletedCount > 1) {
+      throw new BadRequestException('팔로우하지 않은 사용자');
+    }
+    return deletedCount;
   }
 }

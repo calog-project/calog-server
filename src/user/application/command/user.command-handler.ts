@@ -1,16 +1,12 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import {
-  ApproveFollowCommand,
   CreateUserCommand,
   PostFollowCommand,
-  RejectFollowCommand,
   UnfollowCommand,
+  ApproveFollowCommand,
+  RejectFollowCommand,
 } from './user.command';
-import {
-  HandleUserPortSymbol,
-  HandleUserPort,
-} from '../../domain/port/out/handle-user.port';
 import {
   CreateUserUseCaseSymbol,
   CreateUserUseCase,
@@ -45,9 +41,12 @@ export class PostFollowHandler implements ICommandHandler<PostFollowCommand> {
 
 @CommandHandler(UnfollowCommand)
 export class UnfollowHandler implements ICommandHandler<UnfollowCommand> {
-  constructor() {}
+  constructor(
+    @Inject(FollowUseCaseSymbol)
+    private readonly _followUseCase: FollowUseCase,
+  ) {}
   async execute(command: UnfollowCommand) {
-    return;
+    return await this._followUseCase.unfollow(command);
   }
 }
 
@@ -55,9 +54,12 @@ export class UnfollowHandler implements ICommandHandler<UnfollowCommand> {
 export class ApproveFollowHandler
   implements ICommandHandler<ApproveFollowCommand>
 {
-  constructor() {}
+  constructor(
+    @Inject(FollowUseCaseSymbol)
+    private readonly _followUseCase: FollowUseCase,
+  ) {}
   async execute(command: ApproveFollowCommand) {
-    return;
+    return await this._followUseCase.approveFollow(command);
   }
 }
 
@@ -65,8 +67,11 @@ export class ApproveFollowHandler
 export class RejectFollowHandler
   implements ICommandHandler<RejectFollowCommand>
 {
-  constructor() {}
+  constructor(
+    @Inject(FollowUseCaseSymbol)
+    private readonly _followUseCase: FollowUseCase,
+  ) {}
   async execute(command: RejectFollowCommand) {
-    return;
+    return await this._followUseCase.rejectFollow(command);
   }
 }

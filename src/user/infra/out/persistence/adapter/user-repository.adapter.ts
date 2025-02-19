@@ -43,17 +43,20 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     followingId: number,
     isApproved?: boolean,
   ): Promise<number> {
-    const a = await this._followRepository.save({
+    const follow = await this._followRepository.save({
       followerId,
       followingId,
-      isApproved: isApproved ? isApproved : null,
+      isApproved: isApproved ? isApproved : false,
     });
     return;
   }
 
   async deleteFollow(followerId: number, followingId: number): Promise<number> {
-    await this._followRepository.delete({ followerId, followingId });
-    return;
+    const deleted = await this._followRepository.delete({
+      followerId,
+      followingId,
+    });
+    return deleted.affected;
   }
 
   //LoadUserPort Implementation

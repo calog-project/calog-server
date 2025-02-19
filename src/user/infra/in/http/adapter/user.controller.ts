@@ -10,11 +10,21 @@ import {
   HttpCode,
   HttpStatus,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import { Nullable } from 'src/common/type/CommonType';
 import { UserMapper } from '../mapper/user.mapper';
+import { JwtAccessAuthGuard } from '../../../../../common/guard/jwt-access-auth.guard';
 
+import {
+  ApproveFollowCommand,
+  PostFollowCommand,
+  RejectFollowCommand,
+  UnfollowCommand,
+} from '../../../../application/command/user.command';
 import { CreateUserDto, UpdateUserDto } from '../dto/user.req';
+import { ShowUserResDto } from '../dto/user.res';
 
 import {
   CreateUserUseCaseSymbol,
@@ -28,7 +38,7 @@ import {
   UpdateUserUseCase,
   UpdateUserUseCaseSymbol,
 } from 'src/user/domain/port/in/update-user.usecase';
-import { ShowUserResDto } from '../dto/user.res';
+import { UserId } from '../../../../../common/decorator/user-id.decorator';
 
 @Controller('user')
 export class UserController {
@@ -39,6 +49,7 @@ export class UserController {
     private readonly _getUserUseCase: GetUserUseCase,
     @Inject(UpdateUserUseCaseSymbol)
     private readonly _updateUserUseCase: UpdateUserUseCase,
+    private readonly _commandBus: CommandBus,
   ) {}
 
   @Post('signup')
@@ -85,15 +96,77 @@ export class UserController {
     return { isAvailable };
   }
 
+  @Post('follow/:followerId/:followingId')
+  async testFollowingUser(
+    @Param('followerId') userId: number,
+    @Param('followingId') followingId: number,
+  ) {
+    await this._commandBus.execute(new PostFollowCommand(userId, followingId));
+  }
+
   @Post('follow/:id')
-  async followingUser() {}
+  @UseGuards(JwtAccessAuthGuard)
+  async followingUser(
+    @UserId() userId: number,
+    @Param('id') followingId: number,
+  ) {
+    await this._commandBus.execute(new PostFollowCommand(userId, followingId));
+  }
 
   @Get('follower')
   async getFollowers() {}
 
   @Patch('follow/:id/approve')
-  async approveFollow() {}
+  @UseGuards(JwtAccessAuthGuard)
+  async approveFollow(
+    @UserId() userId: number,
+    @Param('id') followerId: number,
+  ) {
+    await this._commandBus.execute(
+      new ApproveFollowCommand(followerId, userId),
+    );
+  }
+
+  @Patch('follow/:id/:followerId/approve')
+  async testApproveFollow(
+    @Param('id') userId: number,
+    @Param('followerId') followerId: number,
+  ) {
+    await this._commandBus.execute(
+      new ApproveFollowCommand(followerId, userId),
+    );
+  }
+
+  @Delete('follow/:id/reject')
+  @UseGuards(JwtAccessAuthGuard)
+  async rejectFollow(
+    @UserId() userId: number,
+    @Param('id') followerId: number,
+  ) {
+    await this._commandBus.execute(new RejectFollowCommand(followerId, userId));
+  }
+
+  @Delete('follow/:id/:followerId/reject')
+  async testRejectFollow(
+    @Param('id') userId: number,
+    @Param('followerId') followerId: number,
+  ) {
+    await this._commandBus.execute(new RejectFollowCommand(followerId, userId));
+  }
 
   @Delete('follow/:id')
-  async deleteFollow() {}
+  @UseGuards(JwtAccessAuthGuard)
+  async unfollow(@UserId() userId: number, @Param('id') targetId: number) {
+    await this._commandBus.execute(new UnfollowCommand(userId, targetId));
+  }
+
+  @Delete('follow/:followerId/:followingId')
+  async testUnfollow(
+    @Param('followerId') followerId: number,
+    @Param('followingId') followingId: number,
+  ) {
+    await this._commandBus.execute(
+      new UnfollowCommand(followerId, followingId),
+    );
+  }
 }
