@@ -122,8 +122,11 @@ export class ScheduleService
   }
 
   async deleteSchedule(command: DeleteScheduleCommand): Promise<number> {
-    return;
+    const schedule = await this._loadSchedulePort.findById(command.id);
+    if (!schedule) {
+      throw new BadRequestException('존재하지 않는 일정입니다');
+    }
+    return await this._handleSchedulePort.delete(command.id);
   }
-
   //invite , reject, approve
 }

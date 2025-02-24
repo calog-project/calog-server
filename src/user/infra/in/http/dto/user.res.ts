@@ -20,8 +20,6 @@ export class ShowUserResDto {
     this.createdAt = input.createdAt;
     this.updatedAt = input.updatedAt;
   }
-
-  // static of() {
-  //   //...
-  // }
 }
+
+export class FollowUserResDto {}

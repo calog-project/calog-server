@@ -1,13 +1,14 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Nullable } from 'src/common/type/CommonType';
-import { User } from 'src/user/domain/model/user';
+import { User, UserPrimitives } from 'src/user/domain/model/user';
 import { UserEntity } from '../entity/user.entity';
 import { UserMapper } from '../mapper/user.mapper';
 
 import { HandleUserPort } from 'src/user/domain/port/out/handle-user.port';
 import { LoadUserPort } from 'src/user/domain/port/out/load-user.port';
 import { FollowEntity } from '../entity/follow.entity';
+import { Follower, Following } from '../../../../domain/model/user-read-model';
 
 export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
   constructor(
@@ -42,17 +43,20 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     followingId: number,
     isApproved?: boolean,
   ): Promise<number> {
-    const a = await this._followRepository.save({
+    const follow = await this._followRepository.save({
       followerId,
       followingId,
-      isApproved: isApproved ? isApproved : null,
+      isApproved: isApproved ? isApproved : false,
     });
     return;
   }
 
   async deleteFollow(followerId: number, followingId: number): Promise<number> {
-    await this._followRepository.delete({ followerId, followingId });
-    return;
+    const deleted = await this._followRepository.delete({
+      followerId,
+      followingId,
+    });
+    return deleted.affected;
   }
 
   //LoadUserPort Implementation
@@ -76,5 +80,43 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     return user ? UserMapper.toDomain(user) : null;
   }
 
-  async findFollower(): Promise<void> {}
+  async findFollowers(
+    userId: number,
+    onlyApproved: boolean,
+  ): Promise<Follower[]> {
+    const where = { followingId: userId };
+    if (onlyApproved) {
+      where['isApproved'] = true;
+    }
+    const followEntities = await this._followRepository.find({
+      where: where,
+      relations: {
+        follower: true,
+      },
+    });
+    return followEntities.map((e) => ({
+      isApproved: e.isApproved,
+      follower: UserMapper.toReadModel(e.follower),
+    }));
+  }
+
+  async findFollowing(
+    userId: number,
+    onlyApproved: boolean,
+  ): Promise<Following[]> {
+    const where = { followerId: userId };
+    if (onlyApproved) {
+      where['isApproved'] = true;
+    }
+    const followEntities = await this._followRepository.find({
+      where: where,
+      relations: {
+        following: true,
+      },
+    });
+    return followEntities.map((e) => ({
+      isApproved: e.isApproved,
+      following: UserMapper.toReadModel(e.following),
+    }));
+  }
 }

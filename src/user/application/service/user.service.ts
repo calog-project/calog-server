@@ -7,11 +7,22 @@ import {
 import { Nullable } from 'src/common/type/CommonType';
 
 import { User } from 'src/user/domain/model/user';
+import { Follower } from '../../domain/model/user-read-model';
+
+import {
+  ApproveFollowCommand,
+  PostFollowCommand,
+  RejectFollowCommand,
+  UnfollowCommand,
+  UpdateUserCommand,
+} from '../command/user.command';
+import { GetFollowerQuery } from '../query/user.query';
 
 //Input port
 import { CreateUserUseCase } from '../../domain/port/in/create-user.usecase';
 import { GetUserUseCase } from '../../domain/port/in/get-user.usecase';
 import { UpdateUserUseCase } from 'src/user/domain/port/in/update-user.usecase';
+import { FollowUseCase } from '../../domain/port/in/follow.usecase';
 
 //Output port
 import {
@@ -27,11 +38,14 @@ import {
   EncryptPort,
 } from 'src/auth/domain/port/out/encrypt.port';
 import { FilePortSymbol, FilePort } from 'src/user/domain/port/out/file.port';
-import { UpdateUserCommand } from '../command/user.command';
 
 @Injectable()
 export class UserService
-  implements CreateUserUseCase, GetUserUseCase, UpdateUserUseCase
+  implements
+    CreateUserUseCase,
+    GetUserUseCase,
+    UpdateUserUseCase,
+    FollowUseCase
 {
   constructor(
     @Inject(EncryptPortSymbol)
@@ -82,6 +96,14 @@ export class UserService
     return !!user;
   }
 
+  async getFollowers(query: GetFollowerQuery): Promise<Follower[]> {
+    const followers = await this._loadUserPort.findFollowers(
+      query.userId,
+      query.onlyApproved,
+    );
+    return followers;
+  }
+
   async update(id: number, options: Partial<User>): Promise<number | string> {
     const user = await this._loadUserPort.findById(id);
     if (!user) throw new NotFoundException('존재하지 않은 사용자입니다.');
@@ -103,5 +125,39 @@ export class UserService
     user.changeImage(command.image);
     user.updateDescription(command.description);
     return await this._handleUserPort.update(user);
+  }
+
+  async postFollow(command: PostFollowCommand): Promise<number> {
+    return await this._handleUserPort.saveFollow(
+      command.followerId,
+      command.followingId,
+    );
+  }
+  async unfollow(command: UnfollowCommand) {
+    const deletedCount = await this._handleUserPort.deleteFollow(
+      command.followerId,
+      command.followingId,
+    );
+    if (deletedCount > 1) {
+      throw new BadRequestException('팔로우하지 않은 사용자');
+    }
+    return deletedCount;
+  }
+  async approveFollow(command: ApproveFollowCommand) {
+    return await this._handleUserPort.saveFollow(
+      command.followerId,
+      command.followingId,
+      true,
+    );
+  }
+  async rejectFollow(command: RejectFollowCommand) {
+    const deletedCount = await this._handleUserPort.deleteFollow(
+      command.followerId,
+      command.followingId,
+    );
+    if (deletedCount > 1) {
+      throw new BadRequestException('팔로우하지 않은 사용자');
+    }
+    return deletedCount;
   }
 }

@@ -2,6 +2,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Body,
   Param,
   Controller,
@@ -44,5 +45,10 @@ export class ScheduleController {
     await this._commandBus.execute(
       ScheduleMapper.toCommand<UpdateScheduleDto>(id, dto),
     );
+  }
+
+  @Delete(':id')
+  async deleteSchedule(@Param('id') id: number) {
+    await this._commandBus.execute(ScheduleMapper.toCommand(id, null));
   }
 }

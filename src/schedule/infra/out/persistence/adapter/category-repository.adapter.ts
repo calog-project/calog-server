@@ -66,6 +66,7 @@ export class CategoryRepositoryAdapter
   async findByUserId(userId: number): Promise<CategoryPrimitives[]> {
     const category = await this._categoryRepository.find({
       where: [{ userId }, { userId: -1 }],
+      order: { id: 'ASC' },
     });
     return CategoryMapper.toReadModels(category);
     // return category.length > 0 ? CategoryMapper.toReadModels(category) : null;

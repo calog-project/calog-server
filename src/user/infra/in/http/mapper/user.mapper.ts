@@ -1,9 +1,23 @@
 import { User } from 'src/user/domain/model/user';
 import { ShowUserResDto } from '../dto/user.res';
 import { CreateUserDto, UpdateUserDto } from '../dto/user.req';
-import { UpdateUserCommand } from '../../../../application/command/user.command';
+import {
+  ApproveFollowCommand,
+  PostFollowCommand,
+  RejectFollowCommand,
+  UnfollowCommand,
+  UpdateUserCommand,
+} from '../../../../application/command/user.command';
 
 export class UserMapper {
+  // static toCommand<
+  //   T extends
+  //     | PostFollowCommand
+  //     | UnfollowCommand
+  //     | ApproveFollowCommand
+  //     | RejectFollowCommand,
+  // >(dto: ) {}
+
   static toDomain(
     dto: CreateUserDto,
   ): Omit<User, 'id' | 'createdAt' | 'updatedAt'>;
