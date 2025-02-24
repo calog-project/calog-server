@@ -86,7 +86,17 @@ export class ScheduleRepositoryAdapter
     return schedule.dbId;
   }
   async delete(id: number): Promise<number> {
-    return;
+    await this._scheduleRepository.manager.transaction(async (txn) => {
+      await txn
+        .createQueryBuilder()
+        .delete()
+        .from(UserCategoryScheduleEntity)
+        .where('scheduleId = :id', { id })
+        .execute();
+      await txn.getRepository(ScheduleEntity).delete({ id });
+    });
+
+    return id;
   }
 
   //schedule info
