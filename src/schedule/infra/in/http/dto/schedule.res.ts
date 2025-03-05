@@ -5,7 +5,7 @@ export class ScheduleDetailResDto {
   public readonly title: string;
   public readonly start: string;
   public readonly end: string;
-  public readonly category?: string;
+  public readonly categoryId?: number;
   public readonly joiner?: number[];
   public readonly description?: string;
   public readonly createdAt: string;
@@ -17,7 +17,7 @@ export class ScheduleDetailResDto {
     this.title = props.title;
     this.start = props.start;
     this.end = props.end;
-    this.category = props.category;
+    this.categoryId = props.categoryId;
     this.joiner = props.joiner;
     this.description = props.description;
     this.createdAt = props.createdAt;

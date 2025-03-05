@@ -45,14 +45,14 @@ export class ScheduleMapper {
     }
   }
 
-  static toQuery(id: number): GetScheduleDetailQuery {
-    return new GetScheduleDetailQuery(id);
-  }
+  // static toQuery(id: number): GetScheduleDetailQuery {
+  //   return new GetScheduleDetailQuery(id);
+  // }
 
-  static toDto(view: SchedulePrimitives): ScheduleDetailResDto;
+  static toDto(view: ScheduleReadModel): ScheduleDetailResDto;
   static toDto(view: ScheduleReadModel[]): ScheduleSummaryResDto[];
   static toDto(
-    view: SchedulePrimitives | ScheduleReadModel[],
+    view: ScheduleReadModel | ScheduleReadModel[],
   ): ScheduleDetailResDto | ScheduleSummaryResDto[] {
     if (Array.isArray(view)) {
       return view.map((schedule) => {
@@ -72,7 +72,7 @@ export class ScheduleMapper {
         ...view,
         aggregateId: view.aggregateId,
         id: view.id,
-        // categoryId: view.categoryId,
+        categoryId: view.categoryId,
         start: DateTimeUtil.toKst(view.start),
         end: DateTimeUtil.toKst(view.end),
         createdAt: DateTimeUtil.toKst(view.createdAt),

@@ -8,7 +8,7 @@ import {
 export const GetScheduleUseCaseSymbol = Symbol('GetScheduleUseCase');
 
 export interface GetScheduleUseCase {
-  getScheduleById(query: GetScheduleDetailQuery): Promise<SchedulePrimitives>;
+  getScheduleById(query: GetScheduleDetailQuery): Promise<ScheduleReadModel>;
   getScheduleByIds(query: GetManyScheduleQuery): Promise<ScheduleReadModel[]>;
   // getScheduleForMonth(): Promise<ScheduleSummary[]>;
 }
