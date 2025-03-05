@@ -35,7 +35,7 @@ export class ScheduleController {
   }
 
   @Get(':id')
-  // @UseGuards(JwtAccessAuthGuard)
+  @UseGuards(JwtAccessAuthGuard)
   async getScheduleDetail(
     @UserId('userId') userId: number,
     @Param('id') scheduleId: number,
