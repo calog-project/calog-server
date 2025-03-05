@@ -86,8 +86,11 @@ export class ScheduleService
 
   async getScheduleById(
     query: GetScheduleDetailQuery,
-  ): Promise<SchedulePrimitives> {
-    const schedule = this._loadSchedulePort.findById(query.id);
+  ): Promise<ScheduleReadModel> {
+    const schedule = this._loadSchedulePort.findById(
+      query.scheduleId,
+      query.userId,
+    );
     if (!schedule) throw new NotFoundException('일정이 존재하지 않습니다.');
     return schedule;
   }

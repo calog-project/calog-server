@@ -100,9 +100,28 @@ export class ScheduleRepositoryAdapter
   }
 
   //schedule info
-  async findById(id: number): Promise<Nullable<SchedulePrimitives>> {
-    const schedule = await this._scheduleRepository.findOneBy({ id });
-    return schedule ? ScheduleMapper.toReadModel(schedule) : null;
+  async findById(
+    id: number,
+    userId?: number,
+  ): Promise<Nullable<ScheduleReadModel>> {
+    if (!userId) {
+      const schedule = await this._scheduleRepository.findOneBy({ id });
+      return schedule ? ScheduleMapper.toReadModel(schedule) : null;
+    } else {
+      const ucs = await this._userCategoryScheduleRepository
+        .createQueryBuilder('ucs')
+        .innerJoinAndSelect('ucs.schedule', 'schedule')
+        .where('ucs.userId = :userId', { userId })
+        .andWhere('ucs.scheduleId = :scheduleId', { scheduleId: id })
+        .getOne();
+      if (!ucs) {
+        return null;
+      } else {
+        const readModel = ScheduleMapper.toReadModel(ucs.schedule);
+        readModel.categoryId = ucs.categoryId;
+        return readModel;
+      }
+    }
   }
 
   async findByIds(ids: number[]): Promise<Nullable<ScheduleReadModel[]>> {

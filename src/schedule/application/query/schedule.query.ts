@@ -1,5 +1,8 @@
 export class GetScheduleDetailQuery {
-  constructor(public readonly id: number) {}
+  constructor(
+    public readonly userId: number,
+    public readonly scheduleId: number,
+  ) {}
 }
 
 export class GetManyScheduleQuery {
