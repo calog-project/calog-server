@@ -22,8 +22,8 @@
     "test:unit": "jest --watch --verbose --config ./test/unit/jest-unit.json",
     "typeorm:dev": "cross-env NODE_ENV=development ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource ./src/common/config/database/data-source.ts",
     "typeorm:prod": "cross-env NODE_ENV=production ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource ./src/common/config/database/data-source.ts",
-    "typeorm:migration:gen:dev": "npm run typeorm:dev migration:generate ./src/common/config/database/migration/$npm_config_name",
-    "typeorm:migration:gen:prod": "npm run typeorm:prod migration:generate ./src/common/config/database/migration/$npm_config_name",
+    "typeorm:migration:gen:dev": "npm run typeorm:dev migration:generate ./src/common/config/database/migrations/$npm_config_name",
+    "typeorm:migration:gen:prod": "npm run typeorm:prod migration:generate ./src/common/config/database/migrations/$npm_config_name",
     "typeorm:migration:run:dev": "npm run typeorm:dev migration:run",
     "typeorm:migration:run:prod": "npm run typeorm:prod migration:run",
     "typeorm:migration:revert:dev": "npm run typeorm:dev migration:revert",
@@ -70,10 +70,10 @@
     "@types/cache-manager": "^4.0.6",
     "@types/cache-manager-ioredis": "^2.0.6",
     "@types/cookie-parser": "^1.4.7",
-    "@types/express": "^4.17.17",
+    "@types/express": "^4.17.21",
     "@types/jest": "^29.5.2",
     "@types/multer": "^1.4.12",
-    "@types/node": "^20.3.1",
+    "@types/node": "^20.17.28",
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-kakao": "^1.0.3",
@@ -89,9 +89,9 @@
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.0",
     "ts-loader": "^9.4.3",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.1.3"
+    "typescript": "^5.8.2"
   },
   "jest": {
     "moduleFileExtensions": [
