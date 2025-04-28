@@ -7,7 +7,7 @@ import {
 import { Nullable } from 'src/common/type/CommonType';
 
 import { User } from 'src/user/domain/model/user';
-import { Follower } from '../../domain/model/user-read-model';
+import { Follower, SearchedUser } from '../../domain/model/user-read-model';
 
 import {
   ApproveFollowCommand,
@@ -16,7 +16,7 @@ import {
   UnfollowCommand,
   UpdateUserCommand,
 } from '../command/user.command';
-import { GetFollowerQuery } from '../query/user.query';
+import { GetFollowerQuery, SearchUsersQuery } from '../query/user.query';
 
 //Input port
 import { CreateUserUseCase } from '../../domain/port/in/create-user.usecase';
@@ -41,11 +41,7 @@ import { FilePortSymbol, FilePort } from 'src/user/domain/port/out/file.port';
 
 @Injectable()
 export class UserService
-  implements
-    CreateUserUseCase,
-    GetUserUseCase,
-    UpdateUserUseCase,
-    FollowUseCase
+  implements CreateUserUseCase, GetUserUseCase, UpdateUserUseCase, FollowUseCase
 {
   constructor(
     @Inject(EncryptPortSymbol)
@@ -94,6 +90,10 @@ export class UserService
   async isExistsNickname(nickname: string): Promise<boolean> {
     const user = await this._loadUserPort.findByNickname(nickname);
     return !!user;
+  }
+
+  async searchUsers(query: SearchUsersQuery): Promise<SearchedUser[]> {
+    return await this._loadUserPort.searchUsersByNickname(query.keyword);
   }
 
   async getFollowers(query: GetFollowerQuery): Promise<Follower[]> {

@@ -5,6 +5,7 @@ import {
   Patch,
   Body,
   Param,
+  Query,
   Controller,
   Inject,
   HttpCode,
@@ -12,10 +13,12 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Nullable } from 'src/common/type/CommonType';
 import { UserMapper } from '../mapper/user.mapper';
 import { JwtAccessAuthGuard } from '../../../../../common/guard/jwt-access-auth.guard';
+
+import { SearchedUser } from '../../../../domain/model/user-read-model';
 
 import {
   ApproveFollowCommand,
@@ -23,6 +26,7 @@ import {
   RejectFollowCommand,
   UnfollowCommand,
 } from '../../../../application/command/user.command';
+import { SearchUsersQuery } from '../../../../application/query/user.query';
 import { CreateUserDto, UpdateUserDto } from '../dto/user.req';
 import { ShowUserResDto } from '../dto/user.res';
 
@@ -50,6 +54,7 @@ export class UserController {
     @Inject(UpdateUserUseCaseSymbol)
     private readonly _updateUserUseCase: UpdateUserUseCase,
     private readonly _commandBus: CommandBus,
+    private readonly _queryBus: QueryBus,
   ) {}
 
   @Post('signup')
@@ -57,6 +62,11 @@ export class UserController {
   async signup(@Body() dto: CreateUserDto): Promise<void> {
     await this._createUserUseCase.createUser(UserMapper.toDomain(dto));
     return;
+  }
+
+  @Get('search')
+  async searchUser(@Query('keyword') keyword: string): Promise<SearchedUser[]> {
+    return await this._queryBus.execute(new SearchUsersQuery(keyword));
   }
 
   @Get(':id')

@@ -1,5 +1,5 @@
 import { User, UserPrimitives } from '../../model/user';
-import { Follower, Following } from '../../model/user-read-model';
+import { Follower, Following, SearchedUser } from '../../model/user-read-model';
 
 export const LoadUserPortSymbol = Symbol('LoadUserPort');
 
@@ -15,4 +15,10 @@ export interface LoadUserPort {
   findFollowers(userId: number, onlyApproved: boolean): Promise<Follower[]>;
 
   findFollowing(userId: number, onlyApproved: boolean): Promise<Following[]>;
+
+  searchUsersByNickname(
+    keyword: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<SearchedUser[]>;
 }
