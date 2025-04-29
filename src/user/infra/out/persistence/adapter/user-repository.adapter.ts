@@ -132,6 +132,7 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     const users = await this._userRepository
       .createQueryBuilder('user')
       .where('user.nickname LIKE :keyword', { keyword: `${keyword}%` })
+      .orWhere('user.email LIKE :keyword', { keyword: `${keyword}%` })
       .orderBy('user.nickname', 'ASC')
       .limit(limit)
       .offset(offset)

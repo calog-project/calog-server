@@ -93,6 +93,9 @@ export class UserService
   }
 
   async searchUsers(query: SearchUsersQuery): Promise<SearchedUser[]> {
+    if (query.keyword.length === 0) {
+      return [];
+    }
     return await this._loadUserPort.searchUsersByNickname(query.keyword);
   }
 
