@@ -12,3 +12,7 @@ export class GetFollowerQuery {
     public readonly onlyApproved: boolean,
   ) {}
 }
+
+export class SearchUsersQuery {
+  constructor(public readonly keyword: string) {}
+}

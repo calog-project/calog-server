@@ -1,6 +1,9 @@
 import { User, UserPrimitives } from 'src/user/domain/model/user';
-import { GetFollowerQuery } from '../../../application/query/user.query';
-import { Follower } from '../../model/user-read-model';
+import {
+  GetFollowerQuery,
+  SearchUsersQuery,
+} from '../../../application/query/user.query';
+import { Follower, SearchedUser } from '../../model/user-read-model';
 
 export const GetUserUseCaseSymbol = Symbol('GetUserUseCase');
 
@@ -14,4 +17,6 @@ export interface GetUserUseCase {
   isExistsNickname(nickname: string): Promise<boolean>;
 
   getFollowers(query: GetFollowerQuery): Promise<Follower[]>;
+
+  searchUsers(query: SearchUsersQuery): Promise<SearchedUser[]>;
 }

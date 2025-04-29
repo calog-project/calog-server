@@ -9,3 +9,9 @@ export class Following {
   isApproved: boolean;
   following: UserPrimitives;
 }
+
+export class SearchedUser {
+  id: number;
+  email: string;
+  nickname: string;
+}

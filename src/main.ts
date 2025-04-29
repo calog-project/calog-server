@@ -15,7 +15,6 @@ import { ResponseInterceptor } from './common/interceptor/response.interceptor';
 import { GlobalExceptionFilter } from './common/filter/global-exception.filter';
 
 import { AppModule } from './app.module';
-import { MicroserviceAppModule } from './microservice-app.module';
 import { AllConfigType } from './common/config/config.type';
 import { DomainExceptionFilter } from './common/filter/domain-exception.filter';
 
@@ -26,19 +25,17 @@ async function bootstrap() {
   const configService = app.get(ConfigService<AllConfigType>);
   const appConfig = configService.getOrThrow('app', { infer: true });
   const redisConfig = configService.getOrThrow('redis', { infer: true });
-  const microservice =
-    await NestFactory.createMicroservice<MicroserviceOptions>(
-      MicroserviceAppModule,
-      {
-        transport: Transport.REDIS,
-        options: {
-          host: redisConfig.pubHost,
-          port: redisConfig.pubPort,
-          password: redisConfig.pubToken,
-          tls: {},
-        },
-      },
-    );
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.REDIS,
+    options: {
+      host: redisConfig.pubHost,
+      port: redisConfig.pubPort,
+      password: redisConfig.pubToken,
+      tls: {},
+    },
+  });
+
   app.setGlobalPrefix(appConfig.apiPrefix, {
     exclude: ['/'],
   });
@@ -63,6 +60,7 @@ async function bootstrap() {
     new GlobalExceptionFilter(configService),
     new DomainExceptionFilter(),
   );
+  await app.startAllMicroservices();
   await app.listen(appConfig.port, () => {
     NestLogger.log(
       `🌐 HTTP Server listening on url ${appConfig.url} 🌐`,
@@ -73,7 +71,5 @@ async function bootstrap() {
       'Main',
     );
   });
-  await microservice.listen();
-  NestLogger.log(`🌐 microservice listening 🌐`, 'Main');
 }
 bootstrap();

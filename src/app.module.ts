@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { CacheModule } from './cache/cache.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { NotificationModule } from './notification/notification.module';
 /**
  * @TODO
  * refactor - DB의 세부사항(ex, typeorm, mongo)의 변경에 의해 usecase가 바뀌면 안됨.
@@ -19,6 +20,7 @@ import { ScheduleModule } from './schedule/schedule.module';
     UserModule,
     AuthModule,
     ScheduleModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [
