@@ -12,6 +12,9 @@ export class ScheduleReadModel {
   updatedAt: Date;
 }
 
+// @TODO
+export class ScheduleSummary {}
+
 // id: number;
 // author: number;
 // title: string;
