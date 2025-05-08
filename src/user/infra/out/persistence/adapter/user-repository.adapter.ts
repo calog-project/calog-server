@@ -181,7 +181,7 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     })
   }
 
-  async searchUsersByNickname(
+  async searchUsersByEmailOrNickname(
     keyword: string,
     limit: number = 10,
     offset: number = 0,
@@ -199,18 +199,4 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
       return { id: user.id, nickname: user.nickname, email: user.email };
     });
   }
-
-  // 닉네임 or 이메일 검색 시 옵션
-  // async searchUsers(keyword: string, searchBy: 'username' | 'email' = 'username', limit = 10, offset = 0): Promise<SearchedUser[]> {
-  //   const field = searchBy === 'email' ? 'email' : 'username';
-  //
-  //   const users = await this._userRepository
-  //     .createQueryBuilder('user')
-  //     .where(`user.${field} LIKE :keyword`, { keyword: `${keyword}%` }) // 필드에 따라 다르게
-  //     .limit(limit)
-  //     .offset(offset)
-  //     .getMany();
-  //
-  //   return users.map(UserMapper.toReadModel);
-  // }
 }

@@ -16,7 +16,7 @@ export interface LoadUserPort {
 
   findFollowing(userId: number, onlyApproved: boolean): Promise<FollowUser[]>;
 
-  searchUsersByNickname(
+  searchUsersByEmailOrNickname(
     keyword: string,
     limit?: number,
     offset?: number,

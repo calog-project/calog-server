@@ -96,7 +96,7 @@ export class UserService
     if (query.keyword.length === 0) {
       return [];
     }
-    return await this._loadUserPort.searchUsersByNickname(query.keyword);
+    return await this._loadUserPort.searchUsersByEmailOrNickname(query.keyword);
   }
 
   async getFollowers(query: GetFollowerQuery): Promise<FollowUser[]> {
