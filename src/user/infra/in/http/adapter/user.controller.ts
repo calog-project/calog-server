@@ -26,7 +26,11 @@ import {
   RejectFollowCommand,
   UnfollowCommand,
 } from '../../../../application/command/user.command';
-import { GetFollowerQuery, GetFollowingQuery, SearchUsersQuery } from '../../../../application/query/user.query';
+import {
+  GetFollowerQuery,
+  GetFollowingQuery,
+  SearchUsersQuery,
+} from '../../../../application/query/user.query';
 import { CreateUserDto, UpdateUserDto } from '../dto/user.req';
 import { ShowUserResDto } from '../dto/user.res';
 
@@ -125,24 +129,24 @@ export class UserController {
 
   @Get('follower')
   @UseGuards(JwtAccessAuthGuard)
-  async getFollowers(@UserId() userId: number,) {
-    return await this._queryBus.execute(new GetFollowerQuery(userId, false))
+  async getFollowers(@UserId() userId: number) {
+    return await this._queryBus.execute(new GetFollowerQuery(userId, false));
   }
 
   @Get('follower/:id')
   async testGetFollowers(@Param('id') userId: number) {
-    return await this._queryBus.execute(new GetFollowerQuery(userId, false))
+    return await this._queryBus.execute(new GetFollowerQuery(userId, false));
   }
 
   @Get('following')
   @UseGuards(JwtAccessAuthGuard)
-  async getFollowings(@UserId() userId: number){
-    return await this._queryBus.execute(new GetFollowingQuery(userId, false))
+  async getFollowings(@UserId() userId: number) {
+    return await this._queryBus.execute(new GetFollowingQuery(userId, false));
   }
 
   @Get('following/:id')
   async testGetFollowings(@Param('id') userId: number) {
-    return await this._queryBus.execute(new GetFollowingQuery(userId, false))
+    return await this._queryBus.execute(new GetFollowingQuery(userId, false));
   }
 
   @Patch('follow/:id/approve')
