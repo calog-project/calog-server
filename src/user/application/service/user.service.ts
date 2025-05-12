@@ -16,7 +16,11 @@ import {
   UnfollowCommand,
   UpdateUserCommand,
 } from '../command/user.command';
-import { GetFollowerQuery, GetFollowingQuery, SearchUsersQuery } from '../query/user.query';
+import {
+  GetFollowerQuery,
+  GetFollowingQuery,
+  SearchUsersQuery,
+} from '../query/user.query';
 
 //Input port
 import { CreateUserUseCase } from '../../domain/port/in/create-user.usecase';
@@ -108,7 +112,10 @@ export class UserService
   }
 
   async getFollowings(query: GetFollowingQuery): Promise<FollowUser[]> {
-    const followings = await this._loadUserPort.findFollowing(query.userId, query.onlyApproved);
+    const followings = await this._loadUserPort.findFollowing(
+      query.userId,
+      query.onlyApproved,
+    );
     return followings;
   }
 
@@ -142,30 +149,56 @@ export class UserService
     );
   }
   async unfollow(command: UnfollowCommand) {
+    const follow = await this._loadUserPort.findFollowRelation(
+      command.followerId,
+      command.followingId,
+    );
+    if (!follow) {
+      throw new BadRequestException('팔로워가 존재하지 않습니다.');
+    }
+
+    if (!follow.isApproved) {
+      throw new BadRequestException('승인되지 않은 팔로워입니다.');
+    }
+
     const deletedCount = await this._handleUserPort.deleteFollow(
       command.followerId,
       command.followingId,
     );
-    if (deletedCount > 1) {
-      throw new BadRequestException('팔로우하지 않은 사용자');
-    }
+
     return deletedCount;
   }
   async approveFollow(command: ApproveFollowCommand) {
-    return await this._handleUserPort.saveFollow(
+    const updatedFollow = await this._handleUserPort.saveFollow(
       command.followerId,
       command.followingId,
       true,
     );
+
+    if (!updatedFollow)
+      throw new BadRequestException('팔로우 요청이 존재하지 않습니다');
+
+    return updatedFollow;
   }
+
   async rejectFollow(command: RejectFollowCommand) {
+    const follow = await this._loadUserPort.findFollowRelation(
+      command.followerId,
+      command.followingId,
+    );
+    if (!follow) {
+      throw new BadRequestException('팔로우 요청이 존재하지 않습니다.');
+    }
+
+    if (follow.isApproved) {
+      throw new BadRequestException('이미 승인된 팔로워입니다.');
+    }
+
     const deletedCount = await this._handleUserPort.deleteFollow(
       command.followerId,
       command.followingId,
     );
-    if (deletedCount > 1) {
-      throw new BadRequestException('팔로우하지 않은 사용자');
-    }
+
     return deletedCount;
   }
 }

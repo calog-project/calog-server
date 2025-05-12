@@ -13,7 +13,13 @@ export class UserSummary {
 export class SearchedUser extends UserSummary {}
 
 export class FollowUser {
-  user: UserSummary
+  user: UserSummary;
   isApproved: boolean;
   isMutualFollow: boolean;
+}
+
+export class FollowEntityReadModel {
+  followerId: number;
+  followingId: number;
+  isApproved: boolean;
 }

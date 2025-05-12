@@ -16,5 +16,11 @@ export interface HandleUserPort {
     isApproved?: boolean,
   ): Promise<number>;
 
+  updateFollow(
+    followId: number,
+    followingId: number,
+    isApproved: boolean,
+  ): Promise<number>;
+
   deleteFollow(followerId: number, followingId: number): Promise<number>;
 }
