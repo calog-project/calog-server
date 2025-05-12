@@ -9,6 +9,7 @@ import { HandleUserPort } from 'src/user/domain/port/out/handle-user.port';
 import { LoadUserPort } from 'src/user/domain/port/out/load-user.port';
 import { FollowEntity } from '../entity/follow.entity';
 import {
+  FollowEntityReadModel,
   FollowUser,
   SearchedUser,
   UserSummary,
@@ -99,6 +100,16 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     return user ? UserMapper.toDomain(user) : null;
   }
 
+  async findFollowRelation(
+    followerId: number,
+    followingId: number,
+  ): Promise<FollowEntityReadModel | null> {
+    return this._followRepository.findOneBy({
+      followerId,
+      followingId,
+    });
+  }
+
   /**
    * @TODO 테이블 정규화(맞팔여부)
    *   팔로우 테이블 isMutualFollow 필드 추가
@@ -137,7 +148,6 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
          END AS isMutualFollow`,
       ])
       .getRawMany();
-    console.log(followers);
 
     return followers.map((follower) => {
       const { isApproved, isMutualFollow, ...rest } = follower;

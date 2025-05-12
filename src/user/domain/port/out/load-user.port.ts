@@ -1,5 +1,9 @@
 import { User, UserPrimitives } from '../../model/user';
-import { FollowUser, SearchedUser } from '../../model/user-read-model';
+import {
+  FollowEntityReadModel,
+  FollowUser,
+  SearchedUser,
+} from '../../model/user-read-model';
 
 export const LoadUserPortSymbol = Symbol('LoadUserPort');
 
@@ -11,6 +15,11 @@ export interface LoadUserPort {
   findByEmail(email: string): Promise<User | null>;
 
   findByNickname(nickname: string): Promise<User | null>;
+
+  findFollowRelation(
+    followerId: number,
+    followingId: number,
+  ): Promise<FollowEntityReadModel | null>;
 
   findFollowers(userId: number, onlyApproved: boolean): Promise<FollowUser[]>;
 
