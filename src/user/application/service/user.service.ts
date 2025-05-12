@@ -7,7 +7,7 @@ import {
 import { Nullable } from 'src/common/type/CommonType';
 
 import { User } from 'src/user/domain/model/user';
-import { Follower, SearchedUser } from '../../domain/model/user-read-model';
+import { FollowUser, SearchedUser } from '../../domain/model/user-read-model';
 
 import {
   ApproveFollowCommand,
@@ -16,7 +16,7 @@ import {
   UnfollowCommand,
   UpdateUserCommand,
 } from '../command/user.command';
-import { GetFollowerQuery, SearchUsersQuery } from '../query/user.query';
+import { GetFollowerQuery, GetFollowingQuery, SearchUsersQuery } from '../query/user.query';
 
 //Input port
 import { CreateUserUseCase } from '../../domain/port/in/create-user.usecase';
@@ -93,15 +93,23 @@ export class UserService
   }
 
   async searchUsers(query: SearchUsersQuery): Promise<SearchedUser[]> {
-    return await this._loadUserPort.searchUsersByNickname(query.keyword);
+    if (query.keyword.length === 0) {
+      return [];
+    }
+    return await this._loadUserPort.searchUsersByEmailOrNickname(query.keyword);
   }
 
-  async getFollowers(query: GetFollowerQuery): Promise<Follower[]> {
+  async getFollowers(query: GetFollowerQuery): Promise<FollowUser[]> {
     const followers = await this._loadUserPort.findFollowers(
       query.userId,
       query.onlyApproved,
     );
     return followers;
+  }
+
+  async getFollowings(query: GetFollowingQuery): Promise<FollowUser[]> {
+    const followings = await this._loadUserPort.findFollowing(query.userId, query.onlyApproved);
+    return followings;
   }
 
   async update(id: number, options: Partial<User>): Promise<number | string> {

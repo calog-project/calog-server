@@ -23,7 +23,7 @@ import {
   UnfollowHandler,
 } from './application/command/user.command-handler';
 
-import { GetUsersHandler } from './application/query/user.query-handler';
+import { GetFollowerHandler, GetFollowingHandler, GetUsersHandler } from './application/query/user.query-handler';
 import { SearchUsersHandler } from './application/query/user.query-handler';
 
 import { AuthModule } from '../auth/auth.module';
@@ -68,6 +68,8 @@ const handlerProviders = [
   UnfollowHandler,
   ApproveFollowHandler,
   RejectFollowHandler,
+  GetFollowerHandler,
+  GetFollowingHandler,
   GetUsersHandler,
   SearchUsersHandler,
 ];

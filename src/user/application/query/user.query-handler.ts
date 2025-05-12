@@ -1,12 +1,13 @@
 import { Inject } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import {
-  GetFollowerQuery,
+  GetFollowerQuery, GetFollowingQuery,
   GetUserQuery,
   GetUsersQuery,
   SearchUsersQuery,
 } from './user.query';
 import { User, UserPrimitives } from '../../domain/model/user';
+import { FollowUser, SearchedUser } from '../../domain/model/user-read-model';
 import {
   LoadUserPortSymbol,
   LoadUserPort,
@@ -15,7 +16,6 @@ import {
   GetUserUseCase,
   GetUserUseCaseSymbol,
 } from '../../domain/port/in/get-user.usecase';
-import { Follower, SearchedUser } from '../../domain/model/user-read-model';
 
 @QueryHandler(GetUserQuery)
 export class GetUserHandler
@@ -60,7 +60,18 @@ export class GetFollowerHandler implements IQueryHandler<GetFollowerQuery> {
     @Inject(GetUserUseCaseSymbol)
     private readonly _getUserUseCase: GetUserUseCase,
   ) {}
-  async execute(query: GetFollowerQuery): Promise<Follower[]> {
+  async execute(query: GetFollowerQuery): Promise<FollowUser[]> {
     return await this._getUserUseCase.getFollowers(query);
+  }
+}
+
+@QueryHandler(GetFollowingQuery)
+export class GetFollowingHandler implements IQueryHandler<GetFollowingQuery> {
+  constructor(
+    @Inject(GetUserUseCaseSymbol)
+    private readonly _getUserUseCase: GetUserUseCase,
+  ) {}
+  async execute(query: GetFollowerQuery): Promise<FollowUser[]> {
+    return await this._getUserUseCase.getFollowings(query);
   }
 }
