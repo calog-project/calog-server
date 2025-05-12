@@ -9,7 +9,9 @@ import { HandleUserPort } from 'src/user/domain/port/out/handle-user.port';
 import { LoadUserPort } from 'src/user/domain/port/out/load-user.port';
 import { FollowEntity } from '../entity/follow.entity';
 import {
-  FollowUser, SearchedUser, UserSummary,
+  FollowUser,
+  SearchedUser,
+  UserSummary,
 } from '../../../../domain/model/user-read-model';
 
 export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
@@ -51,6 +53,21 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
       isApproved: isApproved ? isApproved : false,
     });
     return;
+  }
+
+  async updateFollow(
+    followerId: number,
+    followingId: number,
+    isApproved: boolean,
+  ): Promise<number> {
+    const updated = await this._followRepository.update(
+      {
+        followerId,
+        followingId,
+      },
+      { isApproved },
+    );
+    return updated.affected;
   }
 
   async deleteFollow(followerId: number, followingId: number): Promise<number> {
@@ -101,7 +118,8 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
         FollowEntity,
         'reverse',
         'reverse.followerId = :myId AND reverse.followingId = user.id',
-        { myId: userId })
+        { myId: userId },
+      )
       .where('f.followingId = :myId', { myId: userId })
       .andWhere(onlyApproved ? 'f.isApproved = true' : '1=1')
       .select([
@@ -119,16 +137,16 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
          END AS isMutualFollow`,
       ])
       .getRawMany();
-    console.log(followers)
+    console.log(followers);
 
     return followers.map((follower) => {
-      const { isApproved, isMutualFollow, ...rest} = follower
+      const { isApproved, isMutualFollow, ...rest } = follower;
       return {
         user: rest as UserSummary,
-        isApproved : Boolean(isApproved),
+        isApproved: Boolean(isApproved),
         isMutualFollow: Boolean(parseInt(isMutualFollow)),
-      }
-    })
+      };
+    });
   }
 
   /**
@@ -144,7 +162,6 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     userId: number,
     onlyApproved: boolean,
   ): Promise<FollowUser[]> {
-
     const followings = await this._followRepository
       .createQueryBuilder('f')
       .innerJoin('f.following', 'user')
@@ -152,8 +169,9 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
         FollowEntity,
         'reverse',
         'reverse.followerId = user.id AND reverse.followingId = :myId',
-        { myId: userId })
-      .where('f.followerId = :myId', { myId : userId })
+        { myId: userId },
+      )
+      .where('f.followerId = :myId', { myId: userId })
       .andWhere(onlyApproved ? 'f.isApproved = true' : '1=1')
       .select([
         'user.id AS id',
@@ -172,13 +190,13 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
       .getRawMany();
 
     return followings.map((following) => {
-      const { isApproved, isMutualFollow, ...rest} = following
+      const { isApproved, isMutualFollow, ...rest } = following;
       return {
         user: rest as UserSummary,
-        isApproved : Boolean(isApproved),
+        isApproved: Boolean(isApproved),
         isMutualFollow: Boolean(parseInt(isMutualFollow)),
-      }
-    })
+      };
+    });
   }
 
   async searchUsersByEmailOrNickname(

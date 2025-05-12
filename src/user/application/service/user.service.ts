@@ -16,7 +16,11 @@ import {
   UnfollowCommand,
   UpdateUserCommand,
 } from '../command/user.command';
-import { GetFollowerQuery, GetFollowingQuery, SearchUsersQuery } from '../query/user.query';
+import {
+  GetFollowerQuery,
+  GetFollowingQuery,
+  SearchUsersQuery,
+} from '../query/user.query';
 
 //Input port
 import { CreateUserUseCase } from '../../domain/port/in/create-user.usecase';
@@ -108,7 +112,10 @@ export class UserService
   }
 
   async getFollowings(query: GetFollowingQuery): Promise<FollowUser[]> {
-    const followings = await this._loadUserPort.findFollowing(query.userId, query.onlyApproved);
+    const followings = await this._loadUserPort.findFollowing(
+      query.userId,
+      query.onlyApproved,
+    );
     return followings;
   }
 
@@ -152,11 +159,15 @@ export class UserService
     return deletedCount;
   }
   async approveFollow(command: ApproveFollowCommand) {
-    return await this._handleUserPort.saveFollow(
+    const updatedFollow = await this._handleUserPort.saveFollow(
       command.followerId,
       command.followingId,
       true,
     );
+
+    if (!updatedFollow) throw new BadRequestException('팔로우하지 않은 사용자');
+
+    return updatedFollow;
   }
   async rejectFollow(command: RejectFollowCommand) {
     const deletedCount = await this._handleUserPort.deleteFollow(
