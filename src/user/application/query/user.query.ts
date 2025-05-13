@@ -14,8 +14,9 @@ export class GetFollowerQuery {
 }
 
 export class GetFollowingQuery {
-  constructor(public readonly userId: number,
-  public readonly onlyApproved: boolean,
+  constructor(
+    public readonly userId: number,
+    public readonly onlyApproved: boolean,
   ) {}
 }
 
