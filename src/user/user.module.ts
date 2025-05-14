@@ -23,7 +23,11 @@ import {
   UnfollowHandler,
 } from './application/command/user.command-handler';
 
-import { GetFollowerHandler, GetFollowingHandler, GetUsersHandler } from './application/query/user.query-handler';
+import {
+  GetFollowerHandler,
+  GetFollowingHandler,
+  GetUsersHandler,
+} from './application/query/user.query-handler';
 import { SearchUsersHandler } from './application/query/user.query-handler';
 
 import { AuthModule } from '../auth/auth.module';

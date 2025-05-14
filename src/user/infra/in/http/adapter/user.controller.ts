@@ -61,35 +61,10 @@ export class UserController {
     private readonly _queryBus: QueryBus,
   ) {}
 
-  @Post('signup')
-  @HttpCode(HttpStatus.CREATED)
-  async signup(@Body() dto: CreateUserDto): Promise<void> {
-    await this._createUserUseCase.createUser(UserMapper.toDomain(dto));
-    return;
-  }
-
+  // ------ 검색/검증 그룹 ------
   @Get('search')
   async searchUser(@Query('keyword') keyword: string): Promise<SearchedUser[]> {
     return await this._queryBus.execute(new SearchUsersQuery(keyword));
-  }
-
-  @Get(':id')
-  async getUserById(
-    @Param('id') id: number,
-  ): Promise<Nullable<ShowUserResDto>> {
-    const user = await this._getUserUseCase.getUserById(id);
-    return UserMapper.toDto(user);
-  }
-
-  @Patch(':id')
-  async updateUserById(
-    @Param('id') id: number,
-    @Body() dto: UpdateUserDto,
-  ): Promise<void> {
-    await this._updateUserUseCase.updateUseCommand(
-      UserMapper.toDomain({ ...dto, id }),
-    );
-    return;
   }
 
   @Get('check-email/:email')
@@ -110,6 +85,15 @@ export class UserController {
     return { isAvailable };
   }
 
+  // ------ 팔로우 그룹 ------
+  @Post('follow/:followerId/:followingId')
+  async testFollowingUser(
+    @Param('followerId') userId: number,
+    @Param('followingId') followingId: number,
+  ) {
+    await this._commandBus.execute(new PostFollowCommand(userId, followingId));
+  }
+
   @Post('follow/:id')
   @UseGuards(JwtAccessAuthGuard)
   async followingUser(
@@ -119,34 +103,36 @@ export class UserController {
     await this._commandBus.execute(new PostFollowCommand(userId, followingId));
   }
 
-  @Post('follow/:followerId/:followingId')
-  async testFollowingUser(
-    @Param('followerId') userId: number,
-    @Param('followingId') followingId: number,
-  ) {
-    await this._commandBus.execute(new PostFollowCommand(userId, followingId));
-  }
-
-  @Get('follower')
-  @UseGuards(JwtAccessAuthGuard)
-  async getFollowers(@UserId() userId: number) {
-    return await this._queryBus.execute(new GetFollowerQuery(userId, false));
-  }
-
   @Get('follower/:id')
   async testGetFollowers(@Param('id') userId: number) {
     return await this._queryBus.execute(new GetFollowerQuery(userId, false));
   }
 
-  @Get('following')
+  @Get('follower')
   @UseGuards(JwtAccessAuthGuard)
-  async getFollowings(@UserId() userId: number) {
-    return await this._queryBus.execute(new GetFollowingQuery(userId, false));
+  async getFollowers(@UserId('userId') userId: number) {
+    return await this._queryBus.execute(new GetFollowerQuery(userId, false));
   }
 
   @Get('following/:id')
   async testGetFollowings(@Param('id') userId: number) {
     return await this._queryBus.execute(new GetFollowingQuery(userId, false));
+  }
+
+  @Get('following')
+  @UseGuards(JwtAccessAuthGuard)
+  async getFollowings(@UserId('userId') userId: number) {
+    return await this._queryBus.execute(new GetFollowingQuery(userId, false));
+  }
+
+  @Patch('follow/:id/:followerId/approve')
+  async testApproveFollow(
+    @Param('id') userId: number,
+    @Param('followerId') followerId: number,
+  ) {
+    await this._commandBus.execute(
+      new ApproveFollowCommand(followerId, userId),
+    );
   }
 
   @Patch('follow/:id/approve')
@@ -160,14 +146,12 @@ export class UserController {
     );
   }
 
-  @Patch('follow/:id/:followerId/approve')
-  async testApproveFollow(
+  @Delete('follow/:id/:followerId/reject')
+  async testRejectFollow(
     @Param('id') userId: number,
     @Param('followerId') followerId: number,
   ) {
-    await this._commandBus.execute(
-      new ApproveFollowCommand(followerId, userId),
-    );
+    await this._commandBus.execute(new RejectFollowCommand(followerId, userId));
   }
 
   @Delete('follow/:id/reject')
@@ -179,20 +163,6 @@ export class UserController {
     await this._commandBus.execute(new RejectFollowCommand(followerId, userId));
   }
 
-  @Delete('follow/:id/:followerId/reject')
-  async testRejectFollow(
-    @Param('id') userId: number,
-    @Param('followerId') followerId: number,
-  ) {
-    await this._commandBus.execute(new RejectFollowCommand(followerId, userId));
-  }
-
-  @Delete('follow/:id')
-  @UseGuards(JwtAccessAuthGuard)
-  async unfollow(@UserId() userId: number, @Param('id') targetId: number) {
-    await this._commandBus.execute(new UnfollowCommand(userId, targetId));
-  }
-
   @Delete('follow/:followerId/:followingId')
   async testUnfollow(
     @Param('followerId') followerId: number,
@@ -201,5 +171,38 @@ export class UserController {
     await this._commandBus.execute(
       new UnfollowCommand(followerId, followingId),
     );
+  }
+
+  @Delete('follow/:id')
+  @UseGuards(JwtAccessAuthGuard)
+  async unfollow(@UserId() userId: number, @Param('id') targetId: number) {
+    await this._commandBus.execute(new UnfollowCommand(userId, targetId));
+  }
+
+  //------CRUD 기본 그룹------
+  @Post('signup')
+  @HttpCode(HttpStatus.CREATED)
+  async signup(@Body() dto: CreateUserDto): Promise<void> {
+    await this._createUserUseCase.createUser(UserMapper.toDomain(dto));
+    return;
+  }
+
+  @Get(':id')
+  async getUserById(
+    @Param('id') id: number,
+  ): Promise<Nullable<ShowUserResDto>> {
+    const user = await this._getUserUseCase.getUserById(id);
+    return UserMapper.toDto(user);
+  }
+
+  @Patch(':id')
+  async updateUserById(
+    @Param('id') id: number,
+    @Body() dto: UpdateUserDto,
+  ): Promise<void> {
+    await this._updateUserUseCase.updateUseCommand(
+      UserMapper.toDomain({ ...dto, id }),
+    );
+    return;
   }
 }
