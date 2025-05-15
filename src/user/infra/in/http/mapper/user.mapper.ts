@@ -55,7 +55,7 @@ export class UserMapper {
   }
 
   static toDto(user: Partial<UserProfile>): ShowUserResDto {
-    const fullUser = new ShowUserResDto({
+    return new ShowUserResDto({
       id: user.id,
       email: user.email,
       provider: user.provider,
@@ -70,6 +70,5 @@ export class UserMapper {
       followingCount: user.followingCount,
       isMutualFollow: user.isMutualFollow,
     });
-    return fullUser;
   }
 }

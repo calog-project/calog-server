@@ -24,7 +24,7 @@ export class ShowUserResDto {
     this.createdAt = input.createdAt;
     this.updatedAt = input.updatedAt;
 
-    this.followerCount = input.followingCount;
+    this.followerCount = input.followerCount;
     this.followingCount = input.followingCount;
     this.isMutualFollow = input.isMutualFollow;
   }
