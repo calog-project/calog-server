@@ -1,5 +1,8 @@
 export class GetUserByIdQuery {
-  constructor(public readonly id: number) {}
+  constructor(
+    public readonly id: number,
+    public readonly viewerId?: number,
+  ) {}
 }
 
 export class GetUserByEmailQuery {

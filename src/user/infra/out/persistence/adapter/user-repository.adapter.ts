@@ -94,18 +94,42 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     return user ? UserMapper.toDomain(user) : null;
   }
 
-  async findById(id: number): Promise<Nullable<UserProfile>> {
+  //@TODO followerCount followingCount 컬럼 추가
+  async findById(id: number, viewerId: number): Promise<Nullable<UserProfile>> {
     const user = await this._userRepository.findOneBy({ id });
     if (!user) return null;
+    const [followerCount, followingCount] = await Promise.all([
+      this._followRepository.count({
+        where: { followingId: id, isApproved: true },
+      }),
+      this._followRepository.count({
+        where: { followerId: id, isApproved: true },
+      }),
+    ]);
+
+    let isMutualFollow = false;
+    if (viewerId && viewerId !== id) {
+      const [iFollowYou, youFollowMe] = await Promise.all([
+        this._followRepository.findOne({
+          where: { followerId: viewerId, followingId: id, isApproved: true },
+        }),
+        this._followRepository.findOne({
+          where: { followerId: id, followingId: viewerId, isApproved: true },
+        }),
+      ]);
+      isMutualFollow = !!iFollowYou && !!youFollowMe;
+    }
+
     const userPrimitives = UserMapper.toReadModel(user);
     return {
       ...userPrimitives,
-      followerCount: 1,
-      followingCount: 1,
-      isMutualFollow: true,
+      followerCount,
+      followingCount,
+      isMutualFollow,
     };
   }
 
+  //@TODO get follower, following count
   async findByIds(ids: number[]): Promise<UserProfile[]> {
     const user = await this._userRepository.findBy({ id: In(ids) });
     const userReadModels = UserMapper.toReadModels(user);

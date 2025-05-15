@@ -82,7 +82,8 @@ export class UserService
   }
 
   async getUserById(query: GetUserByIdQuery): Promise<Nullable<UserProfile>> {
-    const user = await this._loadUserPort.findById(query.id);
+    const viewerId = query.id === query.viewerId ? null : query.viewerId;
+    const user = await this._loadUserPort.findById(query.id, viewerId);
     if (!user) throw new NotFoundException('존재하지 않은 사용자입니다.');
     return user;
   }
