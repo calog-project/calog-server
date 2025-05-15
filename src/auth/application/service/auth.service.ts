@@ -42,7 +42,7 @@ export class AuthService implements AuthUseCase {
   ) {}
 
   async login(dto: LoginDto): Promise<{ user: User; token: Token }> {
-    const user = await this._loadUserPort.findByEmail(dto.email);
+    const user = await this._loadUserPort.loadUserAggregateByEmail(dto.email);
     if (!user) throw new NotFoundException();
     const isValid = await this._encryptPort.comparePassword(
       dto.password,

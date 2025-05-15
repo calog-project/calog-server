@@ -7,7 +7,12 @@ import {
 import { Nullable } from 'src/common/type/CommonType';
 
 import { User } from 'src/user/domain/model/user';
-import { FollowUser, SearchedUser } from '../../domain/model/user-read-model';
+import {
+  UserReadModel,
+  UserProfile,
+  FollowUser,
+  SearchedUser,
+} from '../../domain/model/user-read-model';
 
 import {
   ApproveFollowCommand,
@@ -17,9 +22,12 @@ import {
   UpdateUserCommand,
 } from '../command/user.command';
 import {
+  GetUserByIdQuery,
+  GetUserByEmailQuery,
+  GetUsersQuery,
+  SearchUsersQuery,
   GetFollowerQuery,
   GetFollowingQuery,
-  SearchUsersQuery,
 } from '../query/user.query';
 
 //Input port
@@ -70,18 +78,19 @@ export class UserService
       await this._encryptPort.encryptPassword(user.props.password),
     );
     // user.initImage(await this._filePort)
-    const result = await this._handleUserPort.save(user);
-    return result;
+    return await this._handleUserPort.save(user);
   }
 
-  async getUserById(id: number): Promise<Nullable<User>> {
-    const user = await this._loadUserPort.findById(id);
+  async getUserById(query: GetUserByIdQuery): Promise<Nullable<UserProfile>> {
+    const user = await this._loadUserPort.findById(query.id);
     if (!user) throw new NotFoundException('존재하지 않은 사용자입니다.');
     return user;
   }
 
-  async getUserByEmail(email: string): Promise<Nullable<User>> {
-    const user = await this._loadUserPort.findByEmail(email);
+  async getUserByEmail(
+    query: GetUserByEmailQuery,
+  ): Promise<Nullable<UserProfile>> {
+    const user = await this._loadUserPort.findByEmail(query.email);
     if (!user) throw new NotFoundException('존재하지 않은 사용자입니다.');
     return user;
   }
@@ -128,7 +137,7 @@ export class UserService
   }
 
   async updateUseCommand(command: UpdateUserCommand): Promise<number | string> {
-    const user: User = await this._loadUserPort.findById(command.id);
+    const user = await this._loadUserPort.loadUserAggregateById(command.id);
     if (!user) throw new NotFoundException('존재하지 않은 사용자입니다.');
     const isExistsNickname = await this._loadUserPort.findByNickname(
       command.nickname,
@@ -161,12 +170,10 @@ export class UserService
       throw new BadRequestException('승인되지 않은 팔로워입니다.');
     }
 
-    const deletedCount = await this._handleUserPort.deleteFollow(
+    return await this._handleUserPort.deleteFollow(
       command.followerId,
       command.followingId,
     );
-
-    return deletedCount;
   }
   async approveFollow(command: ApproveFollowCommand) {
     const updatedFollow = await this._handleUserPort.saveFollow(
@@ -194,11 +201,9 @@ export class UserService
       throw new BadRequestException('이미 승인된 팔로워입니다.');
     }
 
-    const deletedCount = await this._handleUserPort.deleteFollow(
+    return await this._handleUserPort.deleteFollow(
       command.followerId,
       command.followingId,
     );
-
-    return deletedCount;
   }
 }

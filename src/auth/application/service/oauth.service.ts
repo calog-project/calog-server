@@ -31,7 +31,7 @@ export class OAuthService implements OAuthUseCase {
     private _configService: ConfigService<AllConfigType>,
   ) {}
   async socialLoginOrSignup(email: string, provider: string): Promise<any> {
-    const user = await this._loadUserPort.findByEmail(email);
+    const user = await this._loadUserPort.loadUserAggregateByEmail(email);
     let userId: string | number;
     let userModel: User;
     if (!user) {

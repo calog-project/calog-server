@@ -8,6 +8,10 @@ import {
   UnfollowCommand,
   UpdateUserCommand,
 } from '../../../../application/command/user.command';
+import {
+  UserReadModel,
+  UserProfile,
+} from '../../../../domain/model/user-read-model';
 
 export class UserMapper {
   // static toCommand<
@@ -50,18 +54,21 @@ export class UserMapper {
     }
   }
 
-  static toDto(user: Partial<User>): ShowUserResDto {
-    const userData = user.toPrimitives();
+  static toDto(user: Partial<UserProfile>): ShowUserResDto {
     const fullUser = new ShowUserResDto({
-      id: userData.id,
-      email: userData.email,
-      provider: userData.provider,
+      id: user.id,
+      email: user.email,
+      provider: user.provider,
 
-      image: userData.image,
-      nickname: userData.nickname,
-      description: userData.description,
-      createdAt: userData.createdAt,
-      updatedAt: userData.updatedAt,
+      image: user.image,
+      nickname: user.nickname,
+      description: user.description,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+
+      followerCount: user.followerCount,
+      followingCount: user.followingCount,
+      isMutualFollow: user.isMutualFollow,
     });
     return fullUser;
   }

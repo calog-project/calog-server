@@ -1,5 +1,7 @@
-import { User, UserPrimitives } from '../../model/user';
+import { User } from '../../model/user';
 import {
+  UserReadModel,
+  UserProfile,
   FollowEntityReadModel,
   FollowUser,
   SearchedUser,
@@ -8,11 +10,15 @@ import {
 export const LoadUserPortSymbol = Symbol('LoadUserPort');
 
 export interface LoadUserPort {
-  findById(id: number): Promise<User | null>;
+  loadUserAggregateById(id: number): Promise<User | null>;
 
-  findByIds(ids: number[]): Promise<User[] | null>;
+  loadUserAggregateByEmail(email: string): Promise<User | null>;
 
-  findByEmail(email: string): Promise<User | null>;
+  findById(id: number): Promise<UserProfile | null>;
+
+  findByIds(ids: number[]): Promise<UserProfile[]>;
+
+  findByEmail(email: string): Promise<UserProfile | null>;
 
   findByNickname(nickname: string): Promise<User | null>;
 

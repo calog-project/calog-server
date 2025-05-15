@@ -9,6 +9,10 @@ export class ShowUserResDto {
   createdAt: Date;
   updatedAt: Date;
 
+  followerCount: number;
+  followingCount: number;
+  isMutualFollow: boolean;
+
   constructor(input: ShowUserResDto) {
     this.id = input.id;
     this.email = input.email;
@@ -19,6 +23,10 @@ export class ShowUserResDto {
     this.description = input.description;
     this.createdAt = input.createdAt;
     this.updatedAt = input.updatedAt;
+
+    this.followerCount = input.followingCount;
+    this.followingCount = input.followingCount;
+    this.isMutualFollow = input.isMutualFollow;
   }
 }
 

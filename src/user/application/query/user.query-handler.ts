@@ -1,13 +1,20 @@
 import { Inject } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import {
-  GetFollowerQuery, GetFollowingQuery,
-  GetUserQuery,
+  GetUserByIdQuery,
+  GetUserByEmailQuery,
   GetUsersQuery,
   SearchUsersQuery,
+  GetFollowerQuery,
+  GetFollowingQuery,
 } from './user.query';
-import { User, UserPrimitives } from '../../domain/model/user';
-import { FollowUser, SearchedUser } from '../../domain/model/user-read-model';
+
+import {
+  UserReadModel,
+  UserProfile,
+  SearchedUser,
+  FollowUser,
+} from '../../domain/model/user-read-model';
 import {
   LoadUserPortSymbol,
   LoadUserPort,
@@ -17,29 +24,43 @@ import {
   GetUserUseCaseSymbol,
 } from '../../domain/port/in/get-user.usecase';
 
-@QueryHandler(GetUserQuery)
-export class GetUserHandler
-  implements IQueryHandler<GetUserQuery, User | null>
+@QueryHandler(GetUserByIdQuery)
+export class GetUserByIdHandler
+  implements IQueryHandler<GetUserByIdQuery, UserReadModel | null>
 {
   constructor(
-    @Inject(LoadUserPortSymbol) private readonly _loadUserPort: LoadUserPort,
+    @Inject(GetUserUseCaseSymbol)
+    private readonly _getUserUseCase: GetUserUseCase,
+    // @Inject(LoadUserPortSymbol) private readonly _loadUserPort: LoadUserPort,
   ) {}
-  async execute(query: GetUserQuery): Promise<User | null> {
-    const user = await this._loadUserPort.findById(query.id);
-    return user ? user : null;
+  async execute(query: GetUserByIdQuery): Promise<UserProfile | null> {
+    return await this._getUserUseCase.getUserById(query);
+  }
+}
+
+@QueryHandler(GetUserByEmailQuery)
+export class GetUserByEmailHandler
+  implements IQueryHandler<GetUserByEmailQuery, UserProfile | null>
+{
+  constructor(
+    @Inject(GetUserUseCaseSymbol)
+    private readonly _getUserUseCase: GetUserUseCase,
+    // @Inject(LoadUserPortSymbol) private readonly _loadUserPort: LoadUserPort,
+  ) {}
+  async execute(query: GetUserByEmailQuery): Promise<UserProfile | null> {
+    return await this._getUserUseCase.getUserByEmail(query);
   }
 }
 
 @QueryHandler(GetUsersQuery)
 export class GetUsersHandler
-  implements IQueryHandler<GetUsersQuery, User[] | null>
+  implements IQueryHandler<GetUsersQuery, UserReadModel[]>
 {
   constructor(
     @Inject(LoadUserPortSymbol) private readonly _loadUserPort: LoadUserPort,
   ) {}
-  async execute(query: GetUsersQuery): Promise<User[] | null> {
-    const user = await this._loadUserPort.findByIds(query.ids);
-    return user.length > 0 ? user : null;
+  async execute(query: GetUsersQuery): Promise<UserProfile[]> {
+    return await this._loadUserPort.findByIds(query.ids);
   }
 }
 

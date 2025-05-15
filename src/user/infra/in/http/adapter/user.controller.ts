@@ -27,9 +27,10 @@ import {
   UnfollowCommand,
 } from '../../../../application/command/user.command';
 import {
+  GetUserByIdQuery,
+  SearchUsersQuery,
   GetFollowerQuery,
   GetFollowingQuery,
-  SearchUsersQuery,
 } from '../../../../application/query/user.query';
 import { CreateUserDto, UpdateUserDto } from '../dto/user.req';
 import { ShowUserResDto } from '../dto/user.res';
@@ -191,7 +192,7 @@ export class UserController {
   async getUserById(
     @Param('id') id: number,
   ): Promise<Nullable<ShowUserResDto>> {
-    const user = await this._getUserUseCase.getUserById(id);
+    const user = await this._queryBus.execute(new GetUserByIdQuery(id));
     return UserMapper.toDto(user);
   }
 

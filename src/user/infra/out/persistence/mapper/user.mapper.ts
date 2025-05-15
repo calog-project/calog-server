@@ -1,14 +1,15 @@
-import { User, UserPrimitives } from 'src/user/domain/model/user';
+import { User } from 'src/user/domain/model/user';
 import { UserEntity } from '../entity/user.entity';
+import { UserReadModel } from '../../../../domain/model/user-read-model';
 
 export class UserMapper {
-  public static toReadModel(raw: UserEntity): UserPrimitives {
+  public static toReadModel(raw: UserEntity): UserReadModel {
     return {
       ...raw,
     };
   }
 
-  public static toReadModels(raws: UserEntity[]): UserPrimitives[] {
+  public static toReadModels(raws: UserEntity[]): UserReadModel[] {
     return raws.map((raw) => {
       return { ...raw };
     });
