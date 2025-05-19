@@ -1,16 +1,23 @@
-import { User, UserPrimitives } from 'src/user/domain/model/user';
 import {
-  GetFollowerQuery, GetFollowingQuery,
+  GetUserByIdQuery,
+  GetUserByEmailQuery,
+  GetFollowerQuery,
+  GetFollowingQuery,
   SearchUsersQuery,
 } from '../../../application/query/user.query';
-import { FollowUser, SearchedUser } from '../../model/user-read-model';
+import {
+  UserReadModel,
+  UserProfile,
+  FollowUser,
+  SearchedUser,
+} from '../../model/user-read-model';
 
 export const GetUserUseCaseSymbol = Symbol('GetUserUseCase');
 
 export interface GetUserUseCase {
-  getUserById(id: number): Promise<User | null>;
+  getUserById(query: GetUserByIdQuery): Promise<UserProfile | null>;
 
-  getUserByEmail(email: string): Promise<User | null>;
+  getUserByEmail(query: GetUserByEmailQuery): Promise<UserProfile | null>;
 
   isExistsEmail(email: string): Promise<boolean>;
 

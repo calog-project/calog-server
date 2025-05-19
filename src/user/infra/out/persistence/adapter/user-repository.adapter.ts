@@ -1,19 +1,22 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { Nullable } from 'src/common/type/CommonType';
-import { User, UserPrimitives } from 'src/user/domain/model/user';
+import { Nullable } from '../../../../../common/type/CommonType';
+import { User } from 'src/user/domain/model/user';
 import { UserEntity } from '../entity/user.entity';
+import { FollowEntity } from '../entity/follow.entity';
 import { UserMapper } from '../mapper/user.mapper';
+
+import {
+  UserReadModel,
+  UserProfile,
+  UserSummary,
+  SearchedUser,
+  FollowEntityReadModel,
+  FollowUser,
+} from '../../../../domain/model/user-read-model';
 
 import { HandleUserPort } from 'src/user/domain/port/out/handle-user.port';
 import { LoadUserPort } from 'src/user/domain/port/out/load-user.port';
-import { FollowEntity } from '../entity/follow.entity';
-import {
-  FollowEntityReadModel,
-  FollowUser,
-  SearchedUser,
-  UserSummary,
-} from '../../../../domain/model/user-read-model';
 
 export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
   constructor(
@@ -80,19 +83,74 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
   }
 
   //LoadUserPort Implementation
-  async findById(id: number): Promise<Nullable<User>> {
+
+  async loadUserAggregateById(id: number): Promise<Nullable<User>> {
     const user = await this._userRepository.findOneBy({ id });
     return user ? UserMapper.toDomain(user) : null;
   }
 
-  async findByIds(ids: number[]): Promise<Nullable<User[]>> {
-    const user = await this._userRepository.findBy({ id: In(ids) });
-    return user.length > 0 ? UserMapper.toDomains(user) : null;
-  }
-
-  async findByEmail(email: string): Promise<Nullable<User>> {
+  async loadUserAggregateByEmail(email: string): Promise<Nullable<User>> {
     const user = await this._userRepository.findOneBy({ email });
     return user ? UserMapper.toDomain(user) : null;
+  }
+
+  //@TODO followerCount followingCount 컬럼 추가
+  async findById(id: number, viewerId: number): Promise<Nullable<UserProfile>> {
+    const user = await this._userRepository.findOneBy({ id });
+    if (!user) return null;
+    const [followerCount, followingCount] = await Promise.all([
+      this._followRepository.count({
+        where: { followingId: id, isApproved: true },
+      }),
+      this._followRepository.count({
+        where: { followerId: id, isApproved: true },
+      }),
+    ]);
+
+    let isMutualFollow = false;
+    if (viewerId && viewerId !== id) {
+      const [iFollowYou, youFollowMe] = await Promise.all([
+        this._followRepository.findOne({
+          where: { followerId: viewerId, followingId: id, isApproved: true },
+        }),
+        this._followRepository.findOne({
+          where: { followerId: id, followingId: viewerId, isApproved: true },
+        }),
+      ]);
+      isMutualFollow = !!iFollowYou && !!youFollowMe;
+    }
+
+    const userPrimitives = UserMapper.toReadModel(user);
+    return {
+      ...userPrimitives,
+      followerCount,
+      followingCount,
+      isMutualFollow,
+    };
+  }
+
+  //@TODO get follower, following count
+  async findByIds(ids: number[]): Promise<UserProfile[]> {
+    const user = await this._userRepository.findBy({ id: In(ids) });
+    const userReadModels = UserMapper.toReadModels(user);
+    return userReadModels.map((readModel) => ({
+      ...readModel,
+      followerCount: 1,
+      followingCount: 1,
+      isMutualFollow: true,
+    }));
+  }
+
+  async findByEmail(email: string): Promise<Nullable<UserProfile>> {
+    const user = await this._userRepository.findOneBy({ email });
+    if (!user) return null;
+    const userPrimitives = UserMapper.toReadModel(user);
+    return {
+      ...userPrimitives,
+      followerCount: 1,
+      followingCount: 1,
+      isMutualFollow: true,
+    };
   }
 
   async findByNickname(nickname: string): Promise<Nullable<User>> {

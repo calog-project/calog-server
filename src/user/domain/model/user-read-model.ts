@@ -1,13 +1,25 @@
-import { UserPrimitives } from './user';
-
-// @TODO user read model
-export class UserReadModel {}
+export class UserReadModel {
+  id: number;
+  email: string;
+  provider: string;
+  nickname: string;
+  image?: string;
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export class UserSummary {
   id: number;
   email: string;
   nickname: string;
   image?: string;
+}
+
+export class UserProfile extends UserReadModel {
+  followerCount: number;
+  followingCount: number;
+  isMutualFollow: boolean;
 }
 
 export class SearchedUser extends UserSummary {}
@@ -23,3 +35,4 @@ export class FollowEntityReadModel {
   followingId: number;
   isApproved: boolean;
 }
+``;
