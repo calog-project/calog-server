@@ -1,3 +1,22 @@
+//DB 레벨의 팔로우 상태, DB 레벨은 레코드 유무로 NONE 판단
+export enum FollowStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+}
+
+//service, repository 레벨의 팔로우 상태
+export enum FollowRequestStatus {
+  NONE = 'none',
+  PENDING = FollowStatus.PENDING,
+  APPROVED = FollowStatus.APPROVED,
+}
+
+export interface FollowRelationStatus {
+  sent: FollowRequestStatus;
+  received: FollowRequestStatus;
+}
+
+//general user read model
 export class UserReadModel {
   id: number;
   email: string;
@@ -19,20 +38,22 @@ export class UserSummary {
 export class UserProfile extends UserReadModel {
   followerCount: number;
   followingCount: number;
+  followStatus: FollowRelationStatus;
   isMutualFollow: boolean;
 }
 
+//searched user read model
 export class SearchedUser extends UserSummary {}
 
-export class FollowUser {
-  user: UserSummary;
-  isApproved: boolean;
-  isMutualFollow: boolean;
-}
-
+//follow user read model
 export class FollowEntityReadModel {
   followerId: number;
   followingId: number;
-  isApproved: boolean;
+  status: FollowStatus;
 }
-``;
+
+export class FollowUser {
+  user: UserSummary;
+  followStatus: FollowRelationStatus;
+  isMutualFollow: boolean;
+}

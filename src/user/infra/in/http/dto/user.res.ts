@@ -1,3 +1,5 @@
+import { FollowRelationStatus } from '../../../../domain/model/user-read-model';
+
 export class ShowUserResDto {
   id: number;
   email: string;
@@ -11,6 +13,8 @@ export class ShowUserResDto {
 
   followerCount: number;
   followingCount: number;
+
+  followStatus: FollowRelationStatus;
   isMutualFollow: boolean;
 
   constructor(input: ShowUserResDto) {
@@ -26,6 +30,9 @@ export class ShowUserResDto {
 
     this.followerCount = input.followerCount;
     this.followingCount = input.followingCount;
+
+    this.followStatus = input.followStatus;
+
     this.isMutualFollow = input.isMutualFollow;
   }
 }

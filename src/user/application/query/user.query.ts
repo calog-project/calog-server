@@ -1,6 +1,6 @@
 export class GetUserByIdQuery {
   constructor(
-    public readonly id: number,
+    public readonly targetId: number,
     public readonly viewerId?: number,
   ) {}
 }

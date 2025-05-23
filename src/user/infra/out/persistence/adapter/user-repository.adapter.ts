@@ -7,12 +7,12 @@ import { FollowEntity } from '../entity/follow.entity';
 import { UserMapper } from '../mapper/user.mapper';
 
 import {
-  UserReadModel,
-  UserProfile,
-  UserSummary,
-  SearchedUser,
   FollowEntityReadModel,
+  FollowRequestStatus,
+  FollowStatus,
   FollowUser,
+  SearchedUser,
+  UserProfile,
 } from '../../../../domain/model/user-read-model';
 
 import { HandleUserPort } from 'src/user/domain/port/out/handle-user.port';
@@ -54,9 +54,9 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     const follow = await this._followRepository.save({
       followerId,
       followingId,
-      isApproved: isApproved ? isApproved : false,
+      ...(isApproved && { status: FollowStatus.APPROVED }),
     });
-    return;
+    return follow.followerId;
   }
 
   async updateFollow(
@@ -69,7 +69,7 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
         followerId,
         followingId,
       },
-      { isApproved },
+      { status: FollowStatus.APPROVED },
     );
     return updated.affected;
   }
@@ -94,37 +94,87 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     return user ? UserMapper.toDomain(user) : null;
   }
 
-  //@TODO followerCount followingCount 컬럼 추가
-  async findById(id: number, viewerId: number): Promise<Nullable<UserProfile>> {
-    const user = await this._userRepository.findOneBy({ id });
-    if (!user) return null;
-    const [followerCount, followingCount] = await Promise.all([
-      this._followRepository.count({
-        where: { followingId: id, isApproved: true },
-      }),
-      this._followRepository.count({
-        where: { followerId: id, isApproved: true },
-      }),
-    ]);
+  /**
+   * @TODO target, viewer가 동일할 때 조건분기
+   *    본인 조회 분기 처리
+   * */
+  async findById(
+    targetId: number,
+    viewerId?: number,
+  ): Promise<Nullable<UserProfile>> {
+    const viewer = viewerId ?? targetId;
 
-    let isMutualFollow = false;
-    if (viewerId && viewerId !== id) {
-      const [iFollowYou, youFollowMe] = await Promise.all([
-        this._followRepository.findOne({
-          where: { followerId: viewerId, followingId: id, isApproved: true },
-        }),
-        this._followRepository.findOne({
-          where: { followerId: id, followingId: viewerId, isApproved: true },
-        }),
-      ]);
-      isMutualFollow = !!iFollowYou && !!youFollowMe;
+    const { entities, raw } = await this._userRepository
+      .createQueryBuilder('user')
+      .addSelect(
+        (sub) =>
+          sub
+            .select('COUNT(*)')
+            .from(FollowEntity, 'f1')
+            .where('f1.followingId = user.id')
+            .andWhere('f1.status = :approved', {
+              approved: FollowStatus.APPROVED,
+            }),
+        'followerCount',
+      )
+      .addSelect(
+        (sub) =>
+          sub
+            .select('COUNT(*)')
+            .from(FollowEntity, 'f2')
+            .where('f2.followerId = user.id')
+            .andWhere('f2.status = :approved', {
+              approved: FollowStatus.APPROVED,
+            }),
+        'followingCount',
+      )
+      .where('user.id = :id', { id: targetId })
+      .getRawAndEntities();
+    if (!entities.length) return null;
+
+    const userEntity = entities[0];
+    const counts = raw[0];
+
+    let sent: FollowRequestStatus;
+    let received: FollowRequestStatus;
+    let isMutualFollow: boolean;
+
+    if (viewer === targetId) {
+      sent = FollowRequestStatus.NONE;
+      received = FollowRequestStatus.NONE;
+      isMutualFollow = false;
+    } else {
+      const relation = await this._followRepository.find({
+        where: [
+          { followerId: targetId, followingId: viewerId },
+          { followerId: viewerId, followingId: targetId },
+        ],
+      });
+
+      const statusMap = relation.reduce(
+        (acc, { followerId, status }) => {
+          acc[followerId === viewerId ? 'sent' : 'received'] = status;
+          return acc;
+        },
+        {} as Record<'sent' | 'received', FollowStatus | undefined>,
+      );
+
+      sent = (statusMap.sent ??
+        FollowRequestStatus.NONE) as FollowRequestStatus;
+      received = (statusMap.received ??
+        FollowRequestStatus.NONE) as FollowRequestStatus;
+      isMutualFollow =
+        sent === FollowRequestStatus.APPROVED &&
+        received === FollowRequestStatus.APPROVED;
     }
-
-    const userPrimitives = UserMapper.toReadModel(user);
     return {
-      ...userPrimitives,
-      followerCount,
-      followingCount,
+      ...UserMapper.toReadModel(userEntity),
+      followerCount: parseInt(counts.followerCount, 10),
+      followingCount: parseInt(counts.followingCount, 10),
+      followStatus: {
+        sent,
+        received,
+      },
       isMutualFollow,
     };
   }
@@ -137,6 +187,10 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
       ...readModel,
       followerCount: 1,
       followingCount: 1,
+      followStatus: {
+        sent: FollowRequestStatus.NONE,
+        received: FollowRequestStatus.NONE,
+      },
       isMutualFollow: true,
     }));
   }
@@ -149,6 +203,10 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
       ...userPrimitives,
       followerCount: 1,
       followingCount: 1,
+      followStatus: {
+        sent: FollowRequestStatus.NONE,
+        received: FollowRequestStatus.NONE,
+      },
       isMutualFollow: true,
     };
   }
@@ -169,8 +227,8 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
   }
 
   /**
-   * @TODO 테이블 정규화(맞팔여부)
-   *   팔로우 테이블 isMutualFollow 필드 추가
+   * @TODO
+   *   팔로워 조회 기능 주체(모든 유저 or 프로필 주인) 선택
    *   이벤트 기반 동기화
    *
    * innerjoin -> 팔로워들 조회
@@ -190,36 +248,35 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
         { myId: userId },
       )
       .where('f.followingId = :myId', { myId: userId })
-      .andWhere(onlyApproved ? 'f.isApproved = true' : '1=1')
+      .andWhere(onlyApproved ? 'f.status = approved' : '1=1')
       .select([
         'user.id AS id',
         'user.email AS email',
         'user.nickname AS nickname',
         'user.image AS image',
-        'f.isApproved AS isApproved',
-        `CASE 
-          WHEN reverse.followerId IS NOT NULL 
-            AND reverse.isApproved = true 
-            AND f.isApproved = true 
-          THEN true 
-          ELSE false 
-         END AS isMutualFollow`,
+        'f.status AS received',
+        'reverse.status AS sent',
       ])
       .getRawMany();
 
-    return followers.map((follower) => {
-      const { isApproved, isMutualFollow, ...rest } = follower;
+    return followers.map((f) => {
+      const { received, sent, ...rest } = f;
       return {
-        user: rest as UserSummary,
-        isApproved: Boolean(isApproved),
-        isMutualFollow: Boolean(parseInt(isMutualFollow)),
+        user: rest,
+        followStatus: {
+          sent: sent ?? FollowRequestStatus.NONE,
+          received,
+        },
+        isMutualFollow:
+          sent === FollowStatus.APPROVED && received === FollowStatus.APPROVED,
       };
     });
   }
 
   /**
-   * @TODO 테이블 정규화(맞팔여부)
-   *   팔로우 테이블 isMutualFollow 필드 추가
+   * @TODO
+   *   팔로잉 조회 기능 주체(모든 유저 or 프로필 주인) 선택
+   *   query의 id 여부에 따라 본인, 타인 조회
    *   이벤트 기반 동기화
    *
    * 팔로잉하는 사람들 조회
@@ -240,29 +297,27 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
         { myId: userId },
       )
       .where('f.followerId = :myId', { myId: userId })
-      .andWhere(onlyApproved ? 'f.isApproved = true' : '1=1')
+      .andWhere(onlyApproved ? 'f.status = approved' : '1=1')
       .select([
         'user.id AS id',
         'user.email AS email',
         'user.nickname AS nickname',
         'user.image AS image',
-        'f.isApproved AS isApproved',
-        `CASE 
-          WHEN reverse.followerId IS NOT NULL 
-            AND reverse.isApproved = true 
-            AND f.isApproved = true 
-          THEN true 
-          ELSE false 
-         END AS isMutualFollow`,
+        'f.status AS sent',
+        'reverse.status AS received',
       ])
       .getRawMany();
 
-    return followings.map((following) => {
-      const { isApproved, isMutualFollow, ...rest } = following;
+    return followings.map((f) => {
+      const { sent, received, ...rest } = f;
       return {
-        user: rest as UserSummary,
-        isApproved: Boolean(isApproved),
-        isMutualFollow: Boolean(parseInt(isMutualFollow)),
+        user: rest,
+        followStatus: {
+          sent,
+          received: received ?? FollowRequestStatus.NONE,
+        },
+        isMutualFollow:
+          sent === FollowStatus.APPROVED && received === FollowStatus.APPROVED,
       };
     });
   }
