@@ -12,6 +12,8 @@ import {
   HttpStatus,
   Delete,
   UseGuards,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Nullable } from 'src/common/type/CommonType';
@@ -66,8 +68,8 @@ export class UserController {
   @Get('search')
   async searchUser(
     @Query('keyword') keyword: string,
-    @Query('limit') limit?: number,
-    @Query('offset') offset?: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
   ): Promise<SearchedUser[]> {
     return await this._queryBus.execute(
       new SearchUsersQuery(keyword, limit, offset),

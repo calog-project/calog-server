@@ -43,7 +43,10 @@ export class UserProfile extends UserReadModel {
 }
 
 //searched user read model
-export class SearchedUser extends UserSummary {}
+export class SearchedUser extends UserSummary {
+  limit: number;
+  offset: number;
+}
 
 //follow user read model
 export class FollowEntityReadModel {

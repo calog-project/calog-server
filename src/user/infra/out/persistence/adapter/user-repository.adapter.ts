@@ -335,8 +335,15 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
       .offset(offset)
       .getMany();
 
+    const nextOffset = offset + limit;
     return users.map((user) => {
-      return { id: user.id, nickname: user.nickname, email: user.email };
+      return {
+        id: user.id,
+        nickname: user.nickname,
+        email: user.email,
+        limit,
+        offset: nextOffset,
+      };
     });
   }
 }
