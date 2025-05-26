@@ -275,7 +275,6 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
 
   /**
    * @TODO
-   *   팔로잉 조회 기능 주체(모든 유저 or 프로필 주인) 선택
    *   query의 id 여부에 따라 본인, 타인 조회
    *   이벤트 기반 동기화
    *

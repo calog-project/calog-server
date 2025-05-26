@@ -14,7 +14,11 @@ export class GetUsersQuery {
 }
 
 export class SearchUsersQuery {
-  constructor(public readonly keyword: string) {}
+  constructor(
+    public readonly keyword: string,
+    public readonly limit: number,
+    public readonly offset: number,
+  ) {}
 }
 
 export class GetFollowerQuery {

@@ -110,7 +110,15 @@ export class UserService
     if (query.keyword.length === 0) {
       return [];
     }
-    return await this._loadUserPort.searchUsersByEmailOrNickname(query.keyword);
+
+    const limit = query.limit ?? 10;
+    const offset = query.offset ?? 0;
+
+    return await this._loadUserPort.searchUsersByEmailOrNickname(
+      query.keyword,
+      limit,
+      offset,
+    );
   }
 
   async getFollowers(query: GetFollowerQuery): Promise<FollowUser[]> {

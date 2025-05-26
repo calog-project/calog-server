@@ -64,8 +64,14 @@ export class UserController {
 
   // ------ 검색/검증 그룹 ------
   @Get('search')
-  async searchUser(@Query('keyword') keyword: string): Promise<SearchedUser[]> {
-    return await this._queryBus.execute(new SearchUsersQuery(keyword));
+  async searchUser(
+    @Query('keyword') keyword: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
+  ): Promise<SearchedUser[]> {
+    return await this._queryBus.execute(
+      new SearchUsersQuery(keyword, limit, offset),
+    );
   }
 
   @Get('check-email/:email')
