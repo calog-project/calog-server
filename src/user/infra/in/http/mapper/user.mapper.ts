@@ -68,6 +68,8 @@ export class UserMapper {
 
       followerCount: user.followerCount,
       followingCount: user.followingCount,
+
+      followStatus: user.followStatus,
       isMutualFollow: user.isMutualFollow,
     });
   }

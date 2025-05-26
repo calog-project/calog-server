@@ -8,9 +8,9 @@ import { Nullable } from 'src/common/type/CommonType';
 
 import { User } from 'src/user/domain/model/user';
 import {
-  UserReadModel,
   UserProfile,
   FollowUser,
+  FollowStatus,
   SearchedUser,
 } from '../../domain/model/user-read-model';
 
@@ -82,8 +82,8 @@ export class UserService
   }
 
   async getUserById(query: GetUserByIdQuery): Promise<Nullable<UserProfile>> {
-    const viewerId = query.id === query.viewerId ? null : query.viewerId;
-    const user = await this._loadUserPort.findById(query.id, viewerId);
+    const viewerId = query.targetId === query.viewerId ? null : query.viewerId;
+    const user = await this._loadUserPort.findById(query.targetId, viewerId);
     if (!user) throw new NotFoundException('존재하지 않은 사용자입니다.');
     return user;
   }
@@ -167,7 +167,7 @@ export class UserService
       throw new BadRequestException('팔로워가 존재하지 않습니다.');
     }
 
-    if (!follow.isApproved) {
+    if (follow.status !== FollowStatus.APPROVED) {
       throw new BadRequestException('승인되지 않은 팔로워입니다.');
     }
 
@@ -177,16 +177,20 @@ export class UserService
     );
   }
   async approveFollow(command: ApproveFollowCommand) {
-    const updatedFollow = await this._handleUserPort.saveFollow(
+    const isExistFollow = await this._loadUserPort.findFollowRelation(
+      command.followerId,
+      command.followingId,
+    );
+
+    if (!isExistFollow) {
+      throw new BadRequestException('팔로우 요청이 존재하지 않습니다');
+    }
+
+    return await this._handleUserPort.saveFollow(
       command.followerId,
       command.followingId,
       true,
     );
-
-    if (!updatedFollow)
-      throw new BadRequestException('팔로우 요청이 존재하지 않습니다');
-
-    return updatedFollow;
   }
 
   async rejectFollow(command: RejectFollowCommand) {
@@ -198,7 +202,7 @@ export class UserService
       throw new BadRequestException('팔로우 요청이 존재하지 않습니다.');
     }
 
-    if (follow.isApproved) {
+    if (follow.status === FollowStatus.APPROVED) {
       throw new BadRequestException('이미 승인된 팔로워입니다.');
     }
 

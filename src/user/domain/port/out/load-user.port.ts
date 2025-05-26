@@ -14,7 +14,7 @@ export interface LoadUserPort {
 
   loadUserAggregateByEmail(email: string): Promise<User | null>;
 
-  findById(id: number, viewerId?: number): Promise<UserProfile | null>;
+  findById(targetId: number, viewerId?: number): Promise<UserProfile | null>;
 
   findByIds(ids: number[]): Promise<UserProfile[]>;
 

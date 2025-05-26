@@ -1,5 +1,6 @@
 import { Column, Entity, Index, PrimaryColumn, ManyToOne } from 'typeorm';
 import { UserEntity } from './user.entity';
+import { FollowStatus } from '../../../../domain/model/user-read-model';
 
 @Entity('follow')
 export class FollowEntity {
@@ -11,8 +12,8 @@ export class FollowEntity {
   @Index()
   followingId: number;
 
-  @Column('boolean', { default: false })
-  isApproved: boolean;
+  @Column('enum', { enum: FollowStatus, default: FollowStatus.PENDING })
+  status: FollowStatus;
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   follower: UserEntity;
