@@ -153,6 +153,9 @@ export class UserService
   }
 
   async postFollow(command: PostFollowCommand): Promise<number> {
+    if (command.followerId === command.followingId) {
+      throw new BadRequestException('팔로워 Id와 팔로잉 Id가 같습니다.');
+    }
     return await this._handleUserPort.saveFollow(
       command.followerId,
       command.followingId,
