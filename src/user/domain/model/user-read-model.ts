@@ -1,3 +1,5 @@
+import { PageResult, OffsetPageResult } from '../../../common/type/paging';
+
 //DB 레벨의 팔로우 상태, DB 레벨은 레코드 유무로 NONE 판단
 export enum FollowStatus {
   PENDING = 'pending',
@@ -43,10 +45,9 @@ export class UserProfile extends UserReadModel {
 }
 
 //searched user read model
-export class SearchedUser extends UserSummary {
-  limit: number;
-  offset: number;
-}
+export type PagedOffsetBaseSearchUsers = OffsetPageResult<UserSummary>;
+
+export type PagedCursorBaseSearchUsers = PageResult<UserSummary, string>;
 
 //follow user read model
 export class FollowEntityReadModel {
@@ -60,3 +61,5 @@ export class FollowUser {
   followStatus: FollowRelationStatus;
   isMutualFollow: boolean;
 }
+
+export type PagedFollowUser = PageResult<FollowUser, number>;

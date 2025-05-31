@@ -15,9 +15,11 @@ export class GetUsersQuery {
 
 export class SearchUsersQuery {
   constructor(
+    public readonly mode: string,
     public readonly keyword: string,
     public readonly limit: number,
-    public readonly offset: number,
+    public readonly offset?: number,
+    public readonly cursor?: string,
   ) {}
 }
 

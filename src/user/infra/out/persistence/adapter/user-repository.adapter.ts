@@ -11,8 +11,9 @@ import {
   FollowRequestStatus,
   FollowStatus,
   FollowUser,
-  SearchedUser,
   UserProfile,
+  PagedOffsetBaseSearchUsers,
+  PagedCursorBaseSearchUsers,
 } from '../../../../domain/model/user-read-model';
 
 import { HandleUserPort } from 'src/user/domain/port/out/handle-user.port';
@@ -321,12 +322,12 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     });
   }
 
-  async searchUsersByEmailOrNickname(
+  async searchUsersByEmailOrNicknameUseOffset(
     keyword: string,
-    limit: number = 10,
-    offset: number = 0,
-  ): Promise<SearchedUser[]> {
-    const users = await this._userRepository
+    limit: number,
+    offset: number,
+  ): Promise<PagedOffsetBaseSearchUsers> {
+    const rows = await this._userRepository
       .createQueryBuilder('user')
       .where('user.nickname LIKE :keyword', { keyword: `${keyword}%` })
       .orWhere('user.email LIKE :keyword', { keyword: `${keyword}%` })
@@ -336,14 +337,47 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
       .getMany();
 
     const nextOffset = offset + limit;
-    return users.map((user) => {
-      return {
-        id: user.id,
-        nickname: user.nickname,
-        email: user.email,
-        limit,
-        offset: nextOffset,
-      };
-    });
+    const users = rows.map((user) => ({
+      id: user.id,
+      nickname: user.nickname,
+      email: user.email,
+    }));
+
+    return {
+      items: users,
+      limit,
+      marker: nextOffset,
+    };
+  }
+
+  async searchUsersByEmailOrNicknameUseCursor(
+    keyword: string,
+    limit: number,
+    cursor: string,
+  ): Promise<PagedCursorBaseSearchUsers> {
+    const rows = await this._userRepository
+      .createQueryBuilder('user')
+      .where('(user.nickname LIKE :keyword OR user.email LIKE :keyword)', {
+        keyword: `${keyword}%`,
+      })
+      .andWhere(cursor.length > 0 ? 'user.nickname > :cursor' : '1=1', {
+        cursor,
+      })
+      .orderBy('user.nickname', 'ASC')
+      .limit(limit)
+      .getMany();
+
+    const nextCursor = rows.length ? rows[rows.length - 1].nickname : undefined;
+    const users = rows.map((user) => ({
+      id: user.id,
+      nickname: user.nickname,
+      email: user.email,
+    }));
+
+    return {
+      items: users,
+      limit,
+      marker: nextCursor,
+    };
   }
 }
