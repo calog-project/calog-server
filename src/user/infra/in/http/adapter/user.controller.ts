@@ -71,12 +71,10 @@ export class UserController {
   ) {}
 
   // ------ 검색/검증 그룹 ------
-
   @Get('search')
   async searchUsers(
     @Query() params: SearchUsersReqDto,
   ): Promise<SearchUsersByOffsetResDto | SearchUsersByCursorResDto> {
-    console.log(params);
     const result = await this._queryBus.execute(
       new SearchUsersQuery(
         params.mode,
