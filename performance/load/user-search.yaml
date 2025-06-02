@@ -1,0 +1,44 @@
+config:
+  target: 'http://localhost:8000'
+  http:
+    timeout: 15
+  phases:
+    - name: "phase-1 Create VUser"
+      duration: 10
+      arrivalCount: 1000
+      maxVusers: 3000
+
+    - name: "phase-2 Create VUser"
+      duration: 10
+      arrivalCount: 1000
+      maxVusers: 3000
+
+    - name: "phase-3 Create VUser"
+      duration: 10
+      arrivalCount: 1000
+      maxVusers: 3000
+
+    - name: Cool-down
+    - pause: 30
+  processor: './scripts/user-search-processor.ts'
+
+scenarios:
+  - name: offset-pagination
+    flow:
+      - loop:
+          - function: generateOffsetParams
+          - get:
+              url: '/api/user/search?keyword={{ keyword }}&offset={{ offset }}&limit=20'
+          - think: 2
+        count: 200
+
+  - name: cursor-pagination
+    flow:
+      - loop:
+          - function: generateCursorParams
+          - get:
+              url: '/api/user/search/cursor?keyword={{ keyword }}&cursor={{ cursor }}&limit=20'
+              afterResponse: captureNextCursor
+          - think: 2
+        count: 200
+

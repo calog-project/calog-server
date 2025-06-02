@@ -1,4 +1,9 @@
-import { FollowRelationStatus } from '../../../../domain/model/user-read-model';
+import {
+  UserSummary,
+  FollowRelationStatus,
+  PagedOffsetBaseSearchUsers,
+  PagedCursorBaseSearchUsers,
+} from '../../../../domain/model/user-read-model';
 
 export class ShowUserResDto {
   id: number;
@@ -38,3 +43,27 @@ export class ShowUserResDto {
 }
 
 export class FollowUserResDto {}
+
+export class SearchUsersByOffsetResDto {
+  users: UserSummary[];
+  limit: number;
+  offset: number;
+
+  constructor(input: PagedOffsetBaseSearchUsers) {
+    this.users = input.items;
+    this.limit = input.limit;
+    this.offset = input.marker;
+  }
+}
+
+export class SearchUsersByCursorResDto {
+  users: UserSummary[];
+  limit: number;
+  cursor?: string;
+
+  constructor(input: PagedCursorBaseSearchUsers) {
+    this.users = input.items;
+    this.limit = input.limit;
+    this.cursor = input.marker;
+  }
+}

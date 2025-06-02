@@ -9,7 +9,8 @@ import {
   UserReadModel,
   UserProfile,
   FollowUser,
-  SearchedUser,
+  PagedOffsetBaseSearchUsers,
+  PagedCursorBaseSearchUsers,
 } from '../../model/user-read-model';
 
 export const GetUserUseCaseSymbol = Symbol('GetUserUseCase');
@@ -27,5 +28,7 @@ export interface GetUserUseCase {
 
   getFollowings(query: GetFollowingQuery): Promise<FollowUser[]>;
 
-  searchUsers(query: SearchUsersQuery): Promise<SearchedUser[]>;
+  searchUsers(
+    query: SearchUsersQuery,
+  ): Promise<PagedOffsetBaseSearchUsers | PagedCursorBaseSearchUsers>;
 }

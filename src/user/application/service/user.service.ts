@@ -11,7 +11,8 @@ import {
   UserProfile,
   FollowUser,
   FollowStatus,
-  SearchedUser,
+  PagedOffsetBaseSearchUsers,
+  PagedCursorBaseSearchUsers,
 } from '../../domain/model/user-read-model';
 
 import {
@@ -25,9 +26,9 @@ import {
   GetUserByIdQuery,
   GetUserByEmailQuery,
   GetUsersQuery,
-  SearchUsersQuery,
   GetFollowerQuery,
   GetFollowingQuery,
+  SearchUsersQuery,
 } from '../query/user.query';
 
 //Input port
@@ -106,11 +107,36 @@ export class UserService
     return !!user;
   }
 
-  async searchUsers(query: SearchUsersQuery): Promise<SearchedUser[]> {
-    if (query.keyword.length === 0) {
-      return [];
+  async searchUsers(
+    query: SearchUsersQuery,
+  ): Promise<PagedOffsetBaseSearchUsers | PagedCursorBaseSearchUsers> {
+    if (query.mode === 'offset') {
+      if (query.keyword.length === 0) {
+        return {
+          items: [],
+          limit: query.limit,
+          marker: 0,
+        };
+      }
+      return await this._loadUserPort.searchUsersByEmailOrNicknameUseOffset(
+        query.keyword,
+        query.limit > 10 ? query.limit : 10,
+        query.offset ?? 0,
+      );
+    } else {
+      if (query.keyword.length === 0) {
+        return {
+          items: [],
+          limit: query.limit,
+          marker: '',
+        };
+      }
+      return await this._loadUserPort.searchUsersByEmailOrNicknameUseCursor(
+        query.keyword,
+        query.limit > 10 ? query.limit : 10,
+        query.cursor ?? '',
+      );
     }
-    return await this._loadUserPort.searchUsersByEmailOrNickname(query.keyword);
   }
 
   async getFollowers(query: GetFollowerQuery): Promise<FollowUser[]> {
@@ -153,6 +179,9 @@ export class UserService
   }
 
   async postFollow(command: PostFollowCommand): Promise<number> {
+    if (command.followerId === command.followingId) {
+      throw new BadRequestException('팔로워 Id와 팔로잉 Id가 같습니다.');
+    }
     return await this._handleUserPort.saveFollow(
       command.followerId,
       command.followingId,

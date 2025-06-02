@@ -4,7 +4,8 @@ import {
   UserProfile,
   FollowEntityReadModel,
   FollowUser,
-  SearchedUser,
+  PagedOffsetBaseSearchUsers,
+  PagedCursorBaseSearchUsers,
 } from '../../model/user-read-model';
 
 export const LoadUserPortSymbol = Symbol('LoadUserPort');
@@ -31,9 +32,15 @@ export interface LoadUserPort {
 
   findFollowing(userId: number, onlyApproved: boolean): Promise<FollowUser[]>;
 
-  searchUsersByEmailOrNickname(
+  searchUsersByEmailOrNicknameUseOffset(
     keyword: string,
-    limit?: number,
-    offset?: number,
-  ): Promise<SearchedUser[]>;
+    limit: number,
+    offset: number,
+  ): Promise<PagedOffsetBaseSearchUsers>;
+
+  searchUsersByEmailOrNicknameUseCursor(
+    keyword: string,
+    limit: number,
+    cursor: string,
+  ): Promise<PagedCursorBaseSearchUsers>;
 }

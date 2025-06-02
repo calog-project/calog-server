@@ -18,7 +18,7 @@ import { Nullable } from 'src/common/type/CommonType';
 import { UserMapper } from '../mapper/user.mapper';
 import { JwtAccessAuthGuard } from '../../../../../common/guard/jwt-access-auth.guard';
 
-import { SearchedUser } from '../../../../domain/model/user-read-model';
+// import {  } from '../../../../domain/model/user-read-model';
 
 import {
   ApproveFollowCommand,
@@ -28,12 +28,20 @@ import {
 } from '../../../../application/command/user.command';
 import {
   GetUserByIdQuery,
-  SearchUsersQuery,
   GetFollowerQuery,
   GetFollowingQuery,
+  SearchUsersQuery,
 } from '../../../../application/query/user.query';
-import { CreateUserDto, UpdateUserDto } from '../dto/user.req';
-import { ShowUserResDto } from '../dto/user.res';
+import {
+  CreateUserDto,
+  SearchUsersReqDto,
+  UpdateUserDto,
+} from '../dto/user.req';
+import {
+  ShowUserResDto,
+  SearchUsersByOffsetResDto,
+  SearchUsersByCursorResDto,
+} from '../dto/user.res';
 
 import {
   CreateUserUseCaseSymbol,
@@ -64,8 +72,21 @@ export class UserController {
 
   // ------ 검색/검증 그룹 ------
   @Get('search')
-  async searchUser(@Query('keyword') keyword: string): Promise<SearchedUser[]> {
-    return await this._queryBus.execute(new SearchUsersQuery(keyword));
+  async searchUsers(
+    @Query() params: SearchUsersReqDto,
+  ): Promise<SearchUsersByOffsetResDto | SearchUsersByCursorResDto> {
+    const result = await this._queryBus.execute(
+      new SearchUsersQuery(
+        params.mode,
+        params.keyword,
+        params.limit,
+        params.offset,
+        params.cursor,
+      ),
+    );
+    return params.mode === 'offset'
+      ? new SearchUsersByOffsetResDto(result)
+      : new SearchUsersByCursorResDto(result);
   }
 
   @Get('check-email/:email')

@@ -4,15 +4,16 @@ import {
   GetUserByIdQuery,
   GetUserByEmailQuery,
   GetUsersQuery,
-  SearchUsersQuery,
   GetFollowerQuery,
   GetFollowingQuery,
+  SearchUsersQuery,
 } from './user.query';
 
 import {
   UserReadModel,
   UserProfile,
-  SearchedUser,
+  PagedOffsetBaseSearchUsers,
+  PagedCursorBaseSearchUsers,
   FollowUser,
 } from '../../domain/model/user-read-model';
 import {
@@ -70,7 +71,9 @@ export class SearchUsersHandler implements IQueryHandler<SearchUsersQuery> {
     @Inject(GetUserUseCaseSymbol)
     private readonly _getUserUseCase: GetUserUseCase,
   ) {}
-  async execute(query: SearchUsersQuery): Promise<SearchedUser[]> {
+  async execute(
+    query: SearchUsersQuery,
+  ): Promise<PagedOffsetBaseSearchUsers | PagedCursorBaseSearchUsers> {
     return await this._getUserUseCase.searchUsers(query);
   }
 }
