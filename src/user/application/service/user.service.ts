@@ -140,16 +140,26 @@ export class UserService
   }
 
   async getFollowers(query: GetFollowerQuery): Promise<FollowUser[]> {
+    if (!query.viewerId || !query.targetId) {
+      throw new BadRequestException('잘못된 인자입니다');
+    }
+
     const followers = await this._loadUserPort.findFollowers(
-      query.userId,
+      query.viewerId,
+      query.targetId,
       query.onlyApproved,
     );
     return followers;
   }
 
   async getFollowings(query: GetFollowingQuery): Promise<FollowUser[]> {
+    if (!query.viewerId || !query.targetId) {
+      throw new BadRequestException('잘못된 인자입니다');
+    }
+
     const followings = await this._loadUserPort.findFollowing(
-      query.userId,
+      query.viewerId,
+      query.targetId,
       query.onlyApproved,
     );
     return followings;

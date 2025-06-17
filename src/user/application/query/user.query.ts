@@ -25,14 +25,16 @@ export class SearchUsersQuery {
 
 export class GetFollowerQuery {
   constructor(
-    public readonly userId: number,
+    public readonly viewerId: number,
+    public readonly targetId: number,
     public readonly onlyApproved: boolean,
   ) {}
 }
 
 export class GetFollowingQuery {
   constructor(
-    public readonly userId: number,
+    public readonly viewerId: number,
+    public readonly targetId: number,
     public readonly onlyApproved: boolean,
   ) {}
 }

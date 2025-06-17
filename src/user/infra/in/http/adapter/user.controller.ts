@@ -125,26 +125,46 @@ export class UserController {
     await this._commandBus.execute(new PostFollowCommand(userId, followingId));
   }
 
+  @Get('follower/:viewerId/:targetId')
+  async testGetFollowers(
+    @Param('viewerId') viewerId: number,
+    @Param('targetId') targetId: number,
+  ) {
+    return await this._queryBus.execute(
+      new GetFollowerQuery(viewerId, targetId, false),
+    );
+  }
+
   @Get('follower/:id')
-  async testGetFollowers(@Param('id') userId: number) {
-    return await this._queryBus.execute(new GetFollowerQuery(userId, false));
-  }
-
-  @Get('follower')
   @UseGuards(JwtAccessAuthGuard)
-  async getFollowers(@UserId('userId') userId: number) {
-    return await this._queryBus.execute(new GetFollowerQuery(userId, false));
+  async getFollowers(
+    @UserId('userId') userId: number,
+    @Param('id') targetId: number,
+  ) {
+    return await this._queryBus.execute(
+      new GetFollowerQuery(userId, targetId, false),
+    );
   }
 
-  @Get('following/:id')
-  async testGetFollowings(@Param('id') userId: number) {
-    return await this._queryBus.execute(new GetFollowingQuery(userId, false));
+  @Get('following/:viewerId/:targetId')
+  async testGetFollowings(
+    @Param('viewerId') viewerId: number,
+    @Param('targetId') targetId: number,
+  ) {
+    return await this._queryBus.execute(
+      new GetFollowingQuery(viewerId, targetId, false),
+    );
   }
 
   @Get('following')
   @UseGuards(JwtAccessAuthGuard)
-  async getFollowings(@UserId('userId') userId: number) {
-    return await this._queryBus.execute(new GetFollowingQuery(userId, false));
+  async getFollowings(
+    @UserId('userId') userId: number,
+    @Param('id') targetId: number,
+  ) {
+    return await this._queryBus.execute(
+      new GetFollowingQuery(userId, targetId, false),
+    );
   }
 
   @Patch('follow/:id/:followerId/approve')
