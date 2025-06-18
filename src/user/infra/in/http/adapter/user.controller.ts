@@ -156,7 +156,7 @@ export class UserController {
     );
   }
 
-  @Get('following')
+  @Get('following/:id')
   @UseGuards(JwtAccessAuthGuard)
   async getFollowings(
     @UserId('userId') userId: number,
