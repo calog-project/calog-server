@@ -229,36 +229,58 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
 
   /**
    * @TODO
-   *   팔로워 조회 기능 주체(모든 유저 or 프로필 주인) 선택
    *   이벤트 기반 동기화
-   *
-   * innerjoin -> 팔로워들 조회
-   * leftjoin -> 팔로워들 팔로잉 여부 조회
+   *   페이지네이션
+   * innerjoin -> 타겟 팔로워들 조회
+   * leftjoin(viewer != target : leftjoin 2회)
+   *   viewer == target: 조회 요청자(타겟이자 뷰어) -> 타겟 팔로워 간 팔로우 관계 조인
+   *   viewer != target:
+   *     조회 요청자(뷰어) -> 타겟 팔로워 간 팔로우 관계 조인
+   *     타겟 팔로워 -> 조회 요청자(뷰어) 간 팔로우 관계 조인
    * */
   async findFollowers(
-    userId: number,
+    viewerId: number,
+    targetId: number,
     onlyApproved: boolean,
   ): Promise<FollowUser[]> {
-    const followers = await this._followRepository
+    const isSelfView = viewerId === targetId;
+
+    const qb = this._followRepository
       .createQueryBuilder('f')
-      .innerJoin('f.follower', 'user') // 팔로워 유저 정보
+      .innerJoin('f.follower', 'followerUser', 'f.followingId = :targetId', {
+        targetId,
+      })
       .leftJoin(
         FollowEntity,
-        'reverse',
-        'reverse.followerId = :myId AND reverse.followingId = user.id',
-        { myId: userId },
+        'sentToFollower',
+        'sentToFollower.followerId = :viewerId AND sentToFollower.followingId = followerUser.id',
+        { viewerId },
       )
-      .where('f.followingId = :myId', { myId: userId })
-      .andWhere(onlyApproved ? 'f.status = approved' : '1=1')
+      .where(onlyApproved ? 'f.status = :approved' : '1=1', {
+        approved: 'approved',
+      })
       .select([
-        'user.id AS id',
-        'user.email AS email',
-        'user.nickname AS nickname',
-        'user.image AS image',
-        'f.status AS received',
-        'reverse.status AS sent',
-      ])
-      .getRawMany();
+        'followerUser.id AS id',
+        'followerUser.email AS email',
+        'followerUser.nickname AS nickname',
+        'followerUser.image AS image',
+      ]);
+
+    if (isSelfView) {
+      qb.addSelect('sentToFollower.status AS sent');
+      qb.addSelect('f.status AS received');
+    } else {
+      qb.leftJoin(
+        FollowEntity,
+        'receivedFromFollower',
+        'receivedFromFollower.followerId = followerUser.id AND receivedFromFollower.followingId = :viewerId',
+        { viewerId },
+      );
+      qb.addSelect('sentToFollower.status AS sent');
+      qb.addSelect('receivedFromFollower.status AS received');
+    }
+
+    const followers = await qb.getRawMany();
 
     return followers.map((f) => {
       const { received, sent, ...rest } = f;
@@ -266,7 +288,7 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
         user: rest,
         followStatus: {
           sent: sent ?? FollowRequestStatus.NONE,
-          received,
+          received: received ?? FollowRequestStatus.NONE,
         },
         isMutualFollow:
           sent === FollowStatus.APPROVED && received === FollowStatus.APPROVED,
@@ -276,44 +298,69 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
 
   /**
    * @TODO
-   *   query의 id 여부에 따라 본인, 타인 조회
    *   이벤트 기반 동기화
-   *
-   * 팔로잉하는 사람들 조회
-   * inner join -> 팔로잉 조회
-   * left join -> 팔로잉들의 팔로워 여부 조회
-   */
+   *   페이지네이션
+   * innerjoin -> 타겟이 팔로잉하는 유저들 조회
+   * leftjoin(viewer != target : leftjoin 2회)
+   *   viewer == target: 타겟의 팔로잉 -> 조회 요청자(타겟이자 뷰어) 간 팔로우 관계 조인
+   *   viewer != target:
+   *     타겟의 팔로잉 -> 조회 요청자(뷰어) 간 팔로우 관계 조인
+   *     조회 요청자(뷰어) -> 타겟의 팔로잉 간 팔로우 관계 조인
+   * */
   async findFollowing(
-    userId: number,
+    viewerId: number,
+    targetId: number,
     onlyApproved: boolean,
   ): Promise<FollowUser[]> {
-    const followings = await this._followRepository
+    const isSelfView = viewerId === targetId;
+
+    const qb = this._followRepository
       .createQueryBuilder('f')
-      .innerJoin('f.following', 'user')
+      .innerJoin('f.following', 'followingUser', ' f.followerId = :targetId', {
+        targetId,
+      })
       .leftJoin(
         FollowEntity,
-        'reverse',
-        'reverse.followerId = user.id AND reverse.followingId = :myId',
-        { myId: userId },
+        'receivedFromFollowing',
+        'receivedFromFollowing.followerId = followingUser.id AND receivedFromFollowing.followingId = :viewerId',
+        {
+          viewerId,
+        },
       )
-      .where('f.followerId = :myId', { myId: userId })
-      .andWhere(onlyApproved ? 'f.status = approved' : '1=1')
+      .where(onlyApproved ? 'f.status = :approved' : '1=1', {
+        approved: 'approved',
+      })
       .select([
-        'user.id AS id',
-        'user.email AS email',
-        'user.nickname AS nickname',
-        'user.image AS image',
-        'f.status AS sent',
-        'reverse.status AS received',
-      ])
-      .getRawMany();
+        'followingUser.id AS id',
+        'followingUser.email AS email',
+        'followingUser.nickname AS nickname',
+        'followingUser.image AS image',
+      ]);
+
+    if (isSelfView) {
+      qb.addSelect('f.status AS sent');
+      qb.addSelect('receivedFromFollowing.status AS received');
+    } else {
+      qb.leftJoin(
+        FollowEntity,
+        'sentToFollowing',
+        'sentToFollowing.followerId = :viewerId AND sentToFollowing.followingId = followingUser.id',
+        {
+          viewerId,
+        },
+      );
+      qb.addSelect('sentToFollowing.status AS sent');
+      qb.addSelect('receivedFromFollowing.status AS received');
+    }
+
+    const followings = await qb.getRawMany();
 
     return followings.map((f) => {
       const { sent, received, ...rest } = f;
       return {
         user: rest,
         followStatus: {
-          sent,
+          sent: sent ?? FollowRequestStatus.NONE,
           received: received ?? FollowRequestStatus.NONE,
         },
         isMutualFollow:

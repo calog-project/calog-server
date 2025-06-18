@@ -28,9 +28,17 @@ export interface LoadUserPort {
     followingId: number,
   ): Promise<FollowEntityReadModel | null>;
 
-  findFollowers(userId: number, onlyApproved: boolean): Promise<FollowUser[]>;
+  findFollowers(
+    viewerId: number,
+    targetId: number,
+    onlyApproved: boolean,
+  ): Promise<FollowUser[]>;
 
-  findFollowing(userId: number, onlyApproved: boolean): Promise<FollowUser[]>;
+  findFollowing(
+    viewerId: number,
+    targetId: number,
+    onlyApproved: boolean,
+  ): Promise<FollowUser[]>;
 
   searchUsersByEmailOrNicknameUseOffset(
     keyword: string,
