@@ -8,6 +8,7 @@ export interface PageResult<T, M> {
   limit: number;
   //다음 페이지 키
   marker: M;
+  hasNext?: boolean;
 }
 
 //오프셋 전용
