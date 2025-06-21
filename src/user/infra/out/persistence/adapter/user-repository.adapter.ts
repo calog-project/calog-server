@@ -10,10 +10,10 @@ import {
   FollowEntityReadModel,
   FollowRequestStatus,
   FollowStatus,
-  FollowUser,
   UserProfile,
-  PagedOffsetBaseSearchUsers,
+  PagedFollowUsers,
   PagedCursorBaseSearchUsers,
+  PagedOffsetBaseSearchUsers,
 } from '../../../../domain/model/user-read-model';
 
 import { HandleUserPort } from 'src/user/domain/port/out/handle-user.port';
@@ -242,7 +242,9 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     viewerId: number,
     targetId: number,
     onlyApproved: boolean,
-  ): Promise<FollowUser[]> {
+    limit: number,
+    cursor: number,
+  ): Promise<PagedFollowUsers> {
     const isSelfView = viewerId === targetId;
 
     const qb = this._followRepository
@@ -264,7 +266,13 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
         'followerUser.email AS email',
         'followerUser.nickname AS nickname',
         'followerUser.image AS image',
-      ]);
+      ])
+      .orderBy('f.followerId', 'DESC')
+      .limit(limit + 1);
+
+    if (cursor) {
+      qb.andWhere('f.followerId < :cursor', { cursor });
+    }
 
     if (isSelfView) {
       qb.addSelect('sentToFollower.status AS sent');
@@ -280,9 +288,8 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
       qb.addSelect('receivedFromFollower.status AS received');
     }
 
-    const followers = await qb.getRawMany();
-
-    return followers.map((f) => {
+    const raws = await qb.getRawMany();
+    const followers = raws.map((f) => {
       const { received, sent, ...rest } = f;
       return {
         user: rest,
@@ -294,6 +301,16 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
           sent === FollowStatus.APPROVED && received === FollowStatus.APPROVED,
       };
     });
+
+    const sliced = followers.slice(0, limit);
+    const hasNext = raws.length > limit;
+    const marker = hasNext ? sliced[sliced.length - 1].user.id : null;
+    return {
+      items: sliced,
+      limit,
+      marker,
+      hasNext,
+    };
   }
 
   /**
@@ -311,7 +328,9 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
     viewerId: number,
     targetId: number,
     onlyApproved: boolean,
-  ): Promise<FollowUser[]> {
+    limit: number,
+    cursor: number,
+  ): Promise<PagedFollowUsers> {
     const isSelfView = viewerId === targetId;
 
     const qb = this._followRepository
@@ -335,7 +354,13 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
         'followingUser.email AS email',
         'followingUser.nickname AS nickname',
         'followingUser.image AS image',
-      ]);
+      ])
+      .orderBy('f.followingId', 'DESC')
+      .limit(limit + 1);
+
+    if (cursor) {
+      qb.andWhere('f.followingId < :cursor', { cursor });
+    }
 
     if (isSelfView) {
       qb.addSelect('f.status AS sent');
@@ -353,9 +378,9 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
       qb.addSelect('receivedFromFollowing.status AS received');
     }
 
-    const followings = await qb.getRawMany();
+    const raws = await qb.getRawMany();
 
-    return followings.map((f) => {
+    const followings = raws.map((f) => {
       const { sent, received, ...rest } = f;
       return {
         user: rest,
@@ -367,6 +392,16 @@ export class UserRepositoryAdapter implements HandleUserPort, LoadUserPort {
           sent === FollowStatus.APPROVED && received === FollowStatus.APPROVED,
       };
     });
+
+    const sliced = followings.slice(0, limit);
+    const hasNext = raws.length > limit;
+    const marker = hasNext ? sliced[sliced.length - 1].user.id : null;
+    return {
+      items: sliced,
+      limit,
+      marker,
+      hasNext,
+    };
   }
 
   async searchUsersByEmailOrNicknameUseOffset(
