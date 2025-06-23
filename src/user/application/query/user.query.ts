@@ -28,6 +28,8 @@ export class GetFollowerQuery {
     public readonly viewerId: number,
     public readonly targetId: number,
     public readonly onlyApproved: boolean,
+    public readonly limit: number,
+    public readonly cursor?: number,
   ) {}
 }
 
@@ -36,5 +38,7 @@ export class GetFollowingQuery {
     public readonly viewerId: number,
     public readonly targetId: number,
     public readonly onlyApproved: boolean,
+    public readonly limit: number,
+    public readonly cursor?: number,
   ) {}
 }

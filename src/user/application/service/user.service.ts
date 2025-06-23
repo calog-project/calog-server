@@ -9,8 +9,8 @@ import { Nullable } from 'src/common/type/CommonType';
 import { User } from 'src/user/domain/model/user';
 import {
   UserProfile,
-  FollowUser,
   FollowStatus,
+  PagedFollowUsers,
   PagedOffsetBaseSearchUsers,
   PagedCursorBaseSearchUsers,
 } from '../../domain/model/user-read-model';
@@ -139,7 +139,7 @@ export class UserService
     }
   }
 
-  async getFollowers(query: GetFollowerQuery): Promise<FollowUser[]> {
+  async getFollowers(query: GetFollowerQuery): Promise<PagedFollowUsers> {
     if (!query.viewerId || !query.targetId) {
       throw new BadRequestException('잘못된 인자입니다');
     }
@@ -148,11 +148,13 @@ export class UserService
       query.viewerId,
       query.targetId,
       query.onlyApproved,
+      query.limit,
+      query.cursor ?? null,
     );
     return followers;
   }
 
-  async getFollowings(query: GetFollowingQuery): Promise<FollowUser[]> {
+  async getFollowings(query: GetFollowingQuery): Promise<PagedFollowUsers> {
     if (!query.viewerId || !query.targetId) {
       throw new BadRequestException('잘못된 인자입니다');
     }
@@ -161,6 +163,8 @@ export class UserService
       query.viewerId,
       query.targetId,
       query.onlyApproved,
+      query.limit,
+      query.cursor ?? null,
     );
     return followings;
   }
