@@ -1,5 +1,5 @@
 export const SenderPortSymbol = Symbol('SenderPort');
 
 export interface SenderPort {
-  send(): Promise<void>;
+  sendNotiToUser<T>(receiverId: number, payload: T): Promise<void>;
 }
