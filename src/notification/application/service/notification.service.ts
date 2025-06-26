@@ -13,6 +13,7 @@ import {
   SenderPortSymbol,
   SenderPort,
 } from '../../domain/port/out/sender.port';
+import { Notification } from '../../domain/model/notification';
 
 @Injectable()
 export class NotificationService
@@ -26,7 +27,11 @@ export class NotificationService
     @Inject(SenderPortSymbol)
     private readonly _senderPort: SenderPort,
   ) {}
-  async create(): Promise<void> {
+  async notifyToUser(): Promise<void> {
+    //save noti
+    // const noti = Notification.create();
+    //send noti
+    // await this._senderPort.sendNotiToUser();
     return;
   }
 
