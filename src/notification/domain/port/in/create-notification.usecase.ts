@@ -3,5 +3,5 @@ export const CreateNotificationUseCaseSymbol = Symbol(
 );
 
 export interface CreateNotificationUseCase {
-  create(): Promise<void>;
+  notifyToUser(): Promise<void>;
 }
