@@ -1,7 +1,11 @@
 import { Controller, Get, Patch } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
 import { CommandBus, EventBus } from '@nestjs/cqrs';
-import { ScheduleCreatedNotificationCommand } from '../../../../application/command/notification.command';
+import {
+  ScheduleCreatedNotificationCommand,
+  FollowedNotificationCommand,
+  FollowRequestedNotificationCommand,
+} from '../../../../application/command/notification.command';
 
 import { TestCommand } from '../../../../application/command/notification.command-handler';
 import { TestEvent } from '../../../../application/event-handler/test.event-handler';
@@ -29,20 +33,31 @@ export class NotificationController {
     await this._commandBus.execute(command);
   }
 
+  @EventPattern('user.followed')
+  async handleFollowedEvent(data) {
+    const command = new FollowedNotificationCommand(
+      data.receiverId,
+      data.followerId,
+      data.followerNickname,
+    );
+    // await this._commandBus.execute()
+  }
+
   @EventPattern('user.follow-requested')
-  async handleUserFollowRequestedEvent() {
-    // const command =
+  async handleUserFollowRequestedEvent(data) {
+    console.log(data);
+    const command = new FollowRequestedNotificationCommand(
+      data.receiverId,
+      data.followerId,
+      data.followerNickname,
+    );
     // await this._commandBus.execute()
   }
 
-  @EventPattern('user.follow-rejected')
-  async handleUserFollowRejectedEvent() {
-    // await this._commandBus.execute()
-  }
-
-  @EventPattern('user.follow-approved')
-  async handleUserFollowApprovedEvent() {
-    // await this._commandBus.execute()
+  @Get('test')
+  async testFunction() {
+    const event = new TestEvent('1', 2, [1, 3, 4, 5], 'testHandler');
+    await this._eventBus.publish(event);
   }
 
   @Get(':userId')
@@ -52,10 +67,4 @@ export class NotificationController {
 
   @Patch(':userId/read')
   async markAsRead() {}
-
-  @Get('test')
-  async testFunction() {
-    const event = new TestEvent('1', 2, [1, 3, 4, 5], 'testHandler');
-    await this._eventBus.publish(event);
-  }
 }

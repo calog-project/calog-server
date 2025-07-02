@@ -1,4 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
+
+import { NotificationPayload } from '../dto/notification-payload';
+import { Notification } from '../../domain/model/notification';
+
 import { CreateNotificationUseCase } from '../../domain/port/in/create-notification.usecase';
 import { GetNotificationUseCase } from '../../domain/port/in/get-notification.usecase';
 import {
@@ -13,7 +17,6 @@ import {
   SenderPortSymbol,
   SenderPort,
 } from '../../domain/port/out/sender.port';
-import { Notification } from '../../domain/model/notification';
 
 @Injectable()
 export class NotificationService
@@ -27,9 +30,9 @@ export class NotificationService
     @Inject(SenderPortSymbol)
     private readonly _senderPort: SenderPort,
   ) {}
-  async notifyToUser(): Promise<void> {
-    //save noti
-    // const noti = Notification.create();
+  async notifyToUser(input: NotificationPayload): Promise<void> {
+    const noti = Notification.create({ ...input, isRead: false });
+    await this._handleNotiPort.save(noti);
     //send noti
     // await this._senderPort.sendNotiToUser();
     return;

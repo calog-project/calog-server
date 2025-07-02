@@ -16,6 +16,8 @@ import { SenderPortSymbol } from './domain/port/out/sender.port';
 
 import {
   ScheduleCreatedNotificationHandler,
+  FollowedNotificationHandler,
+  FollowRequestedNotificationHandler,
   TestCommandHandler,
 } from './application/command/notification.command-handler';
 import { TestEventHandler } from './application/event-handler/test.event-handler';
@@ -51,6 +53,8 @@ const adapterProvider = [
 const handlerProvider = [
   TestCommandHandler,
   ScheduleCreatedNotificationHandler,
+  FollowedNotificationHandler,
+  FollowRequestedNotificationHandler,
   TestEventHandler,
 ];
 

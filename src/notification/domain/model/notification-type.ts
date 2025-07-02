@@ -1,9 +1,9 @@
-export enum NotificationType {
-  ACTION = 'ACTION',
-  INFO = 'INFO',
-}
+// export enum NotificationType {
+//   ACTION = 'ACTION',
+//   INFO = 'INFO',
+// }
 
-export enum NotificationContext {
+export enum NotificationType {
   FOLLOW_REQUESTED = 'FOLLOW_REQUESTED',
   FOLLOWED = 'FOLLOWED',
   SCHEDULE_INVITE = 'SCHEDULE_INVITED',
@@ -12,18 +12,18 @@ export enum NotificationContext {
 
 export type NotificationMeta =
   | {
-      context: NotificationContext.FOLLOW_REQUESTED;
+      context: NotificationType.FOLLOW_REQUESTED;
       followerId: number;
     }
   | {
-      context: NotificationContext.FOLLOWED;
+      context: NotificationType.FOLLOWED;
       followerId: number;
     }
   | {
-      context: NotificationContext.SCHEDULE_INVITE;
+      context: NotificationType.SCHEDULE_INVITE;
       scheduleId: number;
       inviterId: number;
     }
   | {
-      context: NotificationContext.GENERAL;
+      context: NotificationType.GENERAL;
     };

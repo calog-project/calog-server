@@ -45,15 +45,24 @@ export class Notification extends AggregateRoot<NotificationProps> {
     ) {
       throw new DomainError('잘못된 입력의 요청입니다');
     }
+
     return new Notification({ ...props, aggregateId });
   }
 
-  private created(type: string): void {
-    if (type == NotificationType.ACTION) {
-      // this.addEvent()
-    } else {
-      // this.addEvent()
-    }
+  // private created(): void {
+  //   switch (this.props.type) {
+  //     case NotificationType.SCHEDULE_INVITE:
+  //     case NotificationType.FOLLOWED:
+  //     case NotificationType.FOLLOW_REQUESTED:
+  //     default:
+  //   }
+  // }
+
+  toPrimitives(): NotificationPrimitives {
+    return {
+      ...this.props,
+      aggregateId: this.id.toString(),
+    };
   }
 }
 

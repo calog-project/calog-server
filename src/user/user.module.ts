@@ -32,6 +32,11 @@ import {
   GetFollowingHandler,
 } from './application/query/user.query-handler';
 
+import {
+  FollowedEventHandler,
+  FollowRequestedEventHandler,
+} from './application/event-handler/user.event-handler';
+
 import { AuthModule } from '../auth/auth.module';
 
 const adapterProviders = [
@@ -80,6 +85,8 @@ const handlerProviders = [
   SearchUsersHandler,
   GetFollowerHandler,
   GetFollowingHandler,
+  FollowedEventHandler,
+  FollowRequestedEventHandler,
 ];
 
 @Module({

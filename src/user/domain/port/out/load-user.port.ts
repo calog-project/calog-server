@@ -1,11 +1,10 @@
 import { User } from '../../model/user';
 import {
-  UserReadModel,
   UserProfile,
   FollowEntityReadModel,
-  FollowUser,
   PagedOffsetBaseSearchUsers,
   PagedCursorBaseSearchUsers,
+  PagedFollowUsers,
 } from '../../model/user-read-model';
 
 export const LoadUserPortSymbol = Symbol('LoadUserPort');
@@ -32,13 +31,17 @@ export interface LoadUserPort {
     viewerId: number,
     targetId: number,
     onlyApproved: boolean,
-  ): Promise<FollowUser[]>;
+    limit: number,
+    cursor: number,
+  ): Promise<PagedFollowUsers>;
 
   findFollowing(
     viewerId: number,
     targetId: number,
     onlyApproved: boolean,
-  ): Promise<FollowUser[]>;
+    limit: number,
+    cursor: number,
+  ): Promise<PagedFollowUsers>;
 
   searchUsersByEmailOrNicknameUseOffset(
     keyword: string,
