@@ -8,3 +8,10 @@ export interface NotificationPayload {
   url?: string;
   actionable: boolean;
 }
+
+export interface ClientNotificationPayload extends NotificationPayload {
+  id: number;
+  isRead: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
