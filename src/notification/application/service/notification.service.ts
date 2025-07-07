@@ -1,6 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { NotificationPayload } from '../dto/notification-payload';
+import {
+  ClientNotificationPayload,
+  NotificationPayload,
+} from '../dto/notification-payload';
 import { Notification } from '../../domain/model/notification';
 
 import { CreateNotificationUseCase } from '../../domain/port/in/create-notification.usecase';
@@ -33,12 +36,13 @@ export class NotificationService
   async notifyToUser(input: NotificationPayload): Promise<void> {
     const noti = Notification.create({ ...input, isRead: false });
     await this._handleNotiPort.save(noti);
-    //send noti
-    // await this._senderPort.sendNotiToUser();
+    await this._senderPort.sendNotiToUser(noti.props.receiverId, noti);
     return;
   }
 
   async getNotiById(): Promise<void> {}
 
-  async getNotiByUserId(): Promise<void> {}
+  async getNotiByUserId(): Promise<void> {
+    // const notifications = await this._loadNotiPort.findByUserId()
+  }
 }

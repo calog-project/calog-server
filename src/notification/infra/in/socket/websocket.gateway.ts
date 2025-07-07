@@ -31,7 +31,7 @@ export class NotificationGateway {
     });
   }
 
-  sendNoti(userId: number, payload: any) {
+  sendNoti<T>(userId: number, payload: T) {
     this.server.to(`noti-user-${userId}`).emit('notification', payload);
   }
 
@@ -41,7 +41,7 @@ export class NotificationGateway {
     @ConnectedSocket() client: Socket,
   ) {
     client.join(`noti-user-${userId}`);
-    console.log(`subscribe noti ${userId}`);
+    this.logger.log(`subscribe noti-user-${userId}`);
   }
 
   @SubscribeMessage('notificationAction')
@@ -49,6 +49,6 @@ export class NotificationGateway {
     @MessageBody('id') userId: string,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log('to do action notification');
+    this.logger.log('to do action notification');
   }
 }

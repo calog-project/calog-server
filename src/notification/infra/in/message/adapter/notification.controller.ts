@@ -51,7 +51,7 @@ export class NotificationController {
       data.followerId,
       data.followerNickname,
     );
-    // await this._commandBus.execute()
+    await this._commandBus.execute(command);
   }
 
   @Get('test')
