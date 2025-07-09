@@ -202,7 +202,7 @@ export class UserService
       throw new BadRequestException('팔로워 Id와 팔로잉 Id가 같습니다.');
     }
     const follower = await this._loadUserPort.loadUserAggregateById(
-      command.followingId,
+      command.followerId,
     );
     const targetUser = await this._loadUserPort.loadUserAggregateById(
       command.followingId,
@@ -273,7 +273,9 @@ export class UserService
       true,
     );
 
-    const follower = await this._loadUserPort.loadUserAggregateById(followerId);
+    const follower = await this._loadUserPort.loadUserAggregateById(
+      command.followerId,
+    );
 
     const event = new FollowedEvent(
       command.followingId,
