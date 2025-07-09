@@ -1,7 +1,6 @@
 import { Nullable } from 'src/common/type/CommonType';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { PaginationRequestDto } from 'src/common/dto/pagination-request.dto';
 
 export class CreateUserDto {
   email: Nullable<string>;

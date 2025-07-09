@@ -20,6 +20,7 @@ import {
   FollowRequestedNotificationHandler,
   TestCommandHandler,
 } from './application/command/notification.command-handler';
+import { GetNotificationsByUserIdHandler } from './application/query/notification.query-handler';
 import { TestEventHandler } from './application/event-handler/test.event-handler';
 
 const gatewayProvider = [NotificationGateway];
@@ -55,6 +56,7 @@ const handlerProvider = [
   ScheduleCreatedNotificationHandler,
   FollowedNotificationHandler,
   FollowRequestedNotificationHandler,
+  GetNotificationsByUserIdHandler,
   TestEventHandler,
 ];
 

@@ -1,13 +1,8 @@
-// export enum NotificationType {
-//   ACTION = 'ACTION',
-//   INFO = 'INFO',
-// }
-
 export enum NotificationType {
+  COMMON = 'COMMON',
+  SCHEDULE_INVITE = 'SCHEDULE_INVITED',
   FOLLOW_REQUESTED = 'FOLLOW_REQUESTED',
   FOLLOWED = 'FOLLOWED',
-  SCHEDULE_INVITE = 'SCHEDULE_INVITED',
-  'GENERAL' = 'GENERAL',
 }
 
 export type NotificationMeta =
@@ -25,5 +20,5 @@ export type NotificationMeta =
       inviterId: number;
     }
   | {
-      context: NotificationType.GENERAL;
+      context: NotificationType.COMMON;
     };

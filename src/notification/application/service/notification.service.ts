@@ -1,10 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import {
-  ClientNotificationPayload,
-  NotificationPayload,
-} from '../dto/notification-payload';
+import { NotificationPayload } from '../dto/notification-payload';
 import { Notification } from '../../domain/model/notification';
+import { PagedNotifications } from '../../domain/model/notification-read-model';
 
 import { CreateNotificationUseCase } from '../../domain/port/in/create-notification.usecase';
 import { GetNotificationUseCase } from '../../domain/port/in/get-notification.usecase';
@@ -20,6 +18,7 @@ import {
   SenderPortSymbol,
   SenderPort,
 } from '../../domain/port/out/sender.port';
+import { GetNotificationsByUserIdQuery } from '../query/notification.query';
 
 @Injectable()
 export class NotificationService
@@ -42,7 +41,13 @@ export class NotificationService
 
   async getNotiById(): Promise<void> {}
 
-  async getNotiByUserId(): Promise<void> {
-    // const notifications = await this._loadNotiPort.findByUserId()
+  async getNotiByUserId(
+    query: GetNotificationsByUserIdQuery,
+  ): Promise<PagedNotifications> {
+    return await this._loadNotiPort.findByUserId(
+      query.userId,
+      query.limit,
+      query.cursor,
+    );
   }
 }

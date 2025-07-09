@@ -1,6 +1,8 @@
-import { Controller, Get, Patch } from '@nestjs/common';
+import { Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
-import { CommandBus, EventBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus, EventBus } from '@nestjs/cqrs';
+import { PaginationRequestDto } from '../../../../../common/dto/pagination-request.dto';
+
 import {
   ScheduleCreatedNotificationCommand,
   FollowedNotificationCommand,
@@ -9,11 +11,14 @@ import {
 
 import { TestCommand } from '../../../../application/command/notification.command-handler';
 import { TestEvent } from '../../../../application/event-handler/test.event-handler';
+import { GetNotificationsByUserIdQuery } from '../../../../application/query/notification.query';
+import { FetchNotificationsResDto } from '../../http/dto/notification.res';
 
 @Controller('notification')
 export class NotificationController {
   constructor(
     private readonly _commandBus: CommandBus,
+    private readonly _queryBus: QueryBus,
     private readonly _eventBus: EventBus,
   ) {}
 
@@ -45,7 +50,6 @@ export class NotificationController {
 
   @EventPattern('user.follow-requested')
   async handleUserFollowRequestedEvent(data) {
-    console.log(data);
     const command = new FollowRequestedNotificationCommand(
       data.receiverId,
       data.followerId,
@@ -61,8 +65,17 @@ export class NotificationController {
   }
 
   @Get(':userId')
-  async getUserNotification() {
-    console.log(1);
+  async fetchNotifications(
+    @Param('userId') userId: number,
+    @Query() page: PaginationRequestDto<number>,
+  ): Promise<FetchNotificationsResDto> {
+    const query = new GetNotificationsByUserIdQuery(
+      userId,
+      page.limit,
+      page.cursor,
+    );
+    const notifications = await this._queryBus.execute(query);
+    return new FetchNotificationsResDto(notifications);
   }
 
   @Patch(':userId/read')
