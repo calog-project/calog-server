@@ -12,9 +12,9 @@ import {
 import {
   UserReadModel,
   UserProfile,
+  PagedFollowUsers,
   PagedOffsetBaseSearchUsers,
   PagedCursorBaseSearchUsers,
-  FollowUser,
 } from '../../domain/model/user-read-model';
 import {
   LoadUserPortSymbol,
@@ -84,7 +84,7 @@ export class GetFollowerHandler implements IQueryHandler<GetFollowerQuery> {
     @Inject(GetUserUseCaseSymbol)
     private readonly _getUserUseCase: GetUserUseCase,
   ) {}
-  async execute(query: GetFollowerQuery): Promise<FollowUser[]> {
+  async execute(query: GetFollowerQuery): Promise<PagedFollowUsers> {
     return await this._getUserUseCase.getFollowers(query);
   }
 }
@@ -95,7 +95,7 @@ export class GetFollowingHandler implements IQueryHandler<GetFollowingQuery> {
     @Inject(GetUserUseCaseSymbol)
     private readonly _getUserUseCase: GetUserUseCase,
   ) {}
-  async execute(query: GetFollowerQuery): Promise<FollowUser[]> {
+  async execute(query: GetFollowerQuery): Promise<PagedFollowUsers> {
     return await this._getUserUseCase.getFollowings(query);
   }
 }

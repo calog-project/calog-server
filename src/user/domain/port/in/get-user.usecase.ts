@@ -8,7 +8,7 @@ import {
 import {
   UserReadModel,
   UserProfile,
-  FollowUser,
+  PagedFollowUsers,
   PagedOffsetBaseSearchUsers,
   PagedCursorBaseSearchUsers,
 } from '../../model/user-read-model';
@@ -24,9 +24,9 @@ export interface GetUserUseCase {
 
   isExistsNickname(nickname: string): Promise<boolean>;
 
-  getFollowers(query: GetFollowerQuery): Promise<FollowUser[]>;
+  getFollowers(query: GetFollowerQuery): Promise<PagedFollowUsers>;
 
-  getFollowings(query: GetFollowingQuery): Promise<FollowUser[]>;
+  getFollowings(query: GetFollowingQuery): Promise<PagedFollowUsers>;
 
   searchUsers(
     query: SearchUsersQuery,

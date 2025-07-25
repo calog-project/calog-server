@@ -3,7 +3,14 @@ import {
   FollowRelationStatus,
   PagedOffsetBaseSearchUsers,
   PagedCursorBaseSearchUsers,
+  FollowUser,
+  PagedFollowUsers,
 } from '../../../../domain/model/user-read-model';
+import {
+  BasePaginationResponse,
+  CursorPaginatedResponse,
+  PaginatedResponse,
+} from '../../../../../common/dto/pagination-response.dto';
 
 export class ShowUserResDto {
   id: number;
@@ -42,7 +49,26 @@ export class ShowUserResDto {
   }
 }
 
-export class FollowUserResDto {}
+export class ShowFollowUsersResDto extends CursorPaginatedResponse<
+  FollowUser,
+  number
+> {
+  users: FollowUser[];
+  constructor(input: PagedFollowUsers) {
+    super();
+    this.users = input.items;
+    this.limit = input.limit;
+    this.cursor = input.marker;
+    this.hasNext = input.hasNext;
+  }
+}
+
+// export class ShowFollowUsersResDto extends BasePaginationResponse<number> {
+//   users: FollowUser[];
+//   constructor(input: PagedFollowUsers) {
+//     super(input);
+//   }
+// }
 
 export class SearchUsersByOffsetResDto {
   users: UserSummary[];

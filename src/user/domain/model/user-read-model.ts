@@ -62,4 +62,4 @@ export class FollowUser {
   isMutualFollow: boolean;
 }
 
-export type PagedFollowUser = PageResult<FollowUser, number>;
+export type PagedFollowUsers = PageResult<FollowUser, number>;

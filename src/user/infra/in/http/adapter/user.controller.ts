@@ -32,6 +32,7 @@ import {
   GetFollowingQuery,
   SearchUsersQuery,
 } from '../../../../application/query/user.query';
+import { PaginationRequestDto } from '../../../../../common/dto/pagination-request.dto';
 import {
   CreateUserDto,
   SearchUsersReqDto,
@@ -41,6 +42,7 @@ import {
   ShowUserResDto,
   SearchUsersByOffsetResDto,
   SearchUsersByCursorResDto,
+  ShowFollowUsersResDto,
 } from '../dto/user.res';
 
 import {
@@ -129,10 +131,13 @@ export class UserController {
   async testGetFollowers(
     @Param('viewerId') viewerId: number,
     @Param('targetId') targetId: number,
+    @Query() page: PaginationRequestDto<number>,
   ) {
-    return await this._queryBus.execute(
-      new GetFollowerQuery(viewerId, targetId, false),
+    const followers = await this._queryBus.execute(
+      new GetFollowerQuery(viewerId, targetId, false, page.limit, page.cursor),
     );
+
+    return new ShowFollowUsersResDto(followers);
   }
 
   @Get('follower/:id')
@@ -140,20 +145,26 @@ export class UserController {
   async getFollowers(
     @UserId('userId') userId: number,
     @Param('id') targetId: number,
+    @Query() page: PaginationRequestDto<number>,
   ) {
-    return await this._queryBus.execute(
-      new GetFollowerQuery(userId, targetId, false),
+    const followers = await this._queryBus.execute(
+      new GetFollowerQuery(userId, targetId, false, page.limit, page.cursor),
     );
+
+    return new ShowFollowUsersResDto(followers);
   }
 
   @Get('following/:viewerId/:targetId')
   async testGetFollowings(
     @Param('viewerId') viewerId: number,
     @Param('targetId') targetId: number,
+    @Query() page: PaginationRequestDto<number>,
   ) {
-    return await this._queryBus.execute(
-      new GetFollowingQuery(viewerId, targetId, false),
+    const followings = await this._queryBus.execute(
+      new GetFollowingQuery(viewerId, targetId, false, page.limit, page.cursor),
     );
+
+    return new ShowFollowUsersResDto(followings);
   }
 
   @Get('following/:id')
@@ -161,10 +172,13 @@ export class UserController {
   async getFollowings(
     @UserId('userId') userId: number,
     @Param('id') targetId: number,
+    @Query() page: PaginationRequestDto<number>,
   ) {
-    return await this._queryBus.execute(
-      new GetFollowingQuery(userId, targetId, false),
+    const followings = await this._queryBus.execute(
+      new GetFollowingQuery(userId, targetId, false, page.limit, page.cursor),
     );
+
+    return new ShowFollowUsersResDto(followings);
   }
 
   @Patch('follow/:id/:followerId/approve')

@@ -4,13 +4,14 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
 import { Nullable } from 'src/common/type/CommonType';
 
 import { User } from 'src/user/domain/model/user';
 import {
   UserProfile,
-  FollowUser,
   FollowStatus,
+  PagedFollowUsers,
   PagedOffsetBaseSearchUsers,
   PagedCursorBaseSearchUsers,
 } from '../../domain/model/user-read-model';
@@ -51,6 +52,9 @@ import {
   EncryptPort,
 } from 'src/auth/domain/port/out/encrypt.port';
 import { FilePortSymbol, FilePort } from 'src/user/domain/port/out/file.port';
+import { FollowRequestedEvent } from '../../domain/follow-requested.event';
+import { Event } from '../../../common/domain/event';
+import { FollowedEvent } from '../../domain/followed.event';
 
 @Injectable()
 export class UserService
@@ -58,13 +62,14 @@ export class UserService
 {
   constructor(
     @Inject(EncryptPortSymbol)
-    private _encryptPort: EncryptPort,
+    private readonly _encryptPort: EncryptPort,
     @Inject(FilePortSymbol)
-    private _filePort: FilePort,
+    private readonly _filePort: FilePort,
     @Inject(HandleUserPortSymbol)
-    private _handleUserPort: HandleUserPort,
+    private readonly _handleUserPort: HandleUserPort,
     @Inject(LoadUserPortSymbol)
-    private _loadUserPort: LoadUserPort,
+    private readonly _loadUserPort: LoadUserPort,
+    private readonly _eventBus: EventBus,
   ) {}
 
   async createUser(
@@ -139,7 +144,7 @@ export class UserService
     }
   }
 
-  async getFollowers(query: GetFollowerQuery): Promise<FollowUser[]> {
+  async getFollowers(query: GetFollowerQuery): Promise<PagedFollowUsers> {
     if (!query.viewerId || !query.targetId) {
       throw new BadRequestException('잘못된 인자입니다');
     }
@@ -148,11 +153,13 @@ export class UserService
       query.viewerId,
       query.targetId,
       query.onlyApproved,
+      query.limit,
+      query.cursor ?? null,
     );
     return followers;
   }
 
-  async getFollowings(query: GetFollowingQuery): Promise<FollowUser[]> {
+  async getFollowings(query: GetFollowingQuery): Promise<PagedFollowUsers> {
     if (!query.viewerId || !query.targetId) {
       throw new BadRequestException('잘못된 인자입니다');
     }
@@ -161,6 +168,8 @@ export class UserService
       query.viewerId,
       query.targetId,
       query.onlyApproved,
+      query.limit,
+      query.cursor ?? null,
     );
     return followings;
   }
@@ -192,11 +201,44 @@ export class UserService
     if (command.followerId === command.followingId) {
       throw new BadRequestException('팔로워 Id와 팔로잉 Id가 같습니다.');
     }
-    return await this._handleUserPort.saveFollow(
+    const follower = await this._loadUserPort.loadUserAggregateById(
       command.followerId,
+    );
+    const targetUser = await this._loadUserPort.loadUserAggregateById(
       command.followingId,
     );
+    // const isPublic = targetUser?.isPublic ?? false;
+    const isPublic = false;
+    let followerId: number;
+    let event: Event;
+
+    //TODO 공개 계정, 비공개 계정 분기
+    if (isPublic) {
+      followerId = await this._handleUserPort.saveFollow(
+        command.followerId,
+        command.followingId,
+        true,
+      );
+      event = new FollowedEvent(
+        command.followingId,
+        command.followerId,
+        follower.props.nickname.getValue(),
+      );
+    } else {
+      followerId = await this._handleUserPort.saveFollow(
+        command.followerId,
+        command.followingId,
+      );
+      event = new FollowRequestedEvent(
+        command.followingId,
+        command.followerId,
+        follower.props.nickname.getValue(),
+      );
+    }
+    this._eventBus.publish(event);
+    return followerId;
   }
+
   async unfollow(command: UnfollowCommand) {
     const follow = await this._loadUserPort.findFollowRelation(
       command.followerId,
@@ -225,11 +267,24 @@ export class UserService
       throw new BadRequestException('팔로우 요청이 존재하지 않습니다');
     }
 
-    return await this._handleUserPort.saveFollow(
+    const followerId = await this._handleUserPort.saveFollow(
       command.followerId,
       command.followingId,
       true,
     );
+
+    const follower = await this._loadUserPort.loadUserAggregateById(
+      command.followerId,
+    );
+
+    const event = new FollowedEvent(
+      command.followingId,
+      command.followerId,
+      follower.props.nickname.getValue(),
+    );
+    this._eventBus.publish(event);
+
+    return followerId;
   }
 
   async rejectFollow(command: RejectFollowCommand) {
