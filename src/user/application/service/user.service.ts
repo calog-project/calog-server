@@ -18,6 +18,7 @@ import {
 
 import {
   ApproveFollowCommand,
+  CancelFollowRequestCommand,
   PostFollowCommand,
   RejectFollowCommand,
   UnfollowCommand,
@@ -245,11 +246,11 @@ export class UserService
       command.followingId,
     );
     if (!follow) {
-      throw new BadRequestException('팔로워가 존재하지 않습니다.');
+      throw new BadRequestException('팔로우 레코드가 존재하지 않습니다.');
     }
 
     if (follow.status !== FollowStatus.APPROVED) {
-      throw new BadRequestException('승인되지 않은 팔로워입니다.');
+      throw new BadRequestException('승인되지 않은 팔로우입니다.');
     }
 
     return await this._handleUserPort.deleteFollow(
@@ -257,6 +258,26 @@ export class UserService
       command.followingId,
     );
   }
+
+  async cancelFollowRequest(command: CancelFollowRequestCommand) {
+    const follow = await this._loadUserPort.findFollowRelation(
+      command.followerId,
+      command.followingId,
+    );
+    if (!follow) {
+      throw new BadRequestException('팔로우 레코드가 존재하지 않습니다.');
+    }
+
+    if (follow.status === FollowStatus.APPROVED) {
+      throw new BadRequestException('이미 승인된 팔로우입니다.');
+    }
+
+    return await this._handleUserPort.deleteFollow(
+      command.followerId,
+      command.followingId,
+    );
+  }
+
   async approveFollow(command: ApproveFollowCommand) {
     const isExistFollow = await this._loadUserPort.findFollowRelation(
       command.followerId,

@@ -6,6 +6,7 @@ import {
   UnfollowCommand,
   ApproveFollowCommand,
   RejectFollowCommand,
+  CancelFollowRequestCommand,
 } from './user.command';
 import {
   CreateUserUseCaseSymbol,
@@ -47,6 +48,19 @@ export class UnfollowHandler implements ICommandHandler<UnfollowCommand> {
   ) {}
   async execute(command: UnfollowCommand) {
     return await this._followUseCase.unfollow(command);
+  }
+}
+
+@CommandHandler(CancelFollowRequestCommand)
+export class CancelFollowRequestHandler
+  implements ICommandHandler<CancelFollowRequestCommand>
+{
+  constructor(
+    @Inject(FollowUseCaseSymbol)
+    private readonly _followUseCase: FollowUseCase,
+  ) {}
+  async execute(command: CancelFollowRequestCommand) {
+    return await this._followUseCase.cancelFollowRequest(command);
   }
 }
 

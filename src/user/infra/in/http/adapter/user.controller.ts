@@ -25,6 +25,7 @@ import {
   PostFollowCommand,
   RejectFollowCommand,
   UnfollowCommand,
+  CancelFollowRequestCommand,
 } from '../../../../application/command/user.command';
 import {
   GetUserByIdQuery,
@@ -233,6 +234,27 @@ export class UserController {
   @UseGuards(JwtAccessAuthGuard)
   async unfollow(@UserId() userId: number, @Param('id') targetId: number) {
     await this._commandBus.execute(new UnfollowCommand(userId, targetId));
+  }
+
+  @Delete('follow-request/:followerId/:followingId')
+  async testCancelFollowRequest(
+    @Param('followerId') followerId: number,
+    @Param('followingId') followingId: number,
+  ) {
+    await this._commandBus.execute(
+      new CancelFollowRequestCommand(followerId, followingId),
+    );
+  }
+
+  @Delete('follow-request/:id')
+  @UseGuards(JwtAccessAuthGuard)
+  async cancelFollowRequest(
+    @UserId() userId: number,
+    @Param('id') targetId: number,
+  ) {
+    await this._commandBus.execute(
+      new CancelFollowRequestCommand(userId, targetId),
+    );
   }
 
   //------CRUD 기본 그룹------

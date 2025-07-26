@@ -21,6 +21,7 @@ import {
   PostFollowHandler,
   RejectFollowHandler,
   UnfollowHandler,
+  CancelFollowRequestHandler,
 } from './application/command/user.command-handler';
 
 import {
@@ -77,6 +78,7 @@ const handlerProviders = [
   CreateUserHandler,
   PostFollowHandler,
   UnfollowHandler,
+  CancelFollowRequestHandler,
   ApproveFollowHandler,
   RejectFollowHandler,
   GetUserByIdHandler,
