@@ -8,7 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 
-@WebSocketGateway({ namespace: 'notification', cors: true })
+@WebSocketGateway({ cors: true })
 export class NotificationGateway {
   @WebSocketServer()
   server: Server;
@@ -35,9 +35,9 @@ export class NotificationGateway {
     this.server.to(`noti-user-${userId}`).emit('notification', payload);
   }
 
-  @SubscribeMessage('subscribe')
+  @SubscribeMessage('join')
   handleSub(
-    @MessageBody('id') userId: string,
+    @MessageBody('userId') userId: string,
     @ConnectedSocket() client: Socket,
   ) {
     client.join(`noti-user-${userId}`);
@@ -46,7 +46,7 @@ export class NotificationGateway {
 
   @SubscribeMessage('notificationAction')
   handleNotificationAction(
-    @MessageBody('id') userId: string,
+    @MessageBody('userId') userId: string,
     @ConnectedSocket() client: Socket,
   ) {
     this.logger.log('to do action notification');
