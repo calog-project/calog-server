@@ -37,6 +37,7 @@ export class ScheduleUpcomingNotificationCommand {
     public readonly receiverId: number,
     public readonly scheduleId: number,
     public readonly scheduleTitle: string,
+    public readonly scheduleStartTime: Date,
   ) {}
 }
 

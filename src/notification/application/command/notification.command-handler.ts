@@ -114,8 +114,9 @@ export class ScheduleUpcomingNotificationHandler
       meta: {
         scheduleId: command.scheduleId,
         scheduleTitle: command.scheduleTitle,
+        scheduleStartTime: command.scheduleStartTime,
       },
-      message: `${command.scheduleTitle} 일정이 곧 시작됩니다.`,
+      message: `${command.scheduleTitle} 일정이 곧 시작됩니다. (${command.scheduleStartTime})`,
       actionable: false,
     });
   }
