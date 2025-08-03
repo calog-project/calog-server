@@ -1,19 +1,33 @@
 import {
+  OnGatewayInit,
   WebSocketGateway,
   WebSocketServer,
   ConnectedSocket,
   SubscribeMessage,
   MessageBody,
 } from '@nestjs/websockets';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
 import { Server, Socket } from 'socket.io';
+import { createAdapter } from '@socket.io/redis-adapter';
 import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({ cors: true })
-export class NotificationGateway {
+export class NotificationGateway implements OnGatewayInit {
   @WebSocketServer()
   server: Server;
 
   private readonly logger = new Logger(NotificationGateway.name);
+
+  constructor(@InjectRedis() private readonly redis: Redis) {}
+
+  async afterInit() {
+    const pubClient = this.redis;
+    const subClient = pubClient.duplicate();
+
+    this.server.adapter(createAdapter(pubClient, subClient));
+    this.logger.log('Websocket Redis adapter initialized');
+  }
 
   handleConnection(client: Socket) {
     this.server.fetchSockets().then((s) => {
