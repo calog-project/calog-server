@@ -7,6 +7,10 @@ import {
   ScheduleCreatedNotificationCommand,
   FollowedNotificationCommand,
   FollowRequestedNotificationCommand,
+  ScheduleInvitedNotificationCommand,
+  ScheduleUpcomingNotificationCommand,
+  ScheduleSharedNotificationCommand,
+  ScheduleDeletedNotificationCommand,
 } from '../../../../application/command/notification.command';
 
 import { TestCommand } from '../../../../application/command/notification.command-handler';
@@ -45,7 +49,7 @@ export class NotificationController {
       data.followerId,
       data.followerNickname,
     );
-    // await this._commandBus.execute()
+    await this._commandBus.execute(command);
   }
 
   @EventPattern('user.follow-requested')
@@ -54,6 +58,49 @@ export class NotificationController {
       data.receiverId,
       data.followerId,
       data.followerNickname,
+    );
+    await this._commandBus.execute(command);
+  }
+
+  @EventPattern('schedule.invited')
+  async handleScheduleInvitedEvent(data) {
+    const command = new ScheduleInvitedNotificationCommand(
+      data.receiverId,
+      data.scheduleId,
+      data.scheduleTitle,
+      data.inviterId,
+      data.inviterNickname,
+    );
+    await this._commandBus.execute(command);
+  }
+
+  @EventPattern('schedule.upcoming')
+  async handleScheduleUpcomingEvent(data) {
+    const command = new ScheduleUpcomingNotificationCommand(
+      data.receiverId,
+      data.scheduleId,
+      data.scheduleTitle,
+      data.scheduleStartTime,
+    );
+    await this._commandBus.execute(command);
+  }
+
+  @EventPattern('schedule.deleted')
+  async handleScheduleDeletedEvent(data) {
+    const command = new ScheduleDeletedNotificationCommand(
+      data.receiverId,
+      data.scheduleId,
+      data.scheduleTitle,
+    );
+    await this._commandBus.execute(command);
+  }
+
+  @EventPattern('schedule.shared')
+  async handleScheduleSharedEvent(data) {
+    const command = new ScheduleSharedNotificationCommand(
+      data.receiverId,
+      data.scheduleId,
+      data.scheduleTitle,
     );
     await this._commandBus.execute(command);
   }
