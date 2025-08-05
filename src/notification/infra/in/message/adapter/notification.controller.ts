@@ -70,6 +70,7 @@ export class NotificationController {
       data.scheduleTitle,
       data.inviterId,
       data.inviterNickname,
+      data.inviteeIds,
     );
     await this._commandBus.execute(command);
   }
