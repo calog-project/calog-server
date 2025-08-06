@@ -62,8 +62,10 @@ export class ScheduleService
 
   async createSchedule(command: CreateScheduleCommand): Promise<any> {
     const { categoryId, ...scheduleProps } = command;
-    const isExists = await this._loadUserPort.findById(scheduleProps.author);
-    if (!isExists) throw new BadRequestException('존재하지 않은 작성자');
+    const author = await this._loadUserPort.loadUserAggregateById(
+      scheduleProps.author,
+    );
+    if (!author) throw new BadRequestException('존재하지 않은 작성자');
 
     let defaultCategoryId: number | undefined;
 

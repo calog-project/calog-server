@@ -29,6 +29,7 @@ export class ScheduleInvitedNotificationCommand {
     public readonly scheduleTitle: string,
     public readonly inviterId: number,
     public readonly inviterNickname: string,
+    public readonly inviteeIds: number[],
   ) {}
 }
 

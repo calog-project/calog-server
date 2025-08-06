@@ -35,7 +35,10 @@ import {
   UpdateCategoryHandler,
   DeleteCategoryHandler,
 } from './application/command/category.command-handler';
-import { ScheduleCreatedHandler } from './application/event-handler/schedule.event-handler';
+import {
+  ScheduleCreatedHandler,
+  ScheduleInvitedHandler,
+} from './application/event-handler/schedule.event-handler';
 
 import {
   InitCalendarHandler,
@@ -56,6 +59,7 @@ const handlerProvider = [
   UpdateCategoryHandler,
   DeleteCategoryHandler,
   ScheduleCreatedHandler,
+  ScheduleInvitedHandler,
   InitCalendarHandler,
   GetCalendarByPeriodHandler,
   GetScheduleDetailHandler,
