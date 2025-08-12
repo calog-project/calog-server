@@ -1,3 +1,14 @@
+export enum ParticipantStatus {
+  INVITED = 'invited',
+  ACCEPTED = 'accepted',
+  REJECTED = 'rejected',
+}
+
+export enum ParticipantRole {
+  HOST = 'host',
+  GUEST = 'guest',
+}
+
 export class ScheduleReadModel {
   aggregateId: string;
   id: number;
@@ -21,3 +32,7 @@ export class ScheduleSummary {}
 // start: Date;
 // end: Date;
 // categoryId?: number;
+
+export class ScheduleParticipantReadModel {
+  scheduleId: number;
+}
