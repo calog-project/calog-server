@@ -14,7 +14,7 @@ interface ScheduleParticipantProps {
 }
 
 export interface ScheduleParticipantPrimitives {
-  id: string;
+  id?: string;
   scheduleId: number;
   userId: number;
   role: ParticipantRole;
