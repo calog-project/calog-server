@@ -6,8 +6,14 @@ import {
 } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 
-import { Schedule, SchedulePrimitives } from '../../domain/model/schedule';
-import { ScheduleReadModel } from '../../domain/model/schedule-read-model';
+import { Schedule } from '../../domain/model/schedule';
+import { ScheduleParticipant } from '../../domain/model/schedule-participant';
+
+import {
+  ScheduleReadModel,
+  ParticipantRole,
+  ParticipantStatus,
+} from '../../domain/model/schedule-read-model';
 
 import { CreateScheduleUseCase } from 'src/schedule/domain/port/in/create-schedule.usecase';
 import { UpdateScheduleUseCase } from '../../domain/port/in/update-schedule.usecase';
@@ -81,6 +87,27 @@ export class ScheduleService
       categoryId,
       defaultCategoryId,
     );
+
+    const participants: ScheduleParticipant[] = [
+      ScheduleParticipant.create({
+        scheduleId,
+        userId: scheduleProps.author,
+        role: ParticipantRole.HOST,
+        status: ParticipantStatus.ACCEPTED,
+      }),
+    ];
+
+    for (const userId of command.joiner) {
+      const participant = ScheduleParticipant.create({
+        scheduleId,
+        userId,
+        role: ParticipantRole.GUEST,
+        status: ParticipantStatus.INVITED,
+      });
+      participants.push(participant);
+    }
+
+    //save participant
 
     schedule.events.forEach((event) => this._eventBus.publish(event));
     return scheduleId;
