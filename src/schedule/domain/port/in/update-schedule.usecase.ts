@@ -4,4 +4,5 @@ export const UpdateScheduleUseCaseSymbol = Symbol('UpdateScheduleUseCase');
 
 export interface UpdateScheduleUseCase {
   updateSchedule(command: UpdateScheduleCommand): Promise<number>;
+  modifyParticipants(command: UpdateScheduleCommand): Promise<number>;
 }
