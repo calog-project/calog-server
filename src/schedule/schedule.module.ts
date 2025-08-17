@@ -8,6 +8,7 @@ import { CalendarService } from './application/service/calendar.service';
 import { ScheduleService } from './application/service/schedule.service';
 import { CategoryService } from './application/service/category.service';
 import { ScheduleRepositoryAdapter } from './infra/out/persistence/adapter/schedule-repository.adapter';
+import { ScheduleParticipantRepositoryAdapter } from './infra/out/persistence/adapter/schedule-participant-repository.adapter';
 import { CategoryRepositoryAdapter } from './infra/out/persistence/adapter/category-repository.adapter';
 
 import { GetCalendarUseCaseSymbol } from './domain/port/in/get-calendar.usecase';
@@ -22,6 +23,7 @@ import { DeleteCategoryUseCaseSymbol } from './domain/port/in/delete-category.us
 
 import { HandleSchedulePortSymbol } from './domain/port/out/handle-schedule.port';
 import { LoadSchedulePortSymbol } from './domain/port/out/load-schedule.port';
+import { HandleScheduleParticipantPortSymbol } from './domain/port/out/handle-schedule-participant.port';
 import { HandleCategoryPortSymbol } from './domain/port/out/handle-category.port';
 import { LoadCategoryPortSymbol } from './domain/port/out/load-category.port';
 
@@ -75,6 +77,10 @@ const repositoryProvider = [
   {
     provide: LoadSchedulePortSymbol,
     useExisting: ScheduleRepositoryAdapter,
+  },
+  {
+    provide: HandleScheduleParticipantPortSymbol,
+    useExisting: ScheduleParticipantRepositoryAdapter,
   },
   {
     provide: HandleCategoryPortSymbol,
