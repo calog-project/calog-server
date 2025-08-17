@@ -5,6 +5,8 @@ import {
   Index,
   PrimaryColumn,
   ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import {
   ParticipantStatus,
@@ -14,7 +16,7 @@ import { ScheduleEntity } from './schedule.entity';
 import { UserEntity } from '../../../../../user/infra/out/persistence/entity/user.entity';
 
 @Entity('schedule_participant')
-@Unique('uq_schedule_user', ['scheduleId', 'userId'])
+@Unique(['scheduleId', 'userId'])
 export class ScheduleParticipantEntity {
   @PrimaryColumn('uuid') id: string;
 
@@ -34,6 +36,12 @@ export class ScheduleParticipantEntity {
     default: ParticipantStatus.INVITED,
   })
   status: ParticipantStatus;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 
   @ManyToOne(() => ScheduleEntity)
   schedule: ScheduleEntity;
