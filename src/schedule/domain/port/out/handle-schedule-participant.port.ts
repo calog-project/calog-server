@@ -5,11 +5,11 @@ export const HandleScheduleParticipantPortSymbol = Symbol(
 );
 export interface HandleScheduleParticipantPort {
   bulkSave(
-    participants: Omit<ScheduleParticipant, 'id' | 'createdAt' | 'updatedAt'>[],
-  ): Promise<void>;
+    participants: Omit<ScheduleParticipant, 'createdAt' | 'updatedAt'>[],
+  ): Promise<number[]>;
 
   save(
-    participant: Omit<ScheduleParticipant, 'id' | 'createdAt' | 'updatedAt'>,
+    participant: Omit<ScheduleParticipant, 'createdAt' | 'updatedAt'>,
   ): Promise<void>;
 
   // update(
