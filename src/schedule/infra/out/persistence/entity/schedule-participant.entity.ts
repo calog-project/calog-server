@@ -14,6 +14,7 @@ import {
 } from '../../../../domain/model/schedule-read-model';
 import { ScheduleEntity } from './schedule.entity';
 import { UserEntity } from '../../../../../user/infra/out/persistence/entity/user.entity';
+import { CategoryEntity } from './category.entity';
 
 @Entity('schedule_participant')
 @Unique(['scheduleId', 'userId'])
@@ -27,6 +28,9 @@ export class ScheduleParticipantEntity {
   @Column()
   @Index()
   userId: number;
+
+  @Column()
+  categoryId: number;
 
   @Column('enum', { enum: ParticipantRole, default: ParticipantRole.GUEST })
   role: ParticipantRole;
@@ -48,4 +52,7 @@ export class ScheduleParticipantEntity {
 
   @ManyToOne(() => UserEntity)
   user: UserEntity;
+
+  @ManyToOne(() => CategoryEntity)
+  category: CategoryEntity;
 }
