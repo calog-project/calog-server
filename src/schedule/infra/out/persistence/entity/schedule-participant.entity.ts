@@ -18,6 +18,10 @@ import { CategoryEntity } from './category.entity';
 
 @Entity('schedule_participant')
 @Unique(['scheduleId', 'userId'])
+@Index(['userId', 'status'])
+@Index(['userId', 'categoryId', 'status'])
+@Index(['scheduleId', 'status'])
+@Index(['scheduleId', 'categoryId'])
 export class ScheduleParticipantEntity {
   @PrimaryColumn('uuid') id: string;
 
@@ -30,6 +34,7 @@ export class ScheduleParticipantEntity {
   userId: number;
 
   @Column()
+  @Index()
   categoryId: number;
 
   @Column('enum', { enum: ParticipantRole, default: ParticipantRole.GUEST })
