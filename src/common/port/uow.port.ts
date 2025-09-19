@@ -1,5 +1,5 @@
-import { EntityManager } from 'typeorm';
+export const UnitOfWorkPortSymbol = Symbol('UnitOfWorkPort');
 
 export interface UnitOfWorkPort {
-  execute<T>(work: (em: EntityManager) => Promise<T>): Promise<T>;
+  execute<T>(work: (bind: <P>(port: P) => P) => Promise<T>): Promise<T>;
 }
