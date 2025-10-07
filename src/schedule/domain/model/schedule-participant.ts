@@ -7,6 +7,7 @@ interface ScheduleParticipantProps {
   id?: UniqueID;
   scheduleId: number;
   userId: number;
+  categoryId: number;
   role: ParticipantRole;
   status: ParticipantStatus;
   createdAt?: Date;
@@ -17,6 +18,7 @@ export interface ScheduleParticipantPrimitives {
   id?: string;
   scheduleId: number;
   userId: number;
+  categoryId: number;
   role: ParticipantRole;
   status: ParticipantStatus;
   createdAt?: Date;

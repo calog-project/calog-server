@@ -9,6 +9,16 @@ export enum ParticipantRole {
   GUEST = 'guest',
 }
 
+//participant read model
+export class ScheduleParticipantReadModel {
+  userId: number;
+  nickname: string;
+  role: ParticipantRole;
+  status: ParticipantStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export class ScheduleReadModel {
   aggregateId: string;
   id: number;
@@ -16,23 +26,24 @@ export class ScheduleReadModel {
   title: string;
   start: Date;
   end: Date;
-  categoryId?: number;
-  joiner?: number[];
   description?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// @TODO
-export class ScheduleSummary {}
+export class ScheduleFullReadModel {}
+/**
+ * @TODO
+ * 1. 캘린더 상의 일정 모델
+ * 2. 일정 상세의 일정 모델
+ * */
 
+export class ScheduleSummary {}
+// aggregateId: string;
 // id: number;
 // author: number;
 // title: string;
 // start: Date;
 // end: Date;
 // categoryId?: number;
-
-export class ScheduleParticipantReadModel {
-  scheduleId: number;
-}
+// description?: string;

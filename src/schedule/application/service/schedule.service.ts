@@ -45,6 +45,15 @@ import {
   LoadCategoryPortSymbol,
   LoadCategoryPort,
 } from '../../domain/port/out/load-category.port';
+import {
+  HandleScheduleParticipantPortSymbol,
+  HandleScheduleParticipantPort,
+} from '../../domain/port/out/handle-schedule-participant.port';
+import {
+  UnitOfWorkPortSymbol,
+  UnitOfWorkPort,
+} from '../../../common/port/uow.port';
+import { ScheduleInvitedEvent } from '../../domain/schedule-invited.event';
 
 @Injectable()
 export class ScheduleService
@@ -59,58 +68,68 @@ export class ScheduleService
     private readonly _handleSchedulePort: HandleSchedulePort,
     @Inject(LoadSchedulePortSymbol)
     private readonly _loadSchedulePort: LoadSchedulePort,
+    @Inject(HandleScheduleParticipantPortSymbol)
+    private readonly _handleParticipantPort: HandleScheduleParticipantPort,
     @Inject(LoadCategoryPortSymbol)
     private readonly _loadCategoryPort: LoadCategoryPort,
     @Inject(LoadUserPortSymbol)
     private readonly _loadUserPort: LoadUserPort,
+    @Inject(UnitOfWorkPortSymbol)
+    private readonly _unitOfWorkPort: UnitOfWorkPort,
     private readonly _eventBus: EventBus,
   ) {}
 
-  async createSchedule(command: CreateScheduleCommand): Promise<any> {
-    const { categoryId, ...scheduleProps } = command;
+  async createSchedule(command: CreateScheduleCommand): Promise<number> {
+    const { categoryId, joiner, ...scheduleProps } = command;
+
     const author = await this._loadUserPort.loadUserAggregateById(
-      scheduleProps.author,
+      command.author,
     );
     if (!author) throw new BadRequestException('존재하지 않은 작성자');
 
-    let defaultCategoryId: number | undefined;
+    return await this._unitOfWorkPort.execute(async (bind) => {
+      const scheduleAdapter = bind(this._handleSchedulePort);
+      const participantAdapter = bind(this._handleParticipantPort);
 
-    if (scheduleProps.joiner && scheduleProps.joiner.length > 0) {
-      const defaultCategory =
-        await this._loadCategoryPort.findByUserIdAndCategoryName(-1, '공유');
-      defaultCategoryId = defaultCategory.id;
-    }
+      const schedule = Schedule.create({ ...scheduleProps });
+      const scheduleId = await scheduleAdapter.save(schedule);
 
-    const schedule = Schedule.create({ ...scheduleProps });
-    const scheduleId = await this._handleSchedulePort.save(
-      schedule,
-      categoryId,
-      defaultCategoryId,
-    );
+      if (joiner && joiner.length > 0) {
+        const defaultCategory =
+          await this._loadCategoryPort.findByUserIdAndCategoryName(-1, '공유');
 
-    const participants: ScheduleParticipant[] = [
-      ScheduleParticipant.create({
-        scheduleId,
-        userId: scheduleProps.author,
-        role: ParticipantRole.HOST,
-        status: ParticipantStatus.ACCEPTED,
-      }),
-    ];
+        const participants: ScheduleParticipant[] = [
+          ScheduleParticipant.create({
+            scheduleId,
+            userId: command.author,
+            categoryId: categoryId,
+            role: ParticipantRole.HOST,
+            status: ParticipantStatus.ACCEPTED,
+          }),
+          ...joiner.map((userId) =>
+            ScheduleParticipant.create({
+              scheduleId,
+              userId,
+              categoryId: defaultCategory.id,
+              role: ParticipantRole.GUEST,
+              status: ParticipantStatus.INVITED,
+            }),
+          ),
+        ];
 
-    for (const userId of command.joiner) {
-      const participant = ScheduleParticipant.create({
-        scheduleId,
-        userId,
-        role: ParticipantRole.GUEST,
-        status: ParticipantStatus.INVITED,
-      });
-      participants.push(participant);
-    }
+        await participantAdapter.bulkSave(participants);
 
-    //save participant
-
-    schedule.events.forEach((event) => this._eventBus.publish(event));
-    return scheduleId;
+        this._eventBus.publish(
+          new ScheduleInvitedEvent(
+            scheduleId.toString(),
+            command.author,
+            command.title,
+            joiner,
+          ),
+        );
+      }
+      return scheduleId;
+    });
   }
 
   async getScheduleById(
@@ -123,6 +142,7 @@ export class ScheduleService
     if (!schedule) throw new NotFoundException('일정이 존재하지 않습니다.');
     return schedule;
   }
+
   async getScheduleByIds(
     query: GetManyScheduleQuery,
   ): Promise<ScheduleReadModel[]> {
@@ -151,6 +171,11 @@ export class ScheduleService
       command.userId,
       command.categoryId,
     );
+  }
+
+  async modifyParticipants(command: UpdateScheduleCommand): Promise<number> {
+    console.log(command);
+    return 1;
   }
 
   async deleteSchedule(command: DeleteScheduleCommand): Promise<number> {
