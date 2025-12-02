@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetScheduleDetailQuery } from './schedule.query';
-import { SchedulePrimitives } from '../../domain/model/schedule';
+import { ScheduleFullReadModel } from '../../domain/model/schedule-read-model';
 import {
   GetScheduleUseCaseSymbol,
   GetScheduleUseCase,
@@ -15,7 +15,7 @@ export class GetScheduleDetailHandler
     @Inject(GetScheduleUseCaseSymbol)
     private readonly _getScheduleUseCase: GetScheduleUseCase,
   ) {}
-  async execute(query: GetScheduleDetailQuery): Promise<SchedulePrimitives> {
+  async execute(query: GetScheduleDetailQuery): Promise<ScheduleFullReadModel> {
     return await this._getScheduleUseCase.getScheduleById(query);
   }
 }

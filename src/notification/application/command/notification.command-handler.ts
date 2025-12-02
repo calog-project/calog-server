@@ -10,11 +10,15 @@ import {
   ScheduleCreatedNotificationCommand,
   FollowRequestedNotificationCommand,
   FollowedNotificationCommand,
+  ScheduleInvitedNotificationCommand,
+  ScheduleUpcomingNotificationCommand,
+  ScheduleDeletedNotificationCommand,
+  ScheduleSharedNotificationCommand,
 } from './notification.command';
 import { NotificationType } from '../../domain/model/notification-type';
 
 @CommandHandler(SendNotificationCommand)
-export class SendNotificationHandler
+export class SendNotificationHandlerㅈ
   implements ICommandHandler<SendNotificationCommand>
 {
   constructor() {}
@@ -46,7 +50,7 @@ export class FollowedNotificationHandler
       type: NotificationType.FOLLOWED,
       receiverId: command.receiverId,
       meta: { followerId: command.followerId },
-      message: `${command.followerNickname}님이 회원님을 팔로우했습니다.`,
+      message: `${command.followerNickname}님이 회원님을 팔로우하기 시작했습니다.`,
       actionable: false,
     });
   }
@@ -67,6 +71,99 @@ export class FollowRequestedNotificationHandler
       meta: { followerId: command.followerId },
       message: `${command.followerNickname}님이 회원님에게 팔로우요청을 보냈습니다.`,
       actionable: true,
+    });
+  }
+}
+
+@CommandHandler(ScheduleInvitedNotificationCommand)
+export class ScheduleInvitedNotificationHandler
+  implements ICommandHandler<ScheduleInvitedNotificationCommand>
+{
+  constructor(
+    @Inject(CreateNotificationUseCaseSymbol)
+    private readonly _createNotiUseCase: CreateNotificationUseCase,
+  ) {}
+  async execute(command: ScheduleInvitedNotificationCommand): Promise<void> {
+    for (const inviteeId of command.inviteeIds) {
+      await this._createNotiUseCase.notifyToUser({
+        type: NotificationType.SCHEDULE_INVITED,
+        receiverId: inviteeId,
+        meta: {
+          scheduleId: command.scheduleId,
+          scheduleTitle: command.scheduleTitle,
+          inviterId: command.inviterId,
+          inviterNickname: command.inviterNickname,
+        },
+        message: `${command.inviterNickname}님이 회원님을 ${command.scheduleTitle} 일정에 초대했습니다.`,
+        actionable: true,
+      });
+    }
+  }
+}
+
+@CommandHandler(ScheduleUpcomingNotificationCommand)
+export class ScheduleUpcomingNotificationHandler
+  implements ICommandHandler<ScheduleUpcomingNotificationCommand>
+{
+  constructor(
+    @Inject(CreateNotificationUseCaseSymbol)
+    private readonly _createNotiUseCase: CreateNotificationUseCase,
+  ) {}
+  async execute(command: ScheduleUpcomingNotificationCommand): Promise<void> {
+    await this._createNotiUseCase.notifyToUser({
+      type: NotificationType.SCHEDULE_UPCOMING,
+      receiverId: command.receiverId,
+      meta: {
+        scheduleId: command.scheduleId,
+        scheduleTitle: command.scheduleTitle,
+        scheduleStartTime: command.scheduleStartTime,
+      },
+      message: `${command.scheduleTitle} 일정이 곧 시작됩니다. (${command.scheduleStartTime})`,
+      actionable: false,
+    });
+  }
+}
+
+@CommandHandler(ScheduleDeletedNotificationCommand)
+export class ScheduleDeletedNotificationHandler
+  implements ICommandHandler<ScheduleDeletedNotificationCommand>
+{
+  constructor(
+    @Inject(CreateNotificationUseCaseSymbol)
+    private readonly _createNotiUseCase: CreateNotificationUseCase,
+  ) {}
+  async execute(command: ScheduleDeletedNotificationCommand): Promise<void> {
+    await this._createNotiUseCase.notifyToUser({
+      type: NotificationType.SCHEDULE_UPCOMING,
+      receiverId: command.receiverId,
+      meta: {
+        scheduleId: command.scheduleId,
+        scheduleTitle: command.scheduleTitle,
+      },
+      message: `${command.scheduleTitle} 일정이 삭제되었습니다.`,
+      actionable: false,
+    });
+  }
+}
+
+@CommandHandler(ScheduleSharedNotificationCommand)
+export class ScheduleSharedNotificationHandler
+  implements ICommandHandler<ScheduleSharedNotificationCommand>
+{
+  constructor(
+    @Inject(CreateNotificationUseCaseSymbol)
+    private readonly _createNotiUseCase: CreateNotificationUseCase,
+  ) {}
+  async execute(command: ScheduleSharedNotificationCommand): Promise<void> {
+    await this._createNotiUseCase.notifyToUser({
+      type: NotificationType.SCHEDULE_UPCOMING,
+      receiverId: command.receiverId,
+      meta: {
+        scheduleId: command.scheduleId,
+        scheduleTitle: command.scheduleTitle,
+      },
+      message: `${command.scheduleTitle} 일정이 공유되었습니다.`,
+      actionable: false,
     });
   }
 }

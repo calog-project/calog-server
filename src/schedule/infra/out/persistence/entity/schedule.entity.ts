@@ -26,9 +26,6 @@ export class ScheduleEntity {
   @Column('timestamp')
   end: Date;
 
-  @Column('simple-array')
-  joiner: number[];
-
   @Column('varchar', { nullable: true })
   description: string;
 

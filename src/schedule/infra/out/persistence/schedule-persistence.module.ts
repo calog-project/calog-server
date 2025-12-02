@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleEntity } from './entity/schedule.entity';
+import { ScheduleParticipantEntity } from './entity/schedule-participant.entity';
 import { CategoryEntity } from './entity/category.entity';
 import { ScheduleRepositoryAdapter } from './adapter/schedule-repository.adapter';
-import { UserCategoryScheduleEntity } from './entity/user-category-schedule.entity';
+import { ScheduleParticipantRepositoryAdapter } from './adapter/schedule-participant-repository.adapter';
 import { CategoryRepositoryAdapter } from './adapter/category-repository.adapter';
 import { DefaultCategoryInitializeService } from './default-category-initialize.service';
 
@@ -11,15 +12,20 @@ import { DefaultCategoryInitializeService } from './default-category-initialize.
   imports: [
     TypeOrmModule.forFeature([
       ScheduleEntity,
+      ScheduleParticipantEntity,
       CategoryEntity,
-      UserCategoryScheduleEntity,
     ]),
   ],
   providers: [
     DefaultCategoryInitializeService,
     ScheduleRepositoryAdapter,
+    ScheduleParticipantRepositoryAdapter,
     CategoryRepositoryAdapter,
   ],
-  exports: [ScheduleRepositoryAdapter, CategoryRepositoryAdapter],
+  exports: [
+    ScheduleRepositoryAdapter,
+    ScheduleParticipantRepositoryAdapter,
+    CategoryRepositoryAdapter,
+  ],
 })
 export class SchedulePersistenceModule {}

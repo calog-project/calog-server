@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { NotificationPersistenceModule } from './infra/out/persistence/notification-persistence.module';
 
 import { NotificationController } from './infra/in/message/adapter/notification.controller';
-import { NotificationGateway } from './infra/in/socket/websocket.gateway';
+import { NotificationGateway } from '../common/gateway/websocket.gateway';
 import { NotificationService } from './application/service/notification.service';
 import { NotificationRepositoryAdapter } from './infra/out/persistence/adapter/notification-repository.adapter';
 import { WebsocketNotificationAdapter } from './infra/out/sender/adapter/websocket-notification.adapter';

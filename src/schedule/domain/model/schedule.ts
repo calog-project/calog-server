@@ -3,11 +3,14 @@ import { ScheduleCreatedEvent } from '../schedule-created.event';
 import { UniqueID } from '../../../common/domain/unique-id';
 import { Period } from './period';
 import { DomainError } from '../../../common/domain/domain-error';
+import { ScheduleInvitedEvent } from '../schedule-invited.event';
 
 /**
  * @TODO
  *    마지막 수정 이력
  *    카테고리 생성
+ *    일정 조회 수정 Joiner 필드 제거,
+ *
  * */
 interface ScheduleProps {
   aggregateId?: UniqueID;
@@ -15,7 +18,6 @@ interface ScheduleProps {
   author: number;
   title: string;
   period: Period;
-  joiner: number[];
   description?: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -28,7 +30,6 @@ export interface SchedulePrimitives {
   title: string;
   start: Date;
   end: Date;
-  joiner?: number[];
   description?: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -43,33 +44,13 @@ export class Schedule extends AggregateRoot<ScheduleProps> {
     const { start, end, ...otherProps } = props;
     const aggregateId = new UniqueID(props.aggregateId);
     const period = Period.create(new Date(start), new Date(end));
-    const joiner = props.joiner?.length ? props.joiner : [];
-    const schedule = new Schedule({
+    return new Schedule({
       ...otherProps,
       period,
       aggregateId,
-      joiner,
     });
-    if (schedule) {
-      schedule.completeCreate();
-    }
-    return schedule;
   }
 
-  private completeCreate(): void {
-    this.addEvent(
-      new ScheduleCreatedEvent(
-        this.id.toString(),
-        this.props.author,
-        this.props.joiner,
-        this.props.title,
-      ),
-    );
-  }
-
-  //일정 수정
-  //  참여자 수정, 일정 내용 수정, 카테고리 수정
-  //
   changeTitle(title: string): void {
     if (title) this.props.title = title;
   }

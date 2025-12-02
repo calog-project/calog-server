@@ -44,6 +44,7 @@
     "@nestjs/platform-socket.io": "^10.4.15",
     "@nestjs/typeorm": "^10.0.2",
     "@nestjs/websockets": "^10.4.15",
+    "@socket.io/redis-adapter": "^8.3.0",
     "bcrypt": "^5.1.1",
     "cache-manager": "^5.6.1",
     "cache-manager-ioredis": "^2.1.0",

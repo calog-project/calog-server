@@ -7,7 +7,10 @@ import { CategoryController } from './infra/in/http/adapter/category.controller'
 import { CalendarService } from './application/service/calendar.service';
 import { ScheduleService } from './application/service/schedule.service';
 import { CategoryService } from './application/service/category.service';
+
+import { TypeormUowAdapter } from '../common/adapter/typeorm-uow.adapter';
 import { ScheduleRepositoryAdapter } from './infra/out/persistence/adapter/schedule-repository.adapter';
+import { ScheduleParticipantRepositoryAdapter } from './infra/out/persistence/adapter/schedule-participant-repository.adapter';
 import { CategoryRepositoryAdapter } from './infra/out/persistence/adapter/category-repository.adapter';
 
 import { GetCalendarUseCaseSymbol } from './domain/port/in/get-calendar.usecase';
@@ -20,8 +23,11 @@ import { UpdateCategoryUseCaseSymbol } from './domain/port/in/update-category.us
 import { GetCategoryUseCaseSymbol } from './domain/port/in/get-category.usecase';
 import { DeleteCategoryUseCaseSymbol } from './domain/port/in/delete-category.usecase';
 
+import { UnitOfWorkPortSymbol } from '../common/port/uow.port';
 import { HandleSchedulePortSymbol } from './domain/port/out/handle-schedule.port';
 import { LoadSchedulePortSymbol } from './domain/port/out/load-schedule.port';
+import { HandleScheduleParticipantPortSymbol } from './domain/port/out/handle-schedule-participant.port';
+import { LoadScheduleParticipantPortSymbol } from './domain/port/out/load-schedule-participant.port';
 import { HandleCategoryPortSymbol } from './domain/port/out/handle-category.port';
 import { LoadCategoryPortSymbol } from './domain/port/out/load-category.port';
 
@@ -35,7 +41,10 @@ import {
   UpdateCategoryHandler,
   DeleteCategoryHandler,
 } from './application/command/category.command-handler';
-import { ScheduleCreatedHandler } from './application/event-handler/schedule.event-handler';
+import {
+  ScheduleCreatedHandler,
+  ScheduleInvitedHandler,
+} from './application/event-handler/schedule.event-handler';
 
 import {
   InitCalendarHandler,
@@ -48,6 +57,13 @@ import {
 } from './application/query/category.query-handler';
 import { UserModule } from 'src/user/user.module';
 
+const adapterProvider = [
+  {
+    provide: UnitOfWorkPortSymbol,
+    useClass: TypeormUowAdapter,
+  },
+];
+
 const handlerProvider = [
   CreateScheduleHandler,
   UpdateScheduleHandler,
@@ -56,6 +72,7 @@ const handlerProvider = [
   UpdateCategoryHandler,
   DeleteCategoryHandler,
   ScheduleCreatedHandler,
+  ScheduleInvitedHandler,
   InitCalendarHandler,
   GetCalendarByPeriodHandler,
   GetScheduleDetailHandler,
@@ -71,6 +88,14 @@ const repositoryProvider = [
   {
     provide: LoadSchedulePortSymbol,
     useExisting: ScheduleRepositoryAdapter,
+  },
+  {
+    provide: HandleScheduleParticipantPortSymbol,
+    useExisting: ScheduleParticipantRepositoryAdapter,
+  },
+  {
+    provide: LoadScheduleParticipantPortSymbol,
+    useExisting: ScheduleParticipantRepositoryAdapter,
   },
   {
     provide: HandleCategoryPortSymbol,
@@ -118,7 +143,12 @@ const useCaseProvider = [
 @Module({
   imports: [SchedulePersistenceModule, UserModule],
   controllers: [CalendarController, ScheduleController, CategoryController],
-  providers: [...repositoryProvider, ...useCaseProvider, ...handlerProvider],
+  providers: [
+    ...adapterProvider,
+    ...repositoryProvider,
+    ...useCaseProvider,
+    ...handlerProvider,
+  ],
   exports: [
     CreateScheduleUseCaseSymbol,
     GetScheduleUseCaseSymbol,
