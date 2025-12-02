@@ -10,6 +10,7 @@ import { Schedule } from '../../domain/model/schedule';
 import { ScheduleParticipant } from '../../domain/model/schedule-participant';
 
 import {
+  ScheduleFullReadModel,
   ScheduleReadModel,
   ParticipantRole,
   ParticipantStatus,
@@ -50,6 +51,10 @@ import {
   HandleScheduleParticipantPort,
 } from '../../domain/port/out/handle-schedule-participant.port';
 import {
+  LoadScheduleParticipantPortSymbol,
+  LoadScheduleParticipantPort,
+} from '../../domain/port/out/load-schedule-participant.port';
+import {
   UnitOfWorkPortSymbol,
   UnitOfWorkPort,
 } from '../../../common/port/uow.port';
@@ -70,6 +75,8 @@ export class ScheduleService
     private readonly _loadSchedulePort: LoadSchedulePort,
     @Inject(HandleScheduleParticipantPortSymbol)
     private readonly _handleParticipantPort: HandleScheduleParticipantPort,
+    @Inject(LoadScheduleParticipantPortSymbol)
+    private readonly _loadParticipantPort: LoadScheduleParticipantPort,
     @Inject(LoadCategoryPortSymbol)
     private readonly _loadCategoryPort: LoadCategoryPort,
     @Inject(LoadUserPortSymbol)
@@ -134,13 +141,18 @@ export class ScheduleService
 
   async getScheduleById(
     query: GetScheduleDetailQuery,
-  ): Promise<ScheduleReadModel> {
-    const schedule = this._loadSchedulePort.findById(
-      query.scheduleId,
-      query.userId,
-    );
+  ): Promise<ScheduleFullReadModel> {
+    const schedule = await this._loadSchedulePort.findById(query.scheduleId);
     if (!schedule) throw new NotFoundException('일정이 존재하지 않습니다.');
-    return schedule;
+
+    const participants = await this._loadParticipantPort.findByScheduleId(
+      schedule.id,
+    );
+
+    return {
+      schedule,
+      participants,
+    };
   }
 
   async getScheduleByIds(

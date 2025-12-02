@@ -11,6 +11,7 @@ export enum ParticipantRole {
 
 //participant read model
 export class ScheduleParticipantReadModel {
+  categoryId: number;
   userId: number;
   nickname: string;
   role: ParticipantRole;
@@ -31,14 +32,27 @@ export class ScheduleReadModel {
   updatedAt: Date;
 }
 
-export class ScheduleFullReadModel {}
+export class ScheduleFullReadModel {
+  schedule: ScheduleReadModel;
+  participants: ScheduleParticipantReadModel[];
+}
+
 /**
  * @TODO
  * 1. 캘린더 상의 일정 모델
  * 2. 일정 상세의 일정 모델
  * */
 
-export class ScheduleSummary {}
+export class ScheduleSummaryReadModel {
+  id: number;
+  aggregateId: string;
+
+  title: string;
+  start: Date;
+  end: Date;
+
+  categoryId: number;
+}
 // aggregateId: string;
 // id: number;
 // author: number;
@@ -47,3 +61,4 @@ export class ScheduleSummary {}
 // end: Date;
 // categoryId?: number;
 // description?: string;
+// 단체 일정 여부 값 표시

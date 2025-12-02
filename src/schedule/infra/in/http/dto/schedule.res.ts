@@ -1,3 +1,5 @@
+import { ScheduleParticipantReadModel } from '../../../../domain/model/schedule-read-model';
+
 export class ScheduleDetailResDto {
   public readonly aggregateId: string;
   public readonly id: number;
@@ -6,7 +8,7 @@ export class ScheduleDetailResDto {
   public readonly start: string;
   public readonly end: string;
   public readonly categoryId?: number;
-  public readonly joiner?: number[];
+  public readonly joiner?: ScheduleParticipantReadModel[];
   public readonly description?: string;
   public readonly createdAt: string;
   public readonly updatedAt: string;

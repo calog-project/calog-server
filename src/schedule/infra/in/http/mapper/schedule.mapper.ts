@@ -1,5 +1,7 @@
-import { SchedulePrimitives } from '../../../../domain/model/schedule';
-import { ScheduleReadModel } from '../../../../domain/model/schedule-read-model';
+import {
+  ScheduleFullReadModel,
+  ScheduleReadModel,
+} from '../../../../domain/model/schedule-read-model';
 
 import { CreateScheduleDto, UpdateScheduleDto } from '../dto/schedule.req';
 import {
@@ -49,10 +51,10 @@ export class ScheduleMapper {
   //   return new GetScheduleDetailQuery(id);
   // }
 
-  static toDto(view: ScheduleReadModel): ScheduleDetailResDto;
+  static toDto(view: ScheduleFullReadModel): ScheduleDetailResDto;
   static toDto(view: ScheduleReadModel[]): ScheduleSummaryResDto[];
   static toDto(
-    view: ScheduleReadModel | ScheduleReadModel[],
+    view: ScheduleFullReadModel | ScheduleReadModel[],
   ): ScheduleDetailResDto | ScheduleSummaryResDto[] {
     if (Array.isArray(view)) {
       return view.map((schedule) => {
@@ -60,7 +62,7 @@ export class ScheduleMapper {
           ...schedule,
           aggregateId: schedule.aggregateId,
           id: schedule.id,
-          categoryId: schedule.categoryId,
+          categoryId: 0,
           start: DateTimeUtil.toKst(schedule.start),
           end: DateTimeUtil.toKst(schedule.end),
           createdAt: DateTimeUtil.toKst(schedule.createdAt),
@@ -69,14 +71,15 @@ export class ScheduleMapper {
       });
     } else {
       return new ScheduleDetailResDto({
-        ...view,
-        aggregateId: view.aggregateId,
-        id: view.id,
-        categoryId: view.categoryId,
-        start: DateTimeUtil.toKst(view.start),
-        end: DateTimeUtil.toKst(view.end),
-        createdAt: DateTimeUtil.toKst(view.createdAt),
-        updatedAt: DateTimeUtil.toKst(view.updatedAt),
+        ...view.schedule,
+        aggregateId: view.schedule.aggregateId,
+        id: view.schedule.id,
+        categoryId: 0,
+        start: DateTimeUtil.toKst(view.schedule.start),
+        end: DateTimeUtil.toKst(view.schedule.end),
+        createdAt: DateTimeUtil.toKst(view.schedule.createdAt),
+        updatedAt: DateTimeUtil.toKst(view.schedule.updatedAt),
+        joiner: view.participants,
       });
     }
   }

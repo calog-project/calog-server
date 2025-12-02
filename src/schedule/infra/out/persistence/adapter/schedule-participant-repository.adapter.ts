@@ -4,12 +4,14 @@ import { In, Repository } from 'typeorm';
 
 import { ScheduleParticipant } from '../../../../domain/model/schedule-participant';
 import { ScheduleParticipantEntity } from '../entity/schedule-participant.entity';
+import { ScheduleParticipantReadModel } from '../../../../domain/model/schedule-read-model';
 
 import { HandleScheduleParticipantPort } from '../../../../domain/port/out/handle-schedule-participant.port';
+import { LoadScheduleParticipantPort } from '../../../../domain/port/out/load-schedule-participant.port';
 
 @Injectable()
 export class ScheduleParticipantRepositoryAdapter
-  implements HandleScheduleParticipantPort
+  implements HandleScheduleParticipantPort, LoadScheduleParticipantPort
 {
   constructor(
     @InjectRepository(ScheduleParticipantEntity)
@@ -49,4 +51,39 @@ export class ScheduleParticipantRepositoryAdapter
     return newIds;
   }
   async save(): Promise<void> {}
+
+  async findByScheduleId(
+    scheduleId: number,
+  ): Promise<ScheduleParticipantReadModel[]> {
+    const participant = await this._participantRepository
+      .createQueryBuilder('p')
+      .leftJoinAndSelect('user', 'u', 'u.id = p.userId')
+      .where('p.scheduleId = :scheduleId', { scheduleId })
+      .select([
+        'p.categoryId AS category',
+        'p.scheduleId AS scheduleId',
+        'p.userId AS userId',
+        'p.role AS role',
+        'p.status AS status',
+        'p.createdAt AS createdAt',
+        'p.updatedAt AS updatedAt',
+        'u.nickname AS nickname',
+      ])
+      .getRawMany();
+    return participant.map((r) => ({
+      categoryId: r.categoryId,
+      userId: r.userId,
+      nickname: r.nickname,
+      role: r.role,
+      status: r.status,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+    }));
+  }
+
+  async findByUserIds(
+    userId: number[],
+  ): Promise<ScheduleParticipantReadModel[]> {
+    return;
+  }
 }

@@ -27,6 +27,7 @@ import { UnitOfWorkPortSymbol } from '../common/port/uow.port';
 import { HandleSchedulePortSymbol } from './domain/port/out/handle-schedule.port';
 import { LoadSchedulePortSymbol } from './domain/port/out/load-schedule.port';
 import { HandleScheduleParticipantPortSymbol } from './domain/port/out/handle-schedule-participant.port';
+import { LoadScheduleParticipantPortSymbol } from './domain/port/out/load-schedule-participant.port';
 import { HandleCategoryPortSymbol } from './domain/port/out/handle-category.port';
 import { LoadCategoryPortSymbol } from './domain/port/out/load-category.port';
 
@@ -90,6 +91,10 @@ const repositoryProvider = [
   },
   {
     provide: HandleScheduleParticipantPortSymbol,
+    useExisting: ScheduleParticipantRepositoryAdapter,
+  },
+  {
+    provide: LoadScheduleParticipantPortSymbol,
     useExisting: ScheduleParticipantRepositoryAdapter,
   },
   {

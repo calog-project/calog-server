@@ -75,12 +75,9 @@ export class ScheduleRepositoryAdapter
   }
 
   //schedule info
-  async findById(
-    id: number,
-    userId?: number,
-  ): Promise<Nullable<ScheduleReadModel>> {
+  async findById(id: number): Promise<Nullable<ScheduleReadModel>> {
     const schedule = await this._scheduleRepository.findOneBy({ id });
-    return;
+    return schedule ? ScheduleMapper.toReadModel(schedule) : null;
   }
 
   // async findById(
